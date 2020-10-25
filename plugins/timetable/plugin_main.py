@@ -16,8 +16,8 @@ class TimetablePlugin(BybPlugin):
     Plugin implementation. Can do useful things like altering the database or
     almost nothing like this example demonstrates.
     """
-    def __init__(self, server, name):
-        super().__init__(name, server)
+    def __init__(self, name, settings, server):
+        super().__init__(name, settings, server)
 
     def message_from_client(self, data):
         print("timetable plugin has received a message:")

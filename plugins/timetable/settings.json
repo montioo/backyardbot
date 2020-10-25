@@ -1,9 +1,14 @@
 {
-    "html-template": "timetable.html",
-    "css-styles": ["timetable.css"], 
-    "js-scripts": ["timetable.js"],
+    "plugin_main": "plugin_main.py",
+    "class_name": "TimetablePlugin",
+    "html_template": "timetable.html",
+    "css_styles": ["timetable.css"], 
+    "js_scripts": ["timetable.js"],
 
-    "custom-settings": {
-        "setting1": 25
-    }
+    "plugin_settings": {
+        "setting1": 25,
+        "setting2": ["a", "b"]
+    },
+
+    "load_plugin": true
 }

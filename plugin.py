@@ -29,16 +29,16 @@ class BybPluginUIModule(tornado.web.UIModule):
     # TODO: fix the absolute path restriction for js and css
 
     def embedded_css(self):
-        css_files = [os.path.join(self.plugin_dir, f) for f in self.settings["css-styles"]]
+        css_files = [os.path.join(self.plugin_dir, f) for f in self.settings["css_styles"]]
         return None if not css_files else "\n".join([open(css_file).read() for css_file in css_files])
 
     # def css_files(self):
     #     TODO: Would be nice to include files but I can't give absolute paths to the browser.
     #     # this returns the absolute path which doesn't help
-    #     return [os.path.join(self.plugin_dir, f) for f in self.settings["css-styles"]]
+    #     return [os.path.join(self.plugin_dir, f) for f in self.settings["css_styles"]]
 
     def embedded_javascript(self):
-        js_files = [os.path.join(self.plugin_dir, f) for f in self.settings["js-scripts"]]
+        js_files = [os.path.join(self.plugin_dir, f) for f in self.settings["js_scripts"]]
         return None if not js_files else "\n".join([open(js_file).read() for js_file in js_files])
 
     def render(self, parameterization):
@@ -49,7 +49,7 @@ class BybPluginUIModule(tornado.web.UIModule):
         with open(settings_file) as f:
             self.settings = json.load(f)
 
-        html_template = os.path.join(self.plugin_dir, self.settings["html-template"])
+        html_template = os.path.join(self.plugin_dir, self.settings["html_template"])
         return self.render_string(html_template, values=values)
 
 
@@ -62,7 +62,8 @@ class BybPlugin:
     live throughout the lifetime of the server.
     """
 
-    def __init__(self, name, server):
+    def __init__(self, name, settings, server):
+        self._settings = settings
         self._server = server
         self.name = name
 
@@ -89,6 +90,16 @@ class BybPlugin:
             takes care of converting any objects to a json string.
         """
         self._server.send_to_clients(data, self.name)
+
+    def will_shutdown(self):
+        """
+        Called before the plugin's instance is terminated. Might want to do cleanup
+        work or send a message to all remaining frontends.
+        """
+        pass
+
+    def calc_render_data(self):
+        return 5
 
 
     # needs to offer functionality like:

@@ -9,6 +9,7 @@
 
 from plugins.timetable.plugin_main import TimetablePlugin
 from plugin import BybPluginUIModule
+from plugin_manager import PluginManager
 import tornado.web
 import tornado.websocket
 import tornado.ioloop
@@ -36,7 +37,10 @@ class WsHandler(tornado.websocket.WebSocketHandler):
 
         print("got msg", j, "type:", type(message))
         plugin_name = list(j.keys())[0]
-        WsHandler.plugins[plugin_name].message_from_client(j[plugin_name])
+        if plugin_name in WsHandler.plugins:
+            WsHandler.plugins[plugin_name].message_from_client(j[plugin_name])
+        else:
+            print("received message for undefined plugin:", plugin_name)
 
     @classmethod
     def send_updates(cls, data, name):
@@ -48,13 +52,16 @@ class WsHandler(tornado.websocket.WebSocketHandler):
                 print("Error sending a message.")
 
 class IndexHandler(tornado.web.RequestHandler):
+    pluginmanager = None
+
     def get(self):
-        plugin_list = [
-            {
-                "plugin_dir": "/Users/monti/Documents/ProjectsGit/byb-github/plugins/timetable",
-                "values": "hello"  # values to include in the plugins output. The plugins class could be queried to fill this.
-            }
-        ]
+        # plugin_list = [
+        #     {
+        #         "plugin_dir": "/Users/monti/Documents/ProjectsGit/byb-github/plugins/timetable",
+        #         "values": "hello"  # values to include in the plugins output. The plugins class could be queried to fill this.
+        #     }
+        # ]
+        plugin_list = IndexHandler.pluginmanager.calc_uimodule_parameter_list()
         self.render("index.html", plugins=plugin_list)
 
 class Application(tornado.web.Application):
@@ -84,12 +91,13 @@ def load_plugins():
 
 def main():
     ds = DummyServer()
-    timetablePlugin = TimetablePlugin(ds, "TimetablePlugin")
-    WsHandler.plugins["a"] = timetablePlugin  # more of a proof of concept
-    ui_modules = {"BybPluginUIModule": BybPluginUIModule}
-    # TODO: building something like this should be done with a plugin manager
+    pluginManager = PluginManager("plugins", ds)
+    IndexHandler.pluginmanager = pluginManager
+    # timetablePlugin = TimetablePlugin(ds, "TimetablePlugin")
+    WsHandler.plugins = pluginManager.get_plugin_dict()
 
-    app = Application(ui_modules)
+    ui_module = {"BybPluginUIModule": BybPluginUIModule}
+    app = Application(ui_module)
     app.listen(8888)
 
     # use this to run other functions that are awaitable
