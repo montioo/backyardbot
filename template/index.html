@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>byb core utils</title>
+    <script src="{{ static_url('byb.js') }}" type="text/javascript"></script>
+    <link rel="stylesheet" href="{{ static_url('byb.css') }}">
+  </head>
+
+  <body>
+
+    <h1>byb core utils</h1>
+    <br>
+    below you will find a plugin.
+
+    <div class="plugin_view">
+      {% comment Can I use a function that will include all of the plugins here? %}
+      {% module TimetablePlugin() %}
+    </div>
+  </body>
+</html>

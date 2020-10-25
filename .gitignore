@@ -1,0 +1,7 @@
+# .gitignore for backyardbot repo
+
+# ignore macOS folder display preferences
+.DS_Store
+
+# don't add Python cache
+__pycache__

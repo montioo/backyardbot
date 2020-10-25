@@ -1,0 +1,9 @@
+{
+    "html-template": "timetable.html",
+    "css-styles": ["timetable.css"], 
+    "js-scripts": ["timetable.js"],
+
+    "custom-settings": {
+        "setting1": 25
+    }
+}
