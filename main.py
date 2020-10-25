@@ -8,16 +8,13 @@
 #
 
 from plugins.timetable.plugin_main import TimetablePlugin
+from plugin import BybPluginUIModule
 import tornado.web
 import tornado.websocket
 import tornado.ioloop
 import os
 import json
 
-
-class IndexHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.render("index.html")
 
 class WsHandler(tornado.websocket.WebSocketHandler):
     client_list = set()
@@ -50,6 +47,16 @@ class WsHandler(tornado.websocket.WebSocketHandler):
             except:
                 print("Error sending a message.")
 
+class IndexHandler(tornado.web.RequestHandler):
+    def get(self):
+        plugin_list = [
+            {
+                "plugin_dir": "/Users/monti/Documents/ProjectsGit/byb-github/plugins/timetable",
+                "values": "hello"  # values to include in the plugins output. The plugins class could be queried to fill this.
+            }
+        ]
+        self.render("index.html", plugins=plugin_list)
+
 class Application(tornado.web.Application):
     def __init__(self, ui_modules):
         handlers = [
@@ -79,7 +86,7 @@ def main():
     ds = DummyServer()
     timetablePlugin = TimetablePlugin(ds, "TimetablePlugin")
     WsHandler.plugins["a"] = timetablePlugin  # more of a proof of concept
-    ui_modules = {"TimetablePlugin": timetablePlugin.ui_module}
+    ui_modules = {"BybPluginUIModule": BybPluginUIModule}
     # TODO: building something like this should be done with a plugin manager
 
     app = Application(ui_modules)

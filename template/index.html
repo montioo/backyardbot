@@ -13,9 +13,9 @@
     <br>
     below you will find a plugin.
 
-    <div class="plugin_view">
-      {% comment Can I use a function that will include all of the plugins here? %}
-      {% module TimetablePlugin() %}
-    </div>
+    {% comment This will initialize all given plugins. %}
+    {% for plugin in plugins %}
+      {% module BybPluginUIModule(plugin) %}
+    {% end %}
   </body>
 </html>
