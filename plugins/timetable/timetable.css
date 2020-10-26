@@ -1,4 +1,60 @@
 
-h1 {
-    color: rgb(21, 58, 0);
+
+/* namespace or something similar for plugins? ttpl > h2 */
+
+h2 {
+  padding-left: 30px;
+}
+
+.plugin_view {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+table {
+  padding-top: 10px;
+  width: 100%;
+}
+
+table tr {
+  position: relative;
+
+  height: 35px;
+  background: #eee;
+  font-size: 18px;
+  transition: 0.2s;
+
+  /* make the list items unselectable */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+td {
+  width:31%;
+}
+
+.td_remove {
+  width:7%;
+}
+
+.tv_day {
+  background: #d9d9d9;
+}
+
+.tv_header {
+  text-align:center;
+  vertical-align:middle;
+  font-weight: bold;
+}
+
+.tv_elem {
+  cursor: pointer;
+  text-align:center;
+  vertical-align:middle;
+}
+
+.tv_elem:hover {
+    background: #ddd;
 }

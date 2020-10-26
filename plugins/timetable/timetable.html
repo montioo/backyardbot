@@ -1,8 +1,28 @@
 
 <div class="plugin_view">
-  <h1>plugin header</h1>
-  <br>
-  {{ values }}
+
+  {% comment This is the recommended way to get the plugin's name to the js implementation %}
+  <div id="timetable_plugin_name" style="display: none;">{{ plugin_name }}</div>
+
+  <h2>Plugin: {{ plugin_name }}</h2>
+
+  Shows the scheduled watering tasks.
+
+  <table>
+    <tr>
+      <th class="tv_header">Time</th>
+      <th class="tv_header">Channel</th>
+      <th class="tv_header">Duration</th>
+    </tr>
+    {% for row in values %}
+      <tr>
+        <td class="td tv_elem">{{ row["time"] }}</td>
+        <td class="td tv_elem">{{ row["channel"] }}</td>
+        <td class="td tv_elem">{{ row["duration"]//60 }}</td>
+        <td class="td_remove tv_elem">x</td>
+      </tr>
+    {% end %}
+  </table>
   <br>
   <div id="plugin_empty_field"></div>
 </div>

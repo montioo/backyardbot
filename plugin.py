@@ -39,18 +39,20 @@ class BybPluginUIModule(tornado.web.UIModule):
 
     def embedded_javascript(self):
         js_files = [os.path.join(self.plugin_dir, f) for f in self.settings["js_scripts"]]
+        # TODO: Put all scripts into a namespace with a variable name that holds the plugin's name?
         return None if not js_files else "\n".join([open(js_file).read() for js_file in js_files])
 
     def render(self, parameterization):
         """ Keep it like this or subclass to apply options to the render_string method. """
         values = parameterization["values"]
+        plugin_name = parameterization["plugin_name"]
         self.plugin_dir = parameterization["plugin_dir"]
         settings_file = os.path.join(self.plugin_dir, "settings.json")
         with open(settings_file) as f:
             self.settings = json.load(f)
 
         html_template = os.path.join(self.plugin_dir, self.settings["html_template"])
-        return self.render_string(html_template, values=values)
+        return self.render_string(html_template, values=values, plugin_name=plugin_name)
 
 
 class BybPlugin:
@@ -74,7 +76,7 @@ class BybPlugin:
         Parameters
         ----------
         data: dict
-            The messages are sent as strings over websocket but the server takes care 
+            The messages are sent as strings over websocket but the server takes care
             of parsing the json strings into dicts before handing them over to plugins.
         """
         raise NotImplementedError("message_from_client is not implemented.")
@@ -99,8 +101,4 @@ class BybPlugin:
         pass
 
     def calc_render_data(self):
-        return 5
-
-
-    # needs to offer functionality like:
-    # update_all_clients: will send a message to all plugin frontends
+        return None

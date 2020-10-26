@@ -7,7 +7,6 @@
 # montebaur.tech, github.com/montioo
 #
 
-from plugins.timetable.plugin_main import TimetablePlugin
 from plugin import BybPluginUIModule
 from plugin_manager import PluginManager
 import tornado.web
@@ -19,6 +18,7 @@ import json
 
 class WsHandler(tornado.websocket.WebSocketHandler):
     client_list = set()
+    # TODO: Store the clients at some other place.
     plugins = {}
 
     def open(self):
@@ -52,15 +52,10 @@ class WsHandler(tornado.websocket.WebSocketHandler):
                 print("Error sending a message.")
 
 class IndexHandler(tornado.web.RequestHandler):
+    # TODO: Move this to another place
     pluginmanager = None
 
     def get(self):
-        # plugin_list = [
-        #     {
-        #         "plugin_dir": "/Users/monti/Documents/ProjectsGit/byb-github/plugins/timetable",
-        #         "values": "hello"  # values to include in the plugins output. The plugins class could be queried to fill this.
-        #     }
-        # ]
         plugin_list = IndexHandler.pluginmanager.calc_uimodule_parameter_list()
         self.render("index.html", plugins=plugin_list)
 
@@ -73,7 +68,8 @@ class Application(tornado.web.Application):
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__), "template"),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
-            ui_modules=ui_modules
+            ui_modules=ui_modules,
+            debug=True  # no caching, etc.
         )
         super().__init__(handlers, **settings)
 
@@ -82,18 +78,19 @@ class DummyServer:
         WsHandler.send_updates(data, name)
 
 
-def load_plugins():
-    # look at all plugins in plugins/ dir
-    # either load all of them
-    # or use config file to load plugins
-    # but still: then I would need a global config file and a config file for each plugin?
-    pass
+class Byb:
+    # TODO: e.g. like this:
+    plugins = {}
+    pluginmanager = {}
+
+    def __init__(self):
+        pass
+
 
 def main():
     ds = DummyServer()
     pluginManager = PluginManager("plugins", ds)
     IndexHandler.pluginmanager = pluginManager
-    # timetablePlugin = TimetablePlugin(ds, "TimetablePlugin")
     WsHandler.plugins = pluginManager.get_plugin_dict()
 
     ui_module = {"BybPluginUIModule": BybPluginUIModule}

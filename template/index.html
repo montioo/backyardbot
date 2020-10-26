@@ -9,13 +9,36 @@
 
   <body>
 
-    <h1>byb core utils</h1>
-    <br>
-    below you will find a plugin.
+    <div class="upper_page_container">
 
-    {% comment This will initialize all given plugins. %}
-    {% for plugin in plugins %}
-      {% module BybPluginUIModule(plugin) %}
-    {% end %}
+      <header class="info_elem">
+        <h1>Backyardbot</h1>
+      </header>
+
+    </div>
+
+    <div class="upper_page_container">
+
+      <div class="left_box info_elem">
+
+        {% comment This will initialize all given plugins. %}
+        {% for plugin in plugins %}
+          <div class="plugin_tab">
+            {% module BybPluginUIModule(plugin) %}
+          </div>
+        {% end %}
+
+      </div>
+
+      <div class="right_box">
+
+        <div class="right_box_elem info_elem">
+          Box contents
+        </div>
+
+      </div>
+
+    </div>
+
   </body>
 </html>
