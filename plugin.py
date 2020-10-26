@@ -29,6 +29,9 @@ class BybPluginUIModule(tornado.web.UIModule):
     """
     # TODO: fix the absolute path restriction for js and css
 
+    # TODO: make the parameterization include lists of **all** css and js files
+    #   that all plugins need as they will only be included once per UIModule.
+
     def __init__(self, handler):
         super().__init__(handler)
         self.instance_uuid = str(uuid.uuid4())
