@@ -30,7 +30,7 @@ class PluginManager:
         """ Takes the path to a plugin and collects information about this plugin. """
         def __init__(self, plugin_settings_path):
             """ Loads a plugin and stores info on its location but will not instantiate it yet."""
-            self.plugin_name = plugin_settings_path.rsplit("/")[-2]
+            self.plugin_name = plugin_settings_path.split("/")[-2]
             self.settings = json.load(open(plugin_settings_path))
             plugin_class_name = self.settings["class_name"]
             self.plugin_dir = os.path.dirname(plugin_settings_path)

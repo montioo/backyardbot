@@ -19,16 +19,18 @@
 
     <div class="upper_page_container">
 
-      <div class="left_box info_elem">
 
-        {% comment This will initialize all given plugins. %}
-        {% for plugin in plugins %}
+      {% comment This will initialize all given plugins. %}
+      {% for plugin in plugins %}
+        <div class="left_box info_elem">
           <div class="plugin_tab">
-            {% module BybPluginUIModule(plugin) %}
+            <div class="plugin_view">
+              {% module BybPluginUIModule(plugin) %}
+            </div>
           </div>
-        {% end %}
+        </div>
+      {% end %}
 
-      </div>
 
       <div class="right_box">
 

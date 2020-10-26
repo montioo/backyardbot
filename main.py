@@ -29,22 +29,40 @@ class WsHandler(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         try:
-            j = json.loads(message)
+            data_dict = json.loads(message)
         except Exception as e:
             print("error parsing message:", message)
             print(e)
             return
 
-        print("got msg", j, "type:", type(message))
-        plugin_name = list(j.keys())[0]
+        plugin_name = data_dict["plugin_name"]
+        payload = data_dict["payload"]
+
+        ### debug code
+        if plugin_name == "debug":
+            message_destination = data_dict["message_destination"]
+            receiving_plugin = data_dict["receiving_plugin"]
+            if message_destination == "to_client":
+                WsHandler.send_updates(payload, receiving_plugin)
+                return
+            elif message_destination == "to_server":
+                plugin_name = receiving_plugin
+            else:
+                raise Exception("no such destination:", message_destination)
+        ### end debug code
+
         if plugin_name in WsHandler.plugins:
-            WsHandler.plugins[plugin_name].message_from_client(j[plugin_name])
+            WsHandler.plugins[plugin_name].message_from_client(payload)
         else:
-            print("received message for undefined plugin:", plugin_name)
+            print("Received message for unknown plugin:", plugin_name)
 
     @classmethod
     def send_updates(cls, data, name):
-        d = json.dumps({name: data})
+        d = json.dumps({
+            "plugin_name": name,
+            "payload": data
+        })
+
         for client in cls.client_list:
             try:
                 client.write_message(d)

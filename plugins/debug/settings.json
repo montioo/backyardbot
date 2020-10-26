@@ -1,0 +1,9 @@
+{
+    "plugin_main": "debug_plugin.py",
+    "class_name": "DebugPlugin",
+    "html_template": "debug.html",
+    "css_styles": ["debug.css"],
+    "js_scripts": ["debug.js"],
+
+    "load_plugin": true
+}

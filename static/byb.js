@@ -19,6 +19,7 @@ class BybConnection {
         this.plugins = {};
 
         this.ws.onmessage = function(event) {
+            console.log("BybConnection received data:");
             console.log(event.data);
         }
     }
@@ -40,4 +41,4 @@ class BybConnection {
     }
 }
 
-bc = new BybConnection();
+var bc = new BybConnection();

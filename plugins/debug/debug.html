@@ -1,0 +1,35 @@
+
+{% comment This is the recommended way to get the plugin's name to the js implementation %}
+<div id="debug_plugin_name" style="display: none;">{{ plugin_name }}</div>
+
+<h2>Plugin: {{ plugin_name }}</h2>
+
+<div class="dbp_box_row">
+  plugin_name: "debug"
+  <!-- input type="text" id="dbp_textfield_plugin_name" -->
+</div>
+
+<div class="dbp_box_row">
+  payload:
+  <div class="dbp_textarea_wrapper">
+    <textarea id="dbp_textarea_payload" class="dbp_debug_input_textarea" wrap="hard"></textarea>
+  </div>
+</div>
+
+<div class="dbp_box_row">
+  receiving_plugin:
+  <input type="text" id="dbp_textfield_receiving_plugin">
+</div>
+
+<div class="dbp_box_row">
+  message_destination:
+  <select id="dbp_select_target">
+    <option value="to_server">send to server</option>
+    <option value="to_client">send to client</option>
+  </select>
+</div>
+
+<div class="dbp_box_row">
+  <button onclick="dbp.send_json()">Send JSON</button>
+</div>
+

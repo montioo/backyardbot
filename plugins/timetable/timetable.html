@@ -1,28 +1,25 @@
 
-<div class="plugin_view">
+{% comment This is the recommended way to get the plugin's name to the js implementation %}
+<div id="timetable_plugin_name" style="display: none;">{{ plugin_name }}</div>
 
-  {% comment This is the recommended way to get the plugin's name to the js implementation %}
-  <div id="timetable_plugin_name" style="display: none;">{{ plugin_name }}</div>
+<h2>Plugin: {{ plugin_name }}</h2>
 
-  <h2>Plugin: {{ plugin_name }}</h2>
+Shows the scheduled watering tasks.
 
-  Shows the scheduled watering tasks.
-
-  <table>
+<table id="ttp_table">
+  <tr>
+    <th class="tv_header">Time</th>
+    <th class="tv_header">Channel</th>
+    <th class="tv_header">Duration</th>
+  </tr>
+  {% for row in values %}
     <tr>
-      <th class="tv_header">Time</th>
-      <th class="tv_header">Channel</th>
-      <th class="tv_header">Duration</th>
+      <td class="tv_elem">{{ row["time"] }}</td>
+      <td class="tv_elem">{{ row["channel"] }}</td>
+      <td class="tv_elem">{{ row["duration"]//60 }}</td>
+      <td class="td_remove tv_elem">x</td>
     </tr>
-    {% for row in values %}
-      <tr>
-        <td class="td tv_elem">{{ row["time"] }}</td>
-        <td class="td tv_elem">{{ row["channel"] }}</td>
-        <td class="td tv_elem">{{ row["duration"]//60 }}</td>
-        <td class="td_remove tv_elem">x</td>
-      </tr>
-    {% end %}
-  </table>
-  <br>
-  <div id="plugin_empty_field"></div>
-</div>
+  {% end %}
+</table>
+<br>
+<div id="plugin_empty_field"></div>
