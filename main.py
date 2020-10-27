@@ -51,6 +51,7 @@ class WsHandler(tornado.websocket.WebSocketHandler):
                 raise Exception("no such destination:", message_destination)
         ### end debug code
 
+        print(WsHandler.plugins)
         if plugin_name in WsHandler.plugins:
             WsHandler.plugins[plugin_name].message_from_client(payload)
         else:
@@ -74,14 +75,29 @@ class IndexHandler(tornado.web.RequestHandler):
     pluginmanager = None
 
     def get(self):
-        plugin_list = IndexHandler.pluginmanager.calc_uimodule_parameter_list()
-        self.render("index.html", plugins=plugin_list)
+        # plugin_list = IndexHandler.pluginmanager.calc_uimodule_parameter_list()
+        plugin_configs, css_filelist, js_filelist = IndexHandler.pluginmanager.calc_uimodule_parameter_list()
+        self.render("index.html", plugins=plugin_configs, css_filelist=css_filelist, js_filelist=js_filelist)
+
+
+class DeepStaticFileHandler(tornado.web.StaticFileHandler):
+    """ Subclass of the tornado.web.StaticFileHander which also serves files multiple directories deep. """
+    # TODO: Override initialize(..) to not need the static path. Get it from global config file.
+    #  https://www.tornadoweb.org/en/stable/_modules/tornado/web.html#StaticFileHandler
+
+    def get(self, *args, **kwargs):
+        uri = self.request.uri[1:]
+        # TODO: Only serve file if it was specified in a plugin's settings.json
+        filepath = os.path.join(os.path.abspath("."), uri)
+        return super().get(filepath)
+
 
 class Application(tornado.web.Application):
     def __init__(self, ui_modules):
         handlers = [
             (r"/", IndexHandler),
-            (r"/websocket", WsHandler)
+            (r"/websocket", WsHandler),
+            (r"/plugins/(.*)/(.*)\.(css|js)", DeepStaticFileHandler, {"path": "/Users/monti/Documents/ProjectsGit/byb-github"})
         ]
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__), "template"),

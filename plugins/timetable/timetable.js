@@ -1,6 +1,6 @@
 
-const el = document.getElementById("plugin_empty_field");
-el.innerHTML = "js was here";
+// const el = document.getElementById("plugin_empty_field");
+// el.innerHTML = "js was here";
 
 
 class TimetablePlugin extends BybPluginInterface {
@@ -8,15 +8,14 @@ class TimetablePlugin extends BybPluginInterface {
     constructor() {
         super();
         this.name = document.getElementById("timetable_plugin_name").innerHTML;
-    }
+        console.log("constructor of", this.name);
 
-    get name() {
-        return this.name;
+        bybConnection.register_plugin(this);
     }
 
     receive_data(data) {
         const table = document.getElementById("ttp_table");
-        for (element of data) {
+        for (var element of data) {
             const table_row = this.create_table_row(element);
             table.appendChild(table_row);
         }
@@ -24,7 +23,7 @@ class TimetablePlugin extends BybPluginInterface {
 
     create_table_row(row_data) {
         const row_node = document.createElement("tr");
-        for (attr of ["time", "channel", "duration"]) {
+        for (var attr of ["time", "channel", "duration"]) {
             const cell = document.createElement("td");
             cell.className = "tv_elem";
             cell.appendChild(document.createTextNode(row_data[attr]));
@@ -37,3 +36,6 @@ class TimetablePlugin extends BybPluginInterface {
         return row_node;
     }
 }
+
+
+const tt_plugin = new TimetablePlugin();

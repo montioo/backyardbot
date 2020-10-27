@@ -32,39 +32,38 @@ class BybPluginUIModule(tornado.web.UIModule):
     # TODO: make the parameterization include lists of **all** css and js files
     #   that all plugins need as they will only be included once per UIModule.
 
-    def __init__(self, handler):
-        super().__init__(handler)
-        self.instance_uuid = str(uuid.uuid4())
-        print("instantiated", self.instance_uuid)
+    # def embedded_css(self):
+    #     # css_files = [os.path.join(self.plugin_dir, f) for f in self.settings["css_styles"]]
+    #     return None if not self.css_filelist else "\n".join([open(css_file).read() for css_file in self.css_filelist])
 
-    def embedded_css(self):
-        print("css for", self.instance_uuid)
-        css_files = [os.path.join(self.plugin_dir, f) for f in self.settings["css_styles"]]
-        return None if not css_files else "\n".join([open(css_file).read() for css_file in css_files])
+    def css_files(self):
+        # TODO: Would be nice to include files but I can't give absolute paths to the browser.
+        # this returns the absolute path which doesn't help
+        ln = len("/Users/monti/Documents/ProjectsGit/byb-github")
+        return [cssf[ln:] for cssf in self.css_filelist]
 
-    # def css_files(self):
-    #     TODO: Would be nice to include files but I can't give absolute paths to the browser.
-    #     # this returns the absolute path which doesn't help
-    #     return [os.path.join(self.plugin_dir, f) for f in self.settings["css_styles"]]
+    # def embedded_javascript(self):
+    #     # js_files = [os.path.join(self.plugin_dir, f) for f in self.settings["js_scripts"]]
+    #     # TODO: Put all scripts into a namespace with a variable name that holds the plugin's name?
+    #     # return None if not js_files else "\n".join([open(js_file).read() for js_file in js_files])
+    #     return None if not self.js_filelist else "\n".join([open(js_file).read() for js_file in self.js_filelist])
 
-    def embedded_javascript(self):
-        print("js for", self.instance_uuid)
-        js_files = [os.path.join(self.plugin_dir, f) for f in self.settings["js_scripts"]]
-        # TODO: Put all scripts into a namespace with a variable name that holds the plugin's name?
-        return None if not js_files else "\n".join([open(js_file).read() for js_file in js_files])
+    def javascript_files(self):
+        # **don't** use this path with trailing slash. Then the shortened js files will not have a
+        #  leading space which will cause tornado to do annoying things (i.e. not work).
+        # TODO: Removing the leading part of the directory can be done in the plugin manager.
+        ln = len("/Users/monti/Documents/ProjectsGit/byb-github")
+        return [jsf[ln:] for jsf in self.js_filelist]
 
-    def render(self, parameterization):
+    def render(self, plugin_info, css_filelist, js_filelist):
         """ Keep it like this or subclass to apply options to the render_string method. """
-        print(self.instance_uuid)
-        values = parameterization["values"]
-        plugin_name = parameterization["plugin_name"]
-        self.plugin_dir = parameterization["plugin_dir"]
-        settings_file = os.path.join(self.plugin_dir, "settings.json")
-        with open(settings_file) as f:
-            self.settings = json.load(f)
+        self.css_filelist = css_filelist
+        self.js_filelist = js_filelist
+        values = plugin_info["values"]
+        plugin_name = plugin_info["plugin_name"]
+        html_template_path = plugin_info["html_template_path"]
 
-        html_template = os.path.join(self.plugin_dir, self.settings["html_template"])
-        return self.render_string(html_template, values=values, plugin_name=plugin_name)
+        return self.render_string(html_template_path, values=values, plugin_name=plugin_name)
 
 
 class BybPlugin:

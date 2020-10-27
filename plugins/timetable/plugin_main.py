@@ -22,7 +22,7 @@ class TimetablePlugin(BybPlugin):
     def message_from_client(self, data):
         print("timetable plugin has received a message:")
         print(data)
-        self.send_to_clients({"value": 24})
+        self.send_to_clients({"value": "this is the timetable speaking"})
 
 
     ### demo / debug

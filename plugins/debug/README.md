@@ -18,3 +18,4 @@ As for usual plugins, it has the fields `plugin_name` and `payload` which hold t
 
 The debug plugin has the ability to send messages to whichever plugin it likes. As the server recognizes the plugin name *debug*, it will start to process another two parameters: `message_destination` and `receiving_plugin`. The latter determines the name of the plugin that will receive this message. The parameters `message_destination` indicates whether the server's backend should forward the message to a plugin's front- or backend. It can have the values `to_client` and `to_server`.
 
+
