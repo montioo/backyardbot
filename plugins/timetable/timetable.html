@@ -30,10 +30,10 @@ Shows the scheduled watering tasks.
     <div class="overlay_box">
       <div class="overlay_elem">
         Starting time:
-        <input type="time" id="appt" name="appt" min="00:00" max="23:59" required>
+        <input type="time" class="time_picker" id="ttp_time_input_field" onchange="time_changed(this)">
       </div>
 
-      <div class="selector_conti">
+      <div class="selector_row" id="ttp_day_selector">
         <div class="selector_box" onclick="clicked_selector(this)">Mon</div>
         <div class="selector_box" onclick="clicked_selector(this)">Tue</div>
         <div class="selector_box" onclick="clicked_selector(this)">Wed</div>
@@ -43,7 +43,7 @@ Shows the scheduled watering tasks.
         <div class="selector_box" onclick="clicked_selector(this)">Sun</div>
       </div>
 
-      <div class="selector_conti">
+      <div class="selector_row" id="ttp_channel_selector">
           <div class="selector_box" onclick="clicked_selector(this)">1</div>
           <div class="selector_box" onclick="clicked_selector(this)">2</div>
           <div class="selector_box" onclick="clicked_selector(this)">3</div>
@@ -51,18 +51,15 @@ Shows the scheduled watering tasks.
       </div>
 
       <div class="overlay_elem">
-        Duration:<br>
-        <input id="dauer_new_tt_elem" type="number" min="1" max="20" step="1" value="5"> <div id="overlay_time_unit_disp">Minuten</div>
+        Duration:
+        <input id="ppt_duration_input_field" class="time_picker" placeholder="2" type="number" min="1" max="20" step="1">
+        Minutes
       </div>
 
     </div>
     <div class="overlay_box">
-      <div class="overlay_elem">
-        <span onclick="create_tt_element_string()" class="addBtn">Add</span>
-      </div>
-      <div class="overlay_elem">
-        <span onclick="exit_overlay()" class="addBtn">Cancel</span>
-      </div>
+      <button onclick="off()">Add</button>
+      <button onclick="off()">Cancel</button>
     </div>
 
   </div>

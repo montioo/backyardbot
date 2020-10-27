@@ -54,7 +54,7 @@
 }
 */
 
-.selector_conti {
+.selector_row {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -64,18 +64,15 @@
   margin-bottom: 20px;
 }
 
-.selector_conti::after {
+.selector_row::after {
   content: "";
   clear: both;
   display: table;
 }
 
-.selector_center {
-  margin: auto;
-}
+/* should be able to unify some of those: */
 
 .selector_box {
-  background-color: #e2e2e2;
   width: 55px;
   height: 25px;
   float: left;
@@ -86,6 +83,7 @@
   justify-content: center;
   align-items: center;
 
+  background-color: #e2e2e2;
   border: 4px solid transparent;
   color: #424242;
 }
@@ -101,8 +99,17 @@
   color: #000000;
 }
 
+.time_picker {
+  background-color: #e2e2e2;
+  border: 4px solid transparent;
+  font-size: 16px;
+  height: 25px;
+  color: #424242;
+}
 
-.selector_bordered {
-  clear: both;
-  border: 1px solid red;
+.time_picker_filled {
+  background-color: #FFFFFF;
+  border: 4px solid #108f21;
+  border-radius: 4px;
+  color: #000000;
 }

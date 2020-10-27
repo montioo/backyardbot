@@ -23,4 +23,14 @@ function toggle_class_list(element, class_name) {
     return true;
 }
 
+function time_changed(sender) {
+    console.log(sender.value);
+    const valid_class = "time_picker_filled";
+    if (sender.value.length == 0) {
+        sender.classList.remove(valid_class);
+        return;
+    }
+    sender.classList.add(valid_class);
+}
+
 console.log("test");
