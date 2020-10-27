@@ -38,6 +38,9 @@ td {
 .td_remove {
   width:7%;
 }
+.td_remove:hover {
+    background: #ddd;
+}
 
 .tv_day {
   background: #d9d9d9;
@@ -53,8 +56,4 @@ td {
   cursor: pointer;
   text-align:center;
   vertical-align:middle;
-}
-
-.tv_elem:hover {
-    background: #ddd;
 }

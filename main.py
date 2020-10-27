@@ -112,13 +112,25 @@ class DummyServer:
         WsHandler.send_updates(data, name)
 
 
-class Byb:
+class Backyardbot:
     # TODO: e.g. like this:
     plugins = {}
     pluginmanager = {}
 
     def __init__(self):
         pass
+
+    @classmethod
+    def get_database(cls):
+        return None
+
+    @classmethod
+    def get_plugin_dict(cls):
+        return cls.plugins.copy()
+
+    @classmethod
+    def get_eventmanager(cls):
+        return None
 
 
 def main():

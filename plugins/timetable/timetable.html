@@ -13,13 +13,65 @@ Shows the scheduled watering tasks.
     <th class="tv_header">Duration</th>
   </tr>
   {% for row in values %}
-    <tr>
-      <td class="tv_elem">{{ row["time"] }}</td>
-      <td class="tv_elem">{{ row["channel"] }}</td>
-      <td class="tv_elem">{{ row["duration"]//60 }}</td>
-      <td class="td_remove tv_elem">x</td>
-    </tr>
+  <tr>
+    <td class="tv_elem">{{ row["time"] }}</td>
+    <td class="tv_elem">{{ row["channel"] }}</td>
+    <td class="tv_elem">{{ row["duration"]//60 }}</td>
+    <td class="td_remove tv_elem" onclick="tt_plugin.delete_row(this);">x</td>
+  </tr>
   {% end %}
 </table>
-<br>
+
+
+<div id="overlay">
+  <div class="info_elem_hover">
+    {% comment Use localization to make this customizable %}
+    <h3>Create new Task</h3>
+    <div class="overlay_box">
+      <div class="overlay_elem">
+        Starting time:
+        <input type="time" id="appt" name="appt" min="00:00" max="23:59" required>
+      </div>
+      <div class="overlay_elem">
+        Days:<br>
+        <div class="chbx_e">Mon:<input type="checkbox" name="tt_day" value="0">,</div>
+        <div class="chbx_e">Tue:<input type="checkbox" name="tt_day" value="1">,</div>
+        <div class="chbx_e">Wed:<input type="checkbox" name="tt_day" value="2">,</div>
+        <div class="chbx_e">Thu:<input type="checkbox" name="tt_day" value="3">,</div>
+        <div class="chbx_e">Fri:<input type="checkbox" name="tt_day" value="4">,</div>
+        <div class="chbx_e">Sat:<input type="checkbox" name="tt_day" value="5">,</div>
+        <div class="chbx_e">Sun:<input type="checkbox" name="tt_day" value="6"></div>
+      </div>
+      <div class="overlay_elem">
+        Channel:<br>
+        <div class="chbx_e">1:<input type="checkbox" name="tt_channel" value="1">,</div>
+        <div class="chbx_e">2:<input type="checkbox" name="tt_channel" value="2">,</div>
+        <div class="chbx_e">3:<input type="checkbox" name="tt_channel" value="3">,</div>
+        <div class="chbx_e">4:<input type="checkbox" name="tt_channel" value="4"></div>
+      </div>
+      <div class="overlay_elem">
+        Duration:<br>
+        <input id="dauer_new_tt_elem" type="number" min="1" max="20" step="1" value="5"> <div id="overlay_time_unit_disp">Minuten</div>
+      </div>
+
+    </div>
+    <div class="overlay_box">
+      <div class="overlay_elem">
+        <span onclick="create_tt_element_string()" class="addBtn">Add</span>
+      </div>
+      <div class="overlay_elem">
+        <span onclick="exit_overlay()" class="addBtn">Cancel</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div style="padding:20px">
+  <h2>Overlay with Text</h2>
+  <button onclick="on()">Turn on overlay effect</button>
+</div>
+
+
 <div id="plugin_empty_field"></div>
