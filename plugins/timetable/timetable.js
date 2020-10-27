@@ -52,7 +52,6 @@ class TimetablePlugin extends BybPluginInterface {
         console.log(row_tr_obj);
         console.log(this.name);
     }
-
 }
 
 

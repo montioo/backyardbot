@@ -1,7 +1,7 @@
 
 #overlay {
   position: fixed;
-  display: none;
+  display: block;
   width: 100%;
   height: 100%;
   top: 0;
@@ -11,11 +11,6 @@
   background-color: rgba(0,0,0,0.5);
   z-index: 2;
   cursor: pointer;
-}
-
-#text{
-  font-size: 50px;
-  color: black;
 }
 
 .info_elem_hover {
@@ -29,6 +24,12 @@
   left: 50%;
   transform: translate(-50%,-50%);
   -ms-transform: translate(-50%,-50%);
+}
+
+/*
+#text{
+  font-size: 50px;
+  color: black;
 }
 
 .overlay_box {
@@ -49,7 +50,59 @@
 
 .chbx_elem {
   float: left;
-  /* checkbox element to avoid line breaks */
-  /* overflow: hidden;
-  white-space: nowrap; */
+  white-space: nowrap;
+}
+*/
+
+.selector_conti {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 10px auto;
+
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.selector_conti::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.selector_center {
+  margin: auto;
+}
+
+.selector_box {
+  background-color: #e2e2e2;
+  width: 55px;
+  height: 25px;
+  float: left;
+  margin-left: 4px;
+  margin-right: 4px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: 4px solid transparent;
+  color: #424242;
+}
+
+.selector_box:hover {
+  background-color: #cacaca;
+}
+
+.selector_box_selected {
+  background-color: #FFFFFF;
+  border: 4px solid #108f21;
+  border-radius: 4px;
+  color: #000000;
+}
+
+
+.selector_bordered {
+  clear: both;
+  border: 1px solid red;
 }

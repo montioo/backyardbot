@@ -32,23 +32,24 @@ Shows the scheduled watering tasks.
         Starting time:
         <input type="time" id="appt" name="appt" min="00:00" max="23:59" required>
       </div>
-      <div class="overlay_elem">
-        Days:<br>
-        <div class="chbx_e">Mon:<input type="checkbox" name="tt_day" value="0">,</div>
-        <div class="chbx_e">Tue:<input type="checkbox" name="tt_day" value="1">,</div>
-        <div class="chbx_e">Wed:<input type="checkbox" name="tt_day" value="2">,</div>
-        <div class="chbx_e">Thu:<input type="checkbox" name="tt_day" value="3">,</div>
-        <div class="chbx_e">Fri:<input type="checkbox" name="tt_day" value="4">,</div>
-        <div class="chbx_e">Sat:<input type="checkbox" name="tt_day" value="5">,</div>
-        <div class="chbx_e">Sun:<input type="checkbox" name="tt_day" value="6"></div>
+
+      <div class="selector_conti">
+        <div class="selector_box" onclick="clicked_selector(this)">Mon</div>
+        <div class="selector_box" onclick="clicked_selector(this)">Tue</div>
+        <div class="selector_box" onclick="clicked_selector(this)">Wed</div>
+        <div class="selector_box" onclick="clicked_selector(this)">Thu</div>
+        <div class="selector_box" onclick="clicked_selector(this)">Fri</div>
+        <div class="selector_box" onclick="clicked_selector(this)">Sat</div>
+        <div class="selector_box" onclick="clicked_selector(this)">Sun</div>
       </div>
-      <div class="overlay_elem">
-        Channel:<br>
-        <div class="chbx_e">1:<input type="checkbox" name="tt_channel" value="1">,</div>
-        <div class="chbx_e">2:<input type="checkbox" name="tt_channel" value="2">,</div>
-        <div class="chbx_e">3:<input type="checkbox" name="tt_channel" value="3">,</div>
-        <div class="chbx_e">4:<input type="checkbox" name="tt_channel" value="4"></div>
+
+      <div class="selector_conti">
+          <div class="selector_box" onclick="clicked_selector(this)">1</div>
+          <div class="selector_box" onclick="clicked_selector(this)">2</div>
+          <div class="selector_box" onclick="clicked_selector(this)">3</div>
+          <div class="selector_box" onclick="clicked_selector(this)">4</div>
       </div>
+
       <div class="overlay_elem">
         Duration:<br>
         <input id="dauer_new_tt_elem" type="number" min="1" max="20" step="1" value="5"> <div id="overlay_time_unit_disp">Minuten</div>
