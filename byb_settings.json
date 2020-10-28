@@ -1,0 +1,24 @@
+{
+    "server": {
+        "ip": "localhost",
+        "port": 8888
+    },
+
+    "general": {
+        "log_file": "byb.log",
+        "log_format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "log_to_stream": true,
+        "log_to_file": true
+    },
+
+    "application": {
+        "plugin_directory": "plugins/",
+        "static_web_files": "static/",
+        "template_web_files": "template/"
+    },
+
+    "database_tables": {
+        "time_schedule": "time_schedule_table",
+        "sprinkler_info": "sprinkler_info_table",
+    }
+}

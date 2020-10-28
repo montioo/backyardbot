@@ -100,8 +100,10 @@ class Application(tornado.web.Application):
             (r"/plugins/(.*)/(.*)\.(css|js)", DeepStaticFileHandler, {"path": "/Users/monti/Documents/ProjectsGit/byb-github"})
         ]
         settings = dict(
-            template_path=os.path.join(os.path.dirname(__file__), "template"),
-            static_path=os.path.join(os.path.dirname(__file__), "static"),
+            # template_path=os.path.join(os.path.dirname(__file__), "../template"),
+            # static_path=os.path.join(os.path.dirname(__file__), "../static"),
+            template_path=os.path.join("/Users/monti/Documents/ProjectsGit/byb-github/template"),
+            static_path=os.path.join("/Users/monti/Documents/ProjectsGit/byb-github/static"),
             ui_modules=ui_modules,
             debug=True  # no caching, etc.
         )
@@ -135,7 +137,7 @@ class Backyardbot:
 
 def main():
     ds = DummyServer()
-    pluginManager = PluginManager("plugins", ds)
+    pluginManager = PluginManager("/Users/monti/Documents/ProjectsGit/byb-github/plugins", ds)
     IndexHandler.pluginmanager = pluginManager
     WsHandler.plugins = pluginManager.get_plugin_dict()
 

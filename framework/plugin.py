@@ -78,6 +78,7 @@ class BybPlugin:
     def __init__(self, name, settings, server):
         self._settings = settings
         self._server = server
+        # self.messaging = server.messaging
         self.name = name
 
     def message_from_client(self, data):
@@ -113,3 +114,11 @@ class BybPlugin:
 
     def calc_render_data(self):
         return None
+
+
+    # TODO: Message handling for topics.
+    # Have every plugin run an event loop. Sending a message over a topic will then only
+    # consist of putting the message into a plugin's message buffer.
+    # The end of the plugin's init method would then need to run code similar to
+    # rosnode spin: Keep node alive and check for updates at a certain interval.
+

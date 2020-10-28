@@ -31,6 +31,7 @@ class PluginManager:
 
     class PluginLoader:
         """ Takes the path to a plugin and collects information about this plugin. """
+
         def __init__(self, plugin_settings_path):
             """ Loads a plugin and stores info on its location but will not instantiate it yet."""
             # TODO: Clean up, this surely is not all needed anymore...
@@ -69,6 +70,7 @@ class PluginManager:
             }
             return (dynamic_info, self.plugin_info.css_filepath_list, self.plugin_info.js_filepath_list)
 
+
     def __init__(self, plugin_folder, server):
         self._plugin_path = os.path.realpath(plugin_folder)
         plugin_dirs = glob.glob(os.path.join(self._plugin_path, "*", "settings.json"))
@@ -106,6 +108,3 @@ class PluginManager:
             all_js_files += js_filepath_list
 
         return (plugin_individual_configs, all_css_files, all_js_files)
-
-
-
