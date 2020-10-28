@@ -34,10 +34,13 @@ class TimetablePlugin(BybPlugin):
         """
 
         # TODO: Would prefer async execution for all DB related things
-        return [
-            {"time": "15:00", "channel": 3, "duration": 560, "day": 7},
-            {"time": "19:00", "channel": 1, "duration": 120, "day": 0}
-        ]
+        return {
+            "channels": [1, 2, 3, 4, 5],
+            "timetable": [
+                {"time": "15:00", "channel": 3, "duration": 560, "day": 7},
+                {"time": "19:00", "channel": 1, "duration": 120, "day": 0}
+            ]
+        }
 
     def calc_render_data(self):
         # Not sure if I will use this. Seems like double the work.

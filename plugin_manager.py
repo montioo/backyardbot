@@ -56,7 +56,7 @@ class PluginManager:
                 os.path.join(self.plugin_dir, js_file) for js_file in self.settings.get("js_scripts", [])]
             self.plugin_info = PluginInfo(html_template_path, css_filepath_list, js_filepath_list)
 
-            self.PluginInstance = None
+            self.pluginInstance = None
 
         def get_plugin_settings(self):
             return self.settings.get("plugin_settings", None)
@@ -65,7 +65,7 @@ class PluginManager:
             dynamic_info = {
                 "html_template_path": self.plugin_info.html_template_path,
                 "plugin_name": self.plugin_name,
-                "values": self.PluginInstance.calc_render_data()
+                "values": self.pluginInstance.calc_render_data()
             }
             return (dynamic_info, self.plugin_info.css_filepath_list, self.plugin_info.js_filepath_list)
 
@@ -79,8 +79,8 @@ class PluginManager:
             name, pluginClass = loader.plugin_name, loader.PluginClass
             settings = loader.get_plugin_settings()
             # self.plugin_dict[name] = pluginClass(name, settings, server)
-            loader.PluginInstance = pluginClass(name, settings, server)
-            self.plugin_dict[name] = loader.PluginInstance
+            loader.pluginInstance = pluginClass(name, settings, server)
+            self.plugin_dict[name] = loader.pluginInstance
 
     def get_plugin_dict(self):
         return self.plugin_dict

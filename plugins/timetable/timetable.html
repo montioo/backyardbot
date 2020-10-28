@@ -12,7 +12,7 @@ Shows the scheduled watering tasks.
     <th class="tv_header">Channel</th>
     <th class="tv_header">Duration</th>
   </tr>
-  {% for row in values %}
+  {% for row in values["timetable"] %}
   <tr>
     <td class="tv_elem">{{ row["time"] }}</td>
     <td class="tv_elem">{{ row["channel"] }}</td>
@@ -22,54 +22,54 @@ Shows the scheduled watering tasks.
   {% end %}
 </table>
 
+<div class="selector_row" id="ttp_day_selector">
+  <button onclick="tt_plugin.show_overlay()">Add Element</button>
+</div>
 
-<div id="overlay">
-  <div class="info_elem_hover">
-    {% comment Use localization to make this customizable %}
+
+<div id="ttp_new_element_overlay" class="overlay_black_background">
+  <div class="overlay">
+
+    {% comment TODO: Use localization to make this customizable %}
+
     <h3>Create new Task</h3>
-    <div class="overlay_box">
-      <div class="overlay_elem">
-        Starting time:
-        <input type="time" class="time_picker" id="ttp_time_input_field" onchange="time_changed(this)">
-      </div>
 
-      <div class="selector_row" id="ttp_day_selector">
-        <div class="selector_box" onclick="clicked_selector(this)">Mon</div>
-        <div class="selector_box" onclick="clicked_selector(this)">Tue</div>
-        <div class="selector_box" onclick="clicked_selector(this)">Wed</div>
-        <div class="selector_box" onclick="clicked_selector(this)">Thu</div>
-        <div class="selector_box" onclick="clicked_selector(this)">Fri</div>
-        <div class="selector_box" onclick="clicked_selector(this)">Sat</div>
-        <div class="selector_box" onclick="clicked_selector(this)">Sun</div>
-      </div>
-
-      <div class="selector_row" id="ttp_channel_selector">
-          <div class="selector_box" onclick="clicked_selector(this)">1</div>
-          <div class="selector_box" onclick="clicked_selector(this)">2</div>
-          <div class="selector_box" onclick="clicked_selector(this)">3</div>
-          <div class="selector_box" onclick="clicked_selector(this)">4</div>
-      </div>
-
-      <div class="overlay_elem">
-        Duration:
-        <input id="ppt_duration_input_field" class="time_picker" placeholder="2" type="number" min="1" max="20" step="1">
-        Minutes
-      </div>
-
+    <div class="selector_row" id="ttp_time_selector">
+      Starting time:
+      <input type="time" class="time_picker" id="ttp_time_input_field" onchange="time_changed(this)">
     </div>
-    <div class="overlay_box">
-      <button onclick="off()">Add</button>
-      <button onclick="off()">Cancel</button>
+
+    {% comment TODO: Localization with static amount of weekdays or generate them in a loop. %}
+    <div class="selector_row" id="ttp_day_selector">
+      <div class="selector_box" onclick="clicked_selector(this)">Mon</div>
+      <div class="selector_box" onclick="clicked_selector(this)">Tue</div>
+      <div class="selector_box" onclick="clicked_selector(this)">Wed</div>
+      <div class="selector_box" onclick="clicked_selector(this)">Thu</div>
+      <div class="selector_box" onclick="clicked_selector(this)">Fri</div>
+      <div class="selector_box" onclick="clicked_selector(this)">Sat</div>
+      <div class="selector_box" onclick="clicked_selector(this)">Sun</div>
+    </div>
+
+    <div class="selector_row" id="ttp_channel_selector">
+      {% for channel in values["channels"] %}
+        <div class="selector_box" onclick="clicked_selector(this)">{{ channel }}</div>
+      {% end %}
+    </div>
+
+    <div class="selector_row">
+      Duration:
+      <input id="ppt_duration_input_field" class="time_picker" placeholder="2" type="number" min="1" max="20" step="1" style="width: 60px;">
+      Minutes
+    </div>
+
+    <div class="selector_row" style="display: none;">
+      Error message here
+    </div>
+
+    <div class="selector_row">
+      <button onclick="tt_plugin.new_element_overlay()">Add</button>
+      <button onclick="hide_overlay('ttp_new_element_overlay')">Cancel</button>
     </div>
 
   </div>
-
 </div>
-
-<div style="padding:20px">
-  <h2>Overlay with Text</h2>
-  <button onclick="on()">Turn on overlay effect</button>
-</div>
-
-
-<div id="plugin_empty_field"></div>

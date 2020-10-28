@@ -1,10 +1,10 @@
 
-function on() {
-    document.getElementById("overlay").style.display = "block";
+function show_overlay(overlay_id) {
+    document.getElementById(overlay_id).style.display = "block";
 }
 
-function off() {
-    document.getElementById("overlay").style.display = "none";
+function hide_overlay(overlay_id) {
+    document.getElementById(overlay_id).style.display = "none";
 }
 
 function clicked_selector(sender) {

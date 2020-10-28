@@ -9,6 +9,7 @@ class TimetablePlugin extends BybPluginInterface {
         super();
         this.name = document.getElementById("timetable_plugin_name").innerHTML;
         console.log("constructor of", this.name);
+        this.overlay_id = "ttp_new_element_overlay";
 
         bybConnection.register_plugin(this);
     }
@@ -52,28 +53,19 @@ class TimetablePlugin extends BybPluginInterface {
         console.log(row_tr_obj);
         console.log(this.name);
     }
-}
 
+    show_overlay() {
+        show_overlay(this.overlay_id);
+    }
 
-// fills a select element with numbers of a given range
-function build_selector (start, end, selected, append_to_str) {
-    var append_to_elem = document.getElementById(append_to_str);
-    var i;
-    for (i = start; i <= end; i++)  {
-        var option = document.createElement("option");
-        var text = "";
-        if (i <= 9) {
-            text = "0"+i;
-        } else {
-            text = i;
-        }
-        if (i == selected) {
-            option.setAttribute("selected", "selected");
-        }
-        option.setAttribute("value", text);
-        option.innerHTML = text;
-        append_to_elem.appendChild(option);
+    remove_overlay(sender) {
+        // console.log(sender);
+        // console.log(sender.id);
+        // console.log("-----------");
+        show_overlay(this.overlay_id);
     }
 }
 
+
 const tt_plugin = new TimetablePlugin();
+
