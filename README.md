@@ -48,7 +48,7 @@ In general: #*Zones* >= #*Actuators*
 
 ### Time Schedule - `time_schedule_table`:
 
-```json
+```js
 [
     {
         "time_hh": Int,
@@ -64,10 +64,40 @@ In general: #*Zones* >= #*Actuators*
 
 ### Watering Zones - `sprinkler_info_table`:
 
-```json
+For the most part, the numbers of actuators and zones match. If no zones are defined, the system will assume that this is the case and associate each actuator with an equally named zone.
+Public for all of the system are the zones
+The zones are public for all components of the system and available in the `sprinkler_info_table`. The underlying mapping from *Zone X should be watered* -> *This means Actuator Y has to be triggered* -> *Actuator Y is connected to gpio Z and controlled in this and that way* is done by the Actuator plugin and of no interest to the rest of the system.
+
+The Actuation plugin will take care of zones and actuators. There is one configuration that is global and highlights the structure of all available actuators and on top of that, the actuation module holds a private configuration which includes information like the GPIO pin to which an actuator is attached.
+
+```js
+// Zones:
 [
     {
-
+        "zone_id": Int,
+        "zone_name": str
     }
 ]
+```
+
+
+This is an example of the data that the actuator plugin might hold.
+```js
+"actuators":
+    [
+        {
+            "actuator_name": str,
+            "python_class": str,   // not sure if this is the best way (class name)
+            "managed_zones": [Int],
+            "zone_specific_parameters": {
+                "channel_count": Int,
+                "cooldown_duration": Int,
+                "use_dummy_gpio": Bool,
+                "gpio_pin": Int,
+                "run_watering_thread": Bool,
+                "channel_state_file": str
+            }
+
+        }
+    ]
 ```
