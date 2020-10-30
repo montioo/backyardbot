@@ -1,5 +1,5 @@
 #
-# try_jinja2.py
+# jinja2_plugin_sys.py
 # backyardbot
 #
 # Created: October 2020
@@ -10,15 +10,17 @@
 """
 Requirements:
 
-- Include templates from subfolders and have their contents
+- [x] Include templates from subfolders and have their contents
     generated from python scripts.
     => yes, this also works. Atm need to generate a new template for
     this. Maybe there is a cleaner solution.
-- Include additional files (css and js) from arbitrary folders.
+- [x] Include additional files (css and js) from arbitrary folders.
     => as long as the relative template path is accessible by
     the webserver, this works.
-- Don't be a pain in the ass
+- [x] Don't be a pain in the ass
     => so far, it isn't
+
+- [ ] How to integrate this with aiohttp?
 """
 
 from jinja2 import Template
@@ -63,8 +65,11 @@ p3 = Plugin("p3", 3)
 
 """
 Central question:
-- How to best determine a plugins position? This has
+- [x] How to best determine a plugin's position? This has
     to be hardcoded in the html template, I guess.
+    => Template sets the positions for plugins but there
+    is also a variable that contains a list of activated
+    plugins that weren't used elsewhere in the code.
 """
 
 main_template_str = """
@@ -151,9 +156,8 @@ class Renderer2(Renderer):
         html_template = Template(main_template_str)
         return html_template.render(template_dict)
 
-r = Renderer2([p1, p2, p3])
 
-print(r.render())
+if __name__ == "__main__":
+    r = Renderer2([p1, p2, p3])
 
-
-
+    print(r.render())
