@@ -12,6 +12,12 @@ function int_list_to_string(int_list) {
     return s.slice(0, s.length - 2);
 }
 
+function toStringZeroPadding(n, digit_count) {
+    var s = n.toString();
+    while (s.length < digit_count) s = "0" + s;
+    return s;
+}
+
 
 class TimetablePlugin extends BybPluginInterface {
 
@@ -28,11 +34,32 @@ class TimetablePlugin extends BybPluginInterface {
         const table = document.getElementById("ttp_table");
         const tbody = table.getElementsByTagName("tbody")[0];
         // TODO: Do not delete the header
-        tbody.innerHTML = "";  // remove all children.
+        // clear table (but keep header)
+        while (tbody.children.length > 1) {
+            tbody.removeChild(tbody.lastChild);
+        }
+
+        var last_weekday = -1;
         for (var element of data) {
+            if (element.weekday != last_weekday) {
+                tbody.appendChild(this.create_table_divider(element.weekday.toString()))
+                last_weekday = element.weekday;
+            }
             const table_row = this.create_table_row(element);
             tbody.appendChild(table_row);
         }
+    }
+
+    create_table_divider(weekday_str) {
+        var tr = document.createElement("tr");
+
+        var td = document.createElement("td");
+        td.setAttribute("colspan", "4");
+        td.style.paddingLeft = "20px";
+        td.innerHTML = weekday_str;
+        tr.appendChild(td);
+        tr.className = "tv_day";
+        return tr;
     }
 
     create_table_row(row_data) {
@@ -40,16 +67,17 @@ class TimetablePlugin extends BybPluginInterface {
         //     "time_hh": Int,
         //     "time_mm": Int,
         //     "duration": Int,    // seconds
-        //     "weekdays": [Int],  // Mon = 0, ...
+        //     "weekday": Int,     // Mon = 0, ...  <=!! only a scalar
         //     "zones": [Int],     // watering zones
         //     "doc_id": Int       // unique id from DB
+        // The frontend receives table data with only a scalar for the weekday for better visualization.
 
-        // TODO: Add table header and dividers
+        // TODO: Only show if it's not 0 and the same for sec.
         const row_vals = [
-            row_data["time_hh"].toString() + ":" + row_data["time_mm"].toString(),
+            toStringZeroPadding(row_data["time_hh"], 2) + ":" + toStringZeroPadding(row_data["time_mm"], 2),
             int_list_to_string(row_data["zones"]),
-            Math.floor(row_data["duration"]/60).toString() + ":" + (row_data["duration"]%60).toString(),
-            "x"
+            Math.floor(row_data["duration"]/60).toString() + "min, " + (row_data["duration"]%60).toString() + "sec",
+            "\u00D7"  // unicode multiplication sign
         ];
 
         // TODO: Add data-id attribute to identify the table row with the database.
@@ -92,11 +120,19 @@ class TimetablePlugin extends BybPluginInterface {
     }
 
     overlay_add_pressed() {
-        const entry = this.parse_from_overlay();
+        // row_data: Dict with elements:
+        //     "time_hh": Int,
+        //     "time_mm": Int,
+        //     "duration": Int,    // seconds
+        //     "weekday": Int,     // Mon = 0, ...
+        //     "zones": [Int],     // watering zones
+        //     "doc_id": Int       // unique id from DB
+
+        const entries = this.parse_from_overlay();
 
         // This is the new element that will be added to the DB.
         // After adding this, the server will broadcast the updated DB to all clients.
-        const cmd = { add_entry: entry };
+        const cmd = { add_entries: entries };
 
         bybConnection.send_to_backend(cmd, this);
     }
@@ -146,7 +182,28 @@ class TimetablePlugin extends BybPluginInterface {
         entry_data["duration"] = 60*duration_mins + duration_secs;
 
         hide_overlay(this.overlay_id);
-        return entry_data;
+
+        var weekdays_list = [];
+        // split entries: create an entry for each weekday
+        if (entry_data["weekdays"].length == 7) {
+            // water at all days
+            weekdays_list.push(7);
+        } else {
+            weekdays_list = entry_data["weekdays"];
+        }
+
+        var entries = [];
+        for (var day_id of weekdays_list) {
+            entries.push({
+                time_hh: entry_data["time_hh"],
+                time_mm: entry_data["time_mm"],
+                weekday: day_id,
+                zones: entry_data["zones"],
+                duration: entry_data["duration"]
+            })
+        }
+
+        return entries;
     }
 
     overlay_error_visible(is_visible) {

@@ -1,15 +1,17 @@
 
 {# This is the recommended way to get the plugin's name to the js implementation #}
 <div id="timetable_plugin_name" style="display: none;">{{ plugin_name }}</div>
+<div id="timetable_plugin_localization" style="display: none;">
+</div>
 
 <h2>Plugin: {{ plugin_name }}</h2>
 
-Shows the scheduled watering tasks.
+The following watering tasks are scheduled:
 
 <table id="ttp_table"><tbody>
   <tr>
     <th class="tv_header">Time</th>
-    <th class="tv_header">Channel</th>
+    <th class="tv_header">Zone</th>
     <th class="tv_header">Duration</th>
   </tr>
   {% for row in values["timetable"] %}
@@ -42,13 +44,9 @@ Shows the scheduled watering tasks.
 
     {# TODO: Localization with static amount of weekdays or generate them in a loop. #}
     <div class="selector_row" id="ttp_day_selector">
-      <div class="selector_box" onclick="clicked_selector(this)">Mon</div>
-      <div class="selector_box" onclick="clicked_selector(this)">Tue</div>
-      <div class="selector_box" onclick="clicked_selector(this)">Wed</div>
-      <div class="selector_box" onclick="clicked_selector(this)">Thu</div>
-      <div class="selector_box" onclick="clicked_selector(this)">Fri</div>
-      <div class="selector_box" onclick="clicked_selector(this)">Sat</div>
-      <div class="selector_box" onclick="clicked_selector(this)">Sun</div>
+      {% for weekday_str in weekday_strs %}
+        <div class="selector_box" onclick="clicked_selector(this)">{{ weekday_str }}</div>
+      {% endfor %}
     </div>
 
     <div class="selector_row" id="ttp_channel_selector">
@@ -74,3 +72,10 @@ Shows the scheduled watering tasks.
 
   </div>
 </div>
+
+<script>
+  {# TODO: Not sure that this is the best way #}
+  const tt_plugin_localization = {
+    weekdays: {{ weekdays }}
+  };
+</script>

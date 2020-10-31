@@ -102,6 +102,9 @@ class Server:
         self.ws_clients.add(ws)
         await ws.prepare(request)
 
+        # TODO: Send updated state to new frontend
+        # await notify_new_frontend...
+
         async for msg in ws:
             if msg.type == web.WSMsgType.TEXT:
                 try:
@@ -136,6 +139,7 @@ class Server:
                     print("Received message for unknown plugin:", plugin_name)
 
             elif msg.type == web.WSMsgType.BINARY:
+                # TODO: Use Python's logging module
                 print("Not going to handle binary data.")
                 continue
 

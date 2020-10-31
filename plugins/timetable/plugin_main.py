@@ -24,7 +24,7 @@ class TimetablePlugin(Plugin):
 
     def initialize(self, settings):
         self.msg_handlers = {
-            "add_entry": self.handle_add_entry,
+            "add_entries": self.handle_add_entries,
             "remove_entry": self.handle_remove_entry
         }
 
@@ -39,15 +39,14 @@ class TimetablePlugin(Plugin):
             else:
                 print("received unknown action:", action)
 
-    async def handle_add_entry(self, data):
+    async def handle_add_entries(self, new_entries):
         # receive and entry that should be added to the DB
         # 1. add entry to db (which will also assign an ID to that entry)
         # 2. send msg to clients with updated watering list
 
         # TODO: Make sure that the data is valid
-        print("tt: received new entry:", data)
-        new_entry_id = self.tt_db.insert(data)
-        print("new entry id", new_entry_id)
+        for entry in new_entries:
+            self.tt_db.insert(entry)
         await self.send_updated_table()
 
     async def handle_remove_entry(self, data):
@@ -60,6 +59,8 @@ class TimetablePlugin(Plugin):
 
     async def send_updated_table(self):
         all_entries = self.get_all_entries()
+        # sort entries by day and insert spacers
+        all_entries.sort(key = lambda e: (e["weekday"], 60*e["time_hh"] + e["time_mm"], e["duration"], e["zones"][0]))
         await self.send_to_clients(all_entries)
 
     def get_all_entries(self):
