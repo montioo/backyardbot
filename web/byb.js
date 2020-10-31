@@ -46,8 +46,12 @@ class BybConnection {
         console.log("Registered plugin: ", plugin);
     }
 
-    send_to_backend(json_data) {
-        this.ws.send(JSON.stringify(json_data));
+    send_to_backend(json_data, sender) {
+        const json_str = JSON.stringify({
+            plugin_name: sender.name,
+            payload: json_data
+        })
+        this.ws.send(json_str);
     }
 
     received_from_backend(json_data) {

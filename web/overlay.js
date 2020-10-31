@@ -33,4 +33,8 @@ function time_changed(sender) {
     sender.classList.add(valid_class);
 }
 
+function duration_changed(sender) {
+    time_changed(sender);
+}
+
 console.log("test");

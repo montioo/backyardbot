@@ -9,6 +9,7 @@
 
 from tinydb import TinyDB
 
+
 class Database:
     """
     Serves as storage for data that might change often as well as data that is mostly
@@ -19,3 +20,13 @@ class Database:
     @classmethod
     def set_db_path(cls, path):
         cls.db = TinyDB(path)
+
+    @classmethod
+    def get_db_for(cls, name):
+        return cls.db.table(name)
+
+    @classmethod
+    def as_dict_with_id(cls, query_result, tag="doc_id"):
+        # from Python 3.9 on: dict(e) | {"id": e.doc_id}
+        return [{**dict(e), **{tag: e.doc_id}} for e in query_result]
+

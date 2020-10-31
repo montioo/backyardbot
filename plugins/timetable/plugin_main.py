@@ -9,6 +9,11 @@
 
 import os
 from framework.plugin import Plugin
+from framework.memory import Database
+
+
+# TODO: Define somewhere else so that other plugins can access this.
+TIMETABLE_DB = "time_schedule_table"
 
 
 class TimetablePlugin(Plugin):
@@ -17,10 +22,48 @@ class TimetablePlugin(Plugin):
     almost nothing like this example demonstrates.
     """
 
-    def message_from_client(self, data):
+    def initialize(self, settings):
+        self.msg_handlers = {
+            "add_entry": self.handle_add_entry,
+            "remove_entry": self.handle_remove_entry
+        }
+
+        self.tt_db = Database.get_db_for(TIMETABLE_DB)
+
+    async def message_from_client(self, data):
         print("timetable plugin has received a message:")
-        print(data)
-        self.send_to_clients({"value": "this is the timetable speaking"})
+
+        for action in data.keys():
+            if action in self.msg_handlers:
+                await self.msg_handlers[action](data[action])
+            else:
+                print("received unknown action:", action)
+
+    async def handle_add_entry(self, data):
+        # receive and entry that should be added to the DB
+        # 1. add entry to db (which will also assign an ID to that entry)
+        # 2. send msg to clients with updated watering list
+
+        # TODO: Make sure that the data is valid
+        print("tt: received new entry:", data)
+        new_entry_id = self.tt_db.insert(data)
+        print("new entry id", new_entry_id)
+        await self.send_updated_table()
+
+    async def handle_remove_entry(self, data):
+        print("-------> received remove command", type(data))
+        doc_id_to_remove = data
+        print("-------> going to remove", doc_id_to_remove)
+        self.tt_db.remove(doc_ids=[doc_id_to_remove])
+        await self.send_updated_table()
+
+
+    async def send_updated_table(self):
+        all_entries = self.get_all_entries()
+        await self.send_to_clients(all_entries)
+
+    def get_all_entries(self):
+        return Database.as_dict_with_id(self.tt_db.all())
 
 
     ### demo / debug
@@ -33,11 +76,8 @@ class TimetablePlugin(Plugin):
 
         # TODO: Would prefer async execution for all DB related things
         return {
-            "channels": [1, 2, 3, 4, 5],
-            "timetable": [
-                {"time": "15:00", "channel": 3, "duration": 560, "day": 7},
-                {"time": "19:00", "channel": 1, "duration": 120, "day": 0}
-            ]
+            "channels": [1, 2, 3, 4, 5],  # TODO: Get those from another DB as well
+            "timetable": self.get_all_entries()
         }
 
     def calc_render_data(self):

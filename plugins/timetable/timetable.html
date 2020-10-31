@@ -13,16 +13,16 @@ Shows the scheduled watering tasks.
     <th class="tv_header">Duration</th>
   </tr>
   {% for row in values["timetable"] %}
-  <tr>
-    <td class="tv_elem">{{ row["time"] }}</td>
-    <td class="tv_elem">{{ row["channel"] }}</td>
-    <td class="tv_elem">{{ row["duration"]//60 }}</td>
+  <tr data-doc_id="{{ row['doc_id'] }}">
+    <td class="tv_elem">{{ row["time_hh"] }}:{{ row["time_mm"] }}</td>
+    <td class="tv_elem">{{ row["zones"] }}</td>
+    <td class="tv_elem">{{ row["duration"]//60 }}:{{ row["duration"]%60 }}</td>
     <td class="td_remove tv_elem" onclick="tt_plugin.delete_row(this)">x</td>
   </tr>
   {% endfor %}
 </tbody></table>
 
-<div class="selector_row" id="ttp_day_selector">
+<div class="selector_row">
   <button onclick="tt_plugin.show_overlay()">Add Element</button>
 </div>
 
@@ -37,6 +37,7 @@ Shows the scheduled watering tasks.
     <div class="selector_row" id="ttp_time_selector">
       Starting time:
       <input type="time" class="time_picker" id="ttp_time_input_field" onchange="time_changed(this)">
+      (hh:mm)
     </div>
 
     {# TODO: Localization with static amount of weekdays or generate them in a loop. #}
@@ -58,16 +59,16 @@ Shows the scheduled watering tasks.
 
     <div class="selector_row">
       Duration:
-      <input id="ppt_duration_input_field" class="time_picker" placeholder="2" type="number" min="1" max="20" step="1" style="width: 60px;">
-      Minutes
+      <input type="time" class="time_picker" id="ttp_duration_input_field" onchange="duration_changed(this)">
+      (mm:ss)
     </div>
 
-    <div class="selector_row" style="display: none;">
+    <div class="selector_row" id="ttp_overlay_error_msg" style="display: none;">
       Error message here
     </div>
 
     <div class="selector_row">
-      <button onclick="tt_plugin.new_element_overlay()">Add</button>
+      <button onclick="tt_plugin.overlay_add_pressed()">Add</button>
       <button onclick="hide_overlay('ttp_new_element_overlay')">Cancel</button>
     </div>
 

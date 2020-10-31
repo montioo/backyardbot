@@ -19,14 +19,12 @@ from .plugin_manager import PluginManager
 
 def load_allowed_files(settings: dict):
     allowed_files = []
-    for file_list in ["static_web_files", "template_web_files"]:
-        # allowed_files |= set(glob.glob(settings.get("application", {}).get(file_list, [])))
-        files = settings.get("application", {}).get(file_list, [])
-        for f in files:
-            if f not in allowed_files:
-                allowed_files.append(f)
+    # allowed_files |= set(glob.glob(settings.get("application", {}).get(file_list, [])))
+    files = settings.get("application", {}).get("static_web_files", [])
+    for f in files:
+        if f not in allowed_files:
+            allowed_files.append(f)
 
-    print("allowed_files 1", allowed_files)
     return allowed_files
 
 def get_html_template_file(settings: dict):
@@ -112,8 +110,12 @@ class Server:
                     print("error", e, "parsing message:", msg)
                     continue
 
-                plugin_name = data_dict["plugin_name"]
-                payload = data_dict["payload"]
+                try:
+                    plugin_name = data_dict["plugin_name"]
+                    payload = data_dict["payload"]
+                except KeyError:
+                    print("Keys plugin_name or payload not present in", data_dict)
+                    continue
 
                 ### debug code, send message to arbitrary receivers.
                 if plugin_name == "debug":
@@ -129,7 +131,7 @@ class Server:
                 ### end debug code
 
                 if plugin_name in self.plugins_dict:
-                    self.plugins_dict[plugin_name].message_from_client(payload)
+                    await self.plugins_dict[plugin_name].message_from_client(payload)
                 else:
                     print("Received message for unknown plugin:", plugin_name)
 

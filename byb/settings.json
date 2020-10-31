@@ -19,7 +19,9 @@
             "web/overlay.js",
             "web/byb.js"
         ],
-        "template_web_files": "web/*",
+        "template_web_files": [
+            "web/index.html"
+        ],
         "template_index": "web/index.html"
     },
 

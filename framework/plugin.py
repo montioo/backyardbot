@@ -26,7 +26,6 @@ class Plugin:
     def __init__(self, name, plugin_settings_path):
         settings = json.load(open(plugin_settings_path))
         plugin_dir = os.path.dirname(plugin_settings_path)
-        print("plugin:", plugin_settings_path, plugin_dir)
 
         self.name = plugin_settings_path.split("/")[-2]
 
@@ -60,7 +59,7 @@ class Plugin:
     def register_server(self, server):
         self._server = server
 
-    def message_from_client(self, data):
+    async def message_from_client(self, data):
         """
         Received a message from a client.
 

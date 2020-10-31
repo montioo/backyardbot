@@ -3,6 +3,16 @@
 // el.innerHTML = "js was here";
 
 
+function int_list_to_string(int_list) {
+    // s = str(l)  <- python <3
+    var s = "";
+    for (var v of int_list) {
+        s += v.toString() + ", ";
+    }
+    return s.slice(0, s.length - 2);
+}
+
+
 class TimetablePlugin extends BybPluginInterface {
 
     constructor() {
@@ -17,6 +27,8 @@ class TimetablePlugin extends BybPluginInterface {
     receive_data(data) {
         const table = document.getElementById("ttp_table");
         const tbody = table.getElementsByTagName("tbody")[0];
+        // TODO: Do not delete the header
+        tbody.innerHTML = "";  // remove all children.
         for (var element of data) {
             const table_row = this.create_table_row(element);
             tbody.appendChild(table_row);
@@ -24,26 +36,41 @@ class TimetablePlugin extends BybPluginInterface {
     }
 
     create_table_row(row_data) {
-        const rd = row_data;
+        // row_data: Dict with elements:
+        //     "time_hh": Int,
+        //     "time_mm": Int,
+        //     "duration": Int,    // seconds
+        //     "weekdays": [Int],  // Mon = 0, ...
+        //     "zones": [Int],     // watering zones
+        //     "doc_id": Int       // unique id from DB
+
+        // TODO: Add table header and dividers
+        const row_vals = [
+            row_data["time_hh"].toString() + ":" + row_data["time_mm"].toString(),
+            int_list_to_string(row_data["zones"]),
+            Math.floor(row_data["duration"]/60).toString() + ":" + (row_data["duration"]%60).toString(),
+            "x"
+        ];
+
         // TODO: Add data-id attribute to identify the table row with the database.
         const row_node = document.createElement("tr");
-        for (var attr of [rd["time"], rd["channel"], Math.floor(rd["duration"]/60)]) {
-            const cell = document.createElement("td");
+        row_node.dataset.doc_id = row_data["doc_id"];
+        var cell;
+        for (var cell_content of row_vals) {
+            cell = document.createElement("td");
             cell.className = "tv_elem";
-            cell.appendChild(document.createTextNode(attr));
+            cell.appendChild(document.createTextNode(cell_content));
             row_node.appendChild(cell);
         }
-        const cell = document.createElement("td");
-        cell.className = "td_remove tv_elem";
-        cell.appendChild(document.createTextNode("x"));
-        row_node.appendChild(cell);
+        cell.classList.add("td_remove");
 
         // Setting onclick up in html will give the row object, but setting it up in js gives an event.
         const delete_row_callback_wrapper = function(event) {
             // unpacking the calling object from the event.
             this.delete_row(event.target);
         }
-        row_node.onclick = delete_row_callback_wrapper.bind(this);
+        // row_node.onclick = delete_row_callback_wrapper.bind(this);
+        cell.onclick = delete_row_callback_wrapper.bind(this);
 
         return row_node;
     }
@@ -51,8 +78,9 @@ class TimetablePlugin extends BybPluginInterface {
     delete_row(row_td_obj) {
         // const row_tr_obj = event.target.parentElement;
         const row_tr_obj = row_td_obj.parentElement;
-        console.log(row_tr_obj);
-        console.log(this.name);
+        const doc_id_to_del = row_tr_obj.dataset.doc_id;
+        const cmd = { remove_entry: parseInt(doc_id_to_del) };
+        bybConnection.send_to_backend(cmd, this);
     }
 
     show_overlay() {
@@ -60,10 +88,70 @@ class TimetablePlugin extends BybPluginInterface {
     }
 
     remove_overlay(sender) {
-        // console.log(sender);
-        // console.log(sender.id);
-        // console.log("-----------");
         show_overlay(this.overlay_id);
+    }
+
+    overlay_add_pressed() {
+        const entry = this.parse_from_overlay();
+
+        // This is the new element that will be added to the DB.
+        // After adding this, the server will broadcast the updated DB to all clients.
+        const cmd = { add_entry: entry };
+
+        bybConnection.send_to_backend(cmd, this);
+    }
+
+    parse_from_overlay() {
+        const overlay = document.getElementById(this.overlay_id);
+
+        var entry_data = {};
+
+        const time_field = document.getElementById("ttp_time_input_field");
+        const duration_field = document.getElementById("ttp_duration_input_field");
+        if ((time_field.value.length == 0) && (duration_field.value.length == 0)) {
+            this.overlay_error_visible(true);
+            return;
+        }
+
+        // "time_hh": Int, "time_mm": Int,
+        entry_data["time_hh"] = parseInt(time_field.value.slice(0, 2));
+        entry_data["time_mm"] = parseInt(time_field.value.slice(3, 5));
+
+        // "weekdays": [Int],  // Mon = 0, ...
+        // "zone": [Int]       // watering zones
+        const button_list = [["ttp_channel_selector", "zones"], ["ttp_day_selector", "weekdays"]];
+        // for (const [parent_id, data_id] of button_list) {
+        for (var idx = 0; idx < button_list.length; idx++) {
+            const parent_id = button_list[idx][0];
+            const data_id = button_list[idx][1];
+            entry_data[data_id] = [];
+            for (var child_idx = 0; child_idx < document.getElementById(parent_id).children.length; child_idx++) {
+                const selection_div = document.getElementById(parent_id).children[child_idx];
+                if (selection_div.classList.contains("selector_box_selected")) {
+                    entry_data[data_id].push(child_idx);
+                }
+            }
+            if (entry_data[data_id].length == 0) {
+                console.log("not enough", data_id);
+                this.overlay_error_visible(true);
+                return;
+            }
+        }
+        // add 1 to each zone since they are not counted from 0
+        entry_data["zones"] = entry_data["zones"].map(x => x+1);
+
+        // "duration": Int,    // seconds
+        const duration_mins = parseInt(duration_field.value.slice(0, 2));
+        const duration_secs = parseInt(duration_field.value.slice(3, 5));
+        entry_data["duration"] = 60*duration_mins + duration_secs;
+
+        hide_overlay(this.overlay_id);
+        return entry_data;
+    }
+
+    overlay_error_visible(is_visible) {
+        const error_div = document.getElementById("ttp_overlay_error_msg");
+        error_div.style.display = (is_visible) ? "block" : "none";
     }
 }
 
