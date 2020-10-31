@@ -48,63 +48,39 @@ class PluginManager:
             spec.loader.exec_module(imported_plugin_module)
             self.PluginClass = getattr(imported_plugin_module, plugin_class_name)
 
-            html_template_path = os.path.join(self.plugin_dir, self.settings["html_template"])
-            # TODO: relative paths. Must include leading slash from project's root dir.
-            # absolute paths:
-            css_filepath_list = [
-                os.path.join(self.plugin_dir, css_file) for css_file in self.settings.get("css_styles", [])]
-            js_filepath_list = [
-                os.path.join(self.plugin_dir, js_file) for js_file in self.settings.get("js_scripts", [])]
-            self.plugin_info = PluginInfo(html_template_path, css_filepath_list, js_filepath_list)
-
+            # self.plugin_info = PluginInfo(html_template_path, css_filepath_list, js_filepath_list)
             self.pluginInstance = None
-
-        def get_plugin_settings(self):
-            return self.settings.get("plugin_settings", None)
 
         def calc_uimodule_parameters(self):
             dynamic_info = {
-                "html_template_path": self.plugin_info.html_template_path,
                 "plugin_name": self.plugin_name,
                 "values": self.pluginInstance.calc_render_data()
             }
-            return (dynamic_info, self.plugin_info.css_filepath_list, self.plugin_info.js_filepath_list)
+            return dynamic_info
 
 
-    def __init__(self, plugin_folder, server):
-        self._plugin_path = os.path.realpath(plugin_folder)
-        plugin_dirs = glob.glob(os.path.join(self._plugin_path, "*", "settings.json"))
+    def __init__(self, plugin_folder):
+        plugin_dirs = glob.glob(os.path.join(plugin_folder, "*", "settings.json"))
         self.plugin_loaders = [self.PluginLoader(p) for p in plugin_dirs]
 
         self.plugin_dict = {}
         for loader in self.plugin_loaders:
             name, pluginClass = loader.plugin_name, loader.PluginClass
-            settings = loader.get_plugin_settings()
-            # self.plugin_dict[name] = pluginClass(name, settings, server)
-            loader.pluginInstance = pluginClass(name, settings, server)
+            loader.pluginInstance = pluginClass(name, os.path.join(loader.plugin_dir, "settings.json"))
             self.plugin_dict[name] = loader.pluginInstance
 
     def get_plugin_dict(self):
         return self.plugin_dict
 
+    def get_plugin_list(self):
+        return [self.plugin_dict[key] for key in self.plugin_dict.keys()]
+
     def calc_uimodule_parameter_list(self):
-        # plugin_individual_configs: {
-        #       "html_template_path": ...
-        #       "plugin_name": ...
-        #       "values": ...
-        #   }, ...
-        # all_css_files: [css_file_1, ...]
-        # all_js_files: [js_file_1, ...]
-        #
-        # where all_css_files and all_js_files is given for all plugins!
         plugin_individual_configs = []
-        all_css_files = []
-        all_js_files = []
 
         for loader in self.plugin_loaders:
-            individual_info, css_filepath_list, js_filepath_list = loader.calc_uimodule_parameters()
+            # TODO: Don't query the loader but the plugin itself?
+            individual_info = loader.calc_uimodule_parameters()
             plugin_individual_configs.append(individual_info)
-            all_css_files += css_filepath_list
-            all_js_files += js_filepath_list
 
-        return (plugin_individual_configs, all_css_files, all_js_files)
+        return plugin_individual_configs

@@ -16,9 +16,10 @@ class TimetablePlugin extends BybPluginInterface {
 
     receive_data(data) {
         const table = document.getElementById("ttp_table");
+        const tbody = table.getElementsByTagName("tbody")[0];
         for (var element of data) {
             const table_row = this.create_table_row(element);
-            table.appendChild(table_row);
+            tbody.appendChild(table_row);
         }
     }
 

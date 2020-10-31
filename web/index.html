@@ -3,10 +3,9 @@
 <html>
   <head>
     <title>byb core utils</title>
-    <script src="{{ static_url('byb.js') }}" type="text/javascript"></script>
-    <script src="{{ static_url('overlay.js') }}" type="text/javascript"></script>
-    <link rel="stylesheet" href="{{ static_url('byb.css') }}">
-    <link rel="stylesheet" href="{{ static_url('overlay.css') }}">
+    {% for stylesheet in stylesheets %}
+      <link rel="stylesheet" href="{{ stylesheet }}">
+    {% endfor %}
   </head>
 
   <body>
@@ -22,16 +21,16 @@
     <div class="upper_page_container">
 
 
-      {% comment This will initialize all given plugins. %}
-      {% for plugin in plugins %}
+      {# This will initialize all given plugins. #}
+      {% for plugin in plugin_renderers %}
         <div class="left_box info_elem">
           <div class="plugin_tab">
             <div class="plugin_view">
-              {% module BybPluginUIModule(plugin, css_filelist, js_filelist) %}
+              {{ plugin(plugin, css_filelist, js_filelist) }}
             </div>
           </div>
         </div>
-      {% end %}
+      {% endfor %}
 
 
       <div class="right_box">
@@ -44,7 +43,10 @@
 
     </div>
 
-    {% comment TODO: Add template code for overlay %}
+    {# TODO: Add template code for overlay #}
 
+  {% for script in scripts %}
+    <script src="{{ script }}" type="text/javascript"></script>
+  {% endfor %}
   </body>
 </html>

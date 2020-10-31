@@ -12,13 +12,19 @@
     },
 
     "application": {
-        "plugin_directory": "plugins/",
-        "static_web_files": "static/",
-        "template_web_files": "template/"
+        "plugin_directory": "plugins",
+        "static_web_files": [
+            "web/overlay.css",
+            "web/byb.css",
+            "web/overlay.js",
+            "web/byb.js"
+        ],
+        "template_web_files": "web/*",
+        "template_index": "web/index.html"
     },
 
     "database_tables": {
         "time_schedule": "time_schedule_table",
-        "sprinkler_info": "sprinkler_info_table",
+        "sprinkler_info": "sprinkler_info_table"
     }
 }

@@ -1,12 +1,12 @@
 
-{% comment This is the recommended way to get the plugin's name to the js implementation %}
+{# This is the recommended way to get the plugin's name to the js implementation #}
 <div id="timetable_plugin_name" style="display: none;">{{ plugin_name }}</div>
 
 <h2>Plugin: {{ plugin_name }}</h2>
 
 Shows the scheduled watering tasks.
 
-<table id="ttp_table">
+<table id="ttp_table"><tbody>
   <tr>
     <th class="tv_header">Time</th>
     <th class="tv_header">Channel</th>
@@ -17,10 +17,10 @@ Shows the scheduled watering tasks.
     <td class="tv_elem">{{ row["time"] }}</td>
     <td class="tv_elem">{{ row["channel"] }}</td>
     <td class="tv_elem">{{ row["duration"]//60 }}</td>
-    <td class="td_remove tv_elem" onclick="tt_plugin.delete_row(this);">x</td>
+    <td class="td_remove tv_elem" onclick="tt_plugin.delete_row(this)">x</td>
   </tr>
-  {% end %}
-</table>
+  {% endfor %}
+</tbody></table>
 
 <div class="selector_row" id="ttp_day_selector">
   <button onclick="tt_plugin.show_overlay()">Add Element</button>
@@ -30,7 +30,7 @@ Shows the scheduled watering tasks.
 <div id="ttp_new_element_overlay" class="overlay_black_background">
   <div class="overlay">
 
-    {% comment TODO: Use localization to make this customizable %}
+    {# TODO: Use localization to make this customizable #}
 
     <h3>Create new Task</h3>
 
@@ -39,7 +39,7 @@ Shows the scheduled watering tasks.
       <input type="time" class="time_picker" id="ttp_time_input_field" onchange="time_changed(this)">
     </div>
 
-    {% comment TODO: Localization with static amount of weekdays or generate them in a loop. %}
+    {# TODO: Localization with static amount of weekdays or generate them in a loop. #}
     <div class="selector_row" id="ttp_day_selector">
       <div class="selector_box" onclick="clicked_selector(this)">Mon</div>
       <div class="selector_box" onclick="clicked_selector(this)">Tue</div>
@@ -53,7 +53,7 @@ Shows the scheduled watering tasks.
     <div class="selector_row" id="ttp_channel_selector">
       {% for channel in values["channels"] %}
         <div class="selector_box" onclick="clicked_selector(this)">{{ channel }}</div>
-      {% end %}
+      {% endfor %}
     </div>
 
     <div class="selector_row">

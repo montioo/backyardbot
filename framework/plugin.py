@@ -7,79 +7,58 @@
 # montebaur.tech, github.com/montioo
 #
 
-import tornado.web
 import os
 import json
 import uuid
+import asyncio
+from jinja2 import Template
 
 
-class BybPluginUIModule(tornado.web.UIModule):
-    """
-    Class for all UIModules (see tornado docs) that will be used by byb.
-
-    This class will be instantiated by the tornado webserver for every plugin
-    to build the website from a template and send it to the client.
-    Afterwards this instance will be destructed.
-
-    To make this class adapt to different plugins, the `render` method
-    receives a parameterization dict. It includes the location of the plugin's
-    root directory. From there, the html and multiple css and js files are
-    loaded. Additionally, the parameterization includes values that are then
-    used in the plugin with the template system known from tornado.
-    """
-    # TODO: fix the absolute path restriction for js and css
-
-    # TODO: make the parameterization include lists of **all** css and js files
-    #   that all plugins need as they will only be included once per UIModule.
-
-    # def embedded_css(self):
-    #     # css_files = [os.path.join(self.plugin_dir, f) for f in self.settings["css_styles"]]
-    #     return None if not self.css_filelist else "\n".join([open(css_file).read() for css_file in self.css_filelist])
-
-    def css_files(self):
-        # TODO: Would be nice to include files but I can't give absolute paths to the browser.
-        # this returns the absolute path which doesn't help
-        ln = len("/Users/monti/Documents/ProjectsGit/byb-github")
-        return [cssf[ln:] for cssf in self.css_filelist]
-
-    # def embedded_javascript(self):
-    #     # js_files = [os.path.join(self.plugin_dir, f) for f in self.settings["js_scripts"]]
-    #     # TODO: Put all scripts into a namespace with a variable name that holds the plugin's name?
-    #     # return None if not js_files else "\n".join([open(js_file).read() for js_file in js_files])
-    #     return None if not self.js_filelist else "\n".join([open(js_file).read() for js_file in self.js_filelist])
-
-    def javascript_files(self):
-        # **don't** use this path with trailing slash. Then the shortened js files will not have a
-        #  leading space which will cause tornado to do annoying things (i.e. not work).
-        # TODO: Removing the leading part of the directory can be done in the plugin manager.
-        ln = len("/Users/monti/Documents/ProjectsGit/byb-github")
-        return [jsf[ln:] for jsf in self.js_filelist]
-
-    def render(self, plugin_info, css_filelist, js_filelist):
-        """ Keep it like this or subclass to apply options to the render_string method. """
-        self.css_filelist = css_filelist
-        self.js_filelist = js_filelist
-        values = plugin_info["values"]
-        plugin_name = plugin_info["plugin_name"]
-        html_template_path = plugin_info["html_template_path"]
-
-        return self.render_string(html_template_path, values=values, plugin_name=plugin_name)
-
-
-class BybPlugin:
+class Plugin:
     """
     Base class for all plugins of the system.
 
-    Subclass this class to develop plugins for the system. The plugin manager will
+    Subclass this class to develop plugins. The plugin manager will
     instantiate plugins based on the configuration files and a plugin instance will
     live throughout the lifetime of the server.
     """
 
-    def __init__(self, name, settings, server):
-        self._settings = settings
+    def __init__(self, name, plugin_settings_path):
+        settings = json.load(open(plugin_settings_path))
+        plugin_dir = os.path.dirname(plugin_settings_path)
+        print("plugin:", plugin_settings_path, plugin_dir)
+
+        self.name = plugin_settings_path.split("/")[-2]
+
+        self.html_template_path = os.path.join(plugin_dir, settings["html_template"])
+        # TODO: relative paths. Must include leading slash from project's root dir.
+        self.css_file_paths = [
+            os.path.join(plugin_dir, css_file) for css_file in settings.get("css_styles", [])]
+        self.js_file_paths = [
+            os.path.join(plugin_dir, js_file) for js_file in settings.get("js_scripts", [])]
+
+        self.initialize(settings)
+
+
+    def initialize(self, settings: dict):
+        """ To be overridden by subclasses. """
+        pass
+
+    async def event_loop(self):
+        """ Asynchronous event loop for the plugin to run recurring tasks. """
+        pass
+
+    async def spin_once(self):
+        # TODO: Variable spin duration / rate
+        await asyncio.sleep(5)
+
+    async def spin(self):
+        # TODO: Is this used with eventhandling or whatever? If not, it's not needed anymore.
+        while True:
+            await asyncio.sleep(5)
+
+    def register_server(self, server):
         self._server = server
-        # self.messaging = server.messaging
-        self.name = name
 
     def message_from_client(self, data):
         """
@@ -93,7 +72,7 @@ class BybPlugin:
         """
         raise NotImplementedError("message_from_client is not implemented.")
 
-    def send_to_clients(self, data):
+    async def send_to_clients(self, data):
         """
         Will send the given data to all clients.
 
@@ -103,7 +82,7 @@ class BybPlugin:
             The message that is sent over the websocket will be a string and the server
             takes care of converting any objects to a json string.
         """
-        self._server.send_to_clients(data, self.name)
+        await self._server.send_to_clients(data, self.name)
 
     def will_shutdown(self):
         """
@@ -115,6 +94,25 @@ class BybPlugin:
     def calc_render_data(self):
         return None
 
+    def new_client(self):
+        # TODO: This should be called very time a new client connects.
+        # Benefit: All relevant data for the new client could also be included in
+        #  the html render. But maybe the old clients need the be updated as well.
+        pass
+
+    def render(self, *args, **kwargs):
+        # TODO: Debug parameter to reload files every time
+        plugin_template_str = open(self.html_template_path).read()
+        t = Template(plugin_template_str)
+        # TODO: Standard parameters with leading underscore
+        # TODO: Integrate data from self.calc_render_data() and kwargs
+        return t.render(plugin_name=self.name, values=self.calc_render_data())
+
+    def css_files(self):
+        return self.css_file_paths
+
+    def js_files(self):
+        return self.js_file_paths
 
     # TODO: Message handling for topics.
     # Have every plugin run an event loop. Sending a message over a topic will then only

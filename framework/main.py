@@ -7,149 +7,170 @@
 # montebaur.tech, github.com/montioo
 #
 
-from plugin import BybPluginUIModule
-from plugin_manager import PluginManager
-import tornado.web
-import tornado.websocket
-import tornado.ioloop
 import os
 import json
+import sys
+import glob
+import asyncio
+from aiohttp import web
+from .renderer import Renderer
+from .plugin_manager import PluginManager
 
 
-class WsHandler(tornado.websocket.WebSocketHandler):
-    client_list = set()
-    # TODO: Store the clients at some other place.
-    plugins = {}
+def load_allowed_files(settings: dict):
+    allowed_files = []
+    for file_list in ["static_web_files", "template_web_files"]:
+        # allowed_files |= set(glob.glob(settings.get("application", {}).get(file_list, [])))
+        files = settings.get("application", {}).get(file_list, [])
+        for f in files:
+            if f not in allowed_files:
+                allowed_files.append(f)
 
-    def open(self):
-        WsHandler.client_list.add(self)
+    print("allowed_files 1", allowed_files)
+    return allowed_files
 
-    def on_close(self):
-        WsHandler.client_list.remove(self)
+def get_html_template_file(settings: dict):
+    return settings.get("application", {}).get("template_index", "web/index.html")
 
-    def on_message(self, message):
-        try:
-            data_dict = json.loads(message)
-        except Exception as e:
-            print("error parsing message:", message)
-            print(e)
-            return
 
-        plugin_name = data_dict["plugin_name"]
-        payload = data_dict["payload"]
+class Server:
 
-        ### debug code
-        if plugin_name == "debug":
-            message_destination = data_dict["message_destination"]
-            receiving_plugin = data_dict["receiving_plugin"]
-            if message_destination == "to_client":
-                WsHandler.send_updates(payload, receiving_plugin)
-                return
-            elif message_destination == "to_server":
-                plugin_name = receiving_plugin
-            else:
-                raise Exception("no such destination:", message_destination)
-        ### end debug code
+    def __init__(self, settings_file, plugin_manager):
+        self.ws_clients = set()
 
-        print(WsHandler.plugins)
-        if plugin_name in WsHandler.plugins:
-            WsHandler.plugins[plugin_name].message_from_client(payload)
+        settings = json.load(open(settings_file))
+        self.allowed_files = load_allowed_files(settings)
+
+        self.plugins_list = plugin_manager.get_plugin_list()
+        self.plugins_dict = plugin_manager.get_plugin_dict()
+
+        self.plugin_manager = plugin_manager
+        for plugin in self.plugins_list:
+            plugin.register_server(self)
+            self.allowed_files += plugin.css_files()
+            self.allowed_files += plugin.js_files()
+
+        html_template_file = get_html_template_file(settings)
+        self.renderer = Renderer(self.plugins_list, html_template_file, self.allowed_files)
+
+        app = web.Application()
+        app.add_routes(
+            [
+                web.get("/", self.handle),
+                web.get("/{folder}/{plugin_name}/{filename}", self.handle_files),
+                web.get("/{folder}/{filename}", self.handle_files),
+                web.get("/ws", self.handle_ws),
+            ]
+        )
+
+        app.on_startup.append(self.start_background_tasks)
+        app.on_cleanup.append(self.cleanup_background_tasks)
+        web.run_app(app)
+
+
+    async def handle(self, request):
+        plugin_configs = self.plugin_manager.calc_uimodule_parameter_list()
+        text = self.renderer.render(
+            plugins=plugin_configs,
+            css_filelist=self.allowed_files,
+            js_filelist=self.allowed_files
+        )
+        return web.Response(text=text, content_type="text/html")
+
+
+    async def handle_files(self, request):
+        filename = request.match_info.get("filename", "error")
+        requested_folder = request.match_info.get("folder", "error")
+
+        if requested_folder == "plugins":
+            plugin_name = request.match_info.get("plugin_name", "error")
+            filepath = os.path.join(requested_folder, plugin_name, filename)
+        elif requested_folder == "web":
+            filepath = os.path.join(requested_folder, filename)
         else:
-            print("Received message for unknown plugin:", plugin_name)
+            raise web.HTTPNotFound()
 
-    @classmethod
-    def send_updates(cls, data, name):
-        d = json.dumps({
+        if not filepath in self.allowed_files:
+            raise web.HTTPNotFound()
+
+        abs_path = os.path.realpath(filepath)
+        # TODO: Does web.FileResponse do caching?
+        return web.FileResponse(abs_path)
+
+
+    async def handle_ws(self, request):
+        print(request)
+        ws = web.WebSocketResponse()
+        self.ws_clients.add(ws)
+        await ws.prepare(request)
+
+        async for msg in ws:
+            if msg.type == web.WSMsgType.TEXT:
+                try:
+                    data_dict = json.loads(msg.data)
+                except Exception as e:
+                    print("error", e, "parsing message:", msg)
+                    continue
+
+                plugin_name = data_dict["plugin_name"]
+                payload = data_dict["payload"]
+
+                ### debug code, send message to arbitrary receivers.
+                if plugin_name == "debug":
+                    message_destination = data_dict["message_destination"]
+                    receiving_plugin = data_dict["receiving_plugin"]
+                    if message_destination == "to_client":
+                        await self.send_to_clients(payload, receiving_plugin)
+                        continue
+                    elif message_destination == "to_server":
+                        plugin_name = receiving_plugin
+                    else:
+                        raise Exception("no such destination:", message_destination)
+                ### end debug code
+
+                if plugin_name in self.plugins_dict:
+                    self.plugins_dict[plugin_name].message_from_client(payload)
+                else:
+                    print("Received message for unknown plugin:", plugin_name)
+
+            elif msg.type == web.WSMsgType.BINARY:
+                print("Not going to handle binary data.")
+                continue
+
+            elif msg.type == web.WSMsgType.CLOSE:
+                break
+
+        self.ws_clients.remove(ws)
+        print("removed client")
+        return ws
+
+
+    async def start_background_tasks(self, app):
+        # app["ws_broadcast"] = asyncio.create_task(self.periodic_ws_broadcast())
+
+        for plugin in self.plugins_list:
+            app[plugin.name] = asyncio.create_task(plugin.event_loop())
+
+    async def cleanup_background_tasks(self, app):
+        # app["ws_broadcast"].cancel()
+        # await app["ws_broadcast"]
+
+        for plugin in self.plugins_list:
+            app[plugin.name].cancel()
+            await app[plugin.name]
+
+    async def send_to_clients(self, data, name):
+        json_str = json.dumps({
             "plugin_name": name,
             "payload": data
         })
+        await self.ws_broadcast(json_str)
 
-        for client in cls.client_list:
-            try:
-                client.write_message(d)
-            except:
-                print("Error sending a message.")
+    async def ws_broadcast(self, msg):
+        for ws in self.ws_clients:
+            await ws.send_str(msg)
 
-class IndexHandler(tornado.web.RequestHandler):
-    # TODO: Move this to another place
-    pluginmanager = None
-
-    def get(self):
-        # plugin_list = IndexHandler.pluginmanager.calc_uimodule_parameter_list()
-        plugin_configs, css_filelist, js_filelist = IndexHandler.pluginmanager.calc_uimodule_parameter_list()
-        self.render("index.html", plugins=plugin_configs, css_filelist=css_filelist, js_filelist=js_filelist)
-
-
-class DeepStaticFileHandler(tornado.web.StaticFileHandler):
-    """ Subclass of the tornado.web.StaticFileHander which also serves files multiple directories deep. """
-    # TODO: Override initialize(..) to not need the static path. Get it from global config file.
-    #  https://www.tornadoweb.org/en/stable/_modules/tornado/web.html#StaticFileHandler
-
-    def get(self, *args, **kwargs):
-        uri = self.request.uri[1:]
-        # TODO: Only serve file if it was specified in a plugin's settings.json
-        filepath = os.path.join(os.path.abspath("."), uri)
-        return super().get(filepath)
-
-
-class Application(tornado.web.Application):
-    def __init__(self, ui_modules):
-        handlers = [
-            (r"/", IndexHandler),
-            (r"/websocket", WsHandler),
-            (r"/plugins/(.*)/(.*)\.(css|js)", DeepStaticFileHandler, {"path": "/Users/monti/Documents/ProjectsGit/byb-github"})
-        ]
-        settings = dict(
-            # template_path=os.path.join(os.path.dirname(__file__), "../template"),
-            # static_path=os.path.join(os.path.dirname(__file__), "../static"),
-            template_path=os.path.join("/Users/monti/Documents/ProjectsGit/byb-github/template"),
-            static_path=os.path.join("/Users/monti/Documents/ProjectsGit/byb-github/static"),
-            ui_modules=ui_modules,
-            debug=True  # no caching, etc.
-        )
-        super().__init__(handlers, **settings)
-
-class DummyServer:
-    def send_to_clients(self, data, name):
-        WsHandler.send_updates(data, name)
-
-
-class Backyardbot:
-    # TODO: e.g. like this:
-    plugins = {}
-    pluginmanager = {}
-
-    def __init__(self):
-        pass
-
-    @classmethod
-    def get_database(cls):
-        return None
-
-    @classmethod
-    def get_plugin_dict(cls):
-        return cls.plugins.copy()
-
-    @classmethod
-    def get_eventmanager(cls):
-        return None
-
-
-def main():
-    ds = DummyServer()
-    pluginManager = PluginManager("/Users/monti/Documents/ProjectsGit/byb-github/plugins", ds)
-    IndexHandler.pluginmanager = pluginManager
-    WsHandler.plugins = pluginManager.get_plugin_dict()
-
-    ui_module = {"BybPluginUIModule": BybPluginUIModule}
-    app = Application(ui_module)
-    app.listen(8888)
-
-    # use this to run other functions that are awaitable
-    # tornado.ioloop.IOLoop.current().run_sync(awaitable_func)
-
-    tornado.ioloop.IOLoop.current().start()
-
-
-if __name__ == "__main__":
-    main()
+    async def periodic_ws_broadcast(self):
+        while True:
+            await asyncio.sleep(8)
+            await self.ws_broadcast("broadcast test")
