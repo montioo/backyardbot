@@ -5,7 +5,8 @@ Automatic gardening server that keeps plants alive. Comes with a plugin system t
 
 ## Dependencies:
 
-- Tornado
+- aiohttp
+- jinja2
 - TinyDB
 
 

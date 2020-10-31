@@ -29,7 +29,6 @@ def main():
     # TODO: Load this from settings file.
     pluginManager = PluginManager("plugins/")
 
-    plugins_list, plugins_dict = pluginManager.get_plugin_list(), pluginManager.get_plugin_dict()
     Server(settings_file, pluginManager)
 
 
