@@ -1,0 +1,9 @@
+{
+    "plugin_main": "timecontrol.py",
+    "class_name": "TimeControlPlugin",
+    "html_template": "timecontrol.html",
+    "css_styles": [],
+    "js_scripts": [],
+
+    "load_plugin": true
+}
