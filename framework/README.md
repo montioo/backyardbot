@@ -73,19 +73,19 @@ The order of the languages determines their priority, first one is highest prior
 
 The utility file offers a function `create_logger(name, *config_files)` which will return a readily configured logging object. The logging preferences are configured from default values which are given by the following parameters:
 
-```python
-# default settings:
+```js
+// default settings:
 {
     "logging": {
         "log_file": "byb.log",
         "log_format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        "log_to_stream": True,
+        "log_to_stream": true,
         "log_level_stream": "DEBUG",
-        "log_to_file": True,
+        "log_to_file": true,
         "log_level_file": "DEBUG"
     }
 }
-# TODO: Set different default log file name.
+// TODO: Set different default log file name.
 ```
 
 `create_logger(..)` accepts a list of configuration dicts which are ordered in descending priority and each hold a key *logging* under which the above preferences may be listed. Any values contained in these dicts will update the default logging options for the currently created logger instance. Different logging configurations may occur from a system level log file and additional log files for specific modules.

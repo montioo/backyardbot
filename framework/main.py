@@ -15,6 +15,7 @@ import asyncio
 from aiohttp import web
 from .renderer import Renderer
 from .plugin_manager import PluginManager
+from .utility import create_logger
 
 
 def load_allowed_files(settings: dict):
