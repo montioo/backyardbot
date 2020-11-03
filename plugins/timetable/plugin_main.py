@@ -10,10 +10,7 @@
 import os
 from framework.plugin import Plugin
 from framework.memory import Database
-
-
-# TODO: Define somewhere else so that other plugins can access this.
-TIMETABLE_DB = "time_schedule_table"
+from byb.byb_common import TIMETABLE_DB
 
 
 class TimetablePlugin(Plugin):
@@ -31,13 +28,13 @@ class TimetablePlugin(Plugin):
         self.tt_db = Database.get_db_for(TIMETABLE_DB)
 
     async def message_from_client(self, data):
-        print("timetable plugin has received a message:")
+        self.logger.info("timetable plugin has received a message.")
 
         for action in data.keys():
             if action in self.msg_handlers:
                 await self.msg_handlers[action](data[action])
             else:
-                print("received unknown action:", action)
+                self.logger.info("received unknown action: {}".format(action))
 
     async def handle_add_entries(self, new_entries):
         # receive and entry that should be added to the DB
@@ -50,12 +47,10 @@ class TimetablePlugin(Plugin):
         await self.send_updated_table()
 
     async def handle_remove_entry(self, data):
-        print("-------> received remove command", type(data))
         doc_id_to_remove = data
-        print("-------> going to remove", doc_id_to_remove)
+        self.logger.info("-------> going to remove entry with id {}".format(doc_id_to_remove))
         self.tt_db.remove(doc_ids=[doc_id_to_remove])
         await self.send_updated_table()
-
 
     async def send_updated_table(self):
         all_entries = self.get_all_entries()

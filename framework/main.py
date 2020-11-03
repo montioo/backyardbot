@@ -36,8 +36,11 @@ class Server:
     def __init__(self, settings_file, plugin_manager):
         self.ws_clients = set()
 
-        settings = json.load(open(settings_file))
-        self.allowed_files = load_allowed_files(settings)
+        # TODO: Store global settings somewhere else?
+        self.settings = json.load(open(settings_file))
+        logger_name = __name__ + "." + self.__class__.__name__
+        self.logger = create_logger(logger_name)
+        self.allowed_files = load_allowed_files(self.settings)
 
         self.plugins_list = plugin_manager.get_plugin_list()
         self.plugins_dict = plugin_manager.get_plugin_dict()
@@ -48,7 +51,7 @@ class Server:
             self.allowed_files += plugin.css_files()
             self.allowed_files += plugin.js_files()
 
-        html_template_file = get_html_template_file(settings)
+        html_template_file = get_html_template_file(self.settings)
         self.renderer = Renderer(self.plugins_list, html_template_file, self.allowed_files)
 
         app = web.Application()
@@ -97,7 +100,7 @@ class Server:
 
 
     async def handle_ws(self, request):
-        print(request)
+        self.logger.info("ws request: {}".format(request))
         ws = web.WebSocketResponse()
         self.ws_clients.add(ws)
         await ws.prepare(request)
@@ -110,14 +113,14 @@ class Server:
                 try:
                     data_dict = json.loads(msg.data)
                 except Exception as e:
-                    print("error", e, "parsing message:", msg)
+                    self.logger.info("error {} parsing message: {}".format(e, msg))
                     continue
 
                 try:
                     plugin_name = data_dict["plugin_name"]
                     payload = data_dict["payload"]
                 except KeyError:
-                    print("Keys plugin_name or payload not present in", data_dict)
+                    self.logger.info("Keys plugin_name or payload not present in {}".format(data_dict))
                     continue
 
                 ### debug code, send message to arbitrary receivers.
@@ -136,18 +139,17 @@ class Server:
                 if plugin_name in self.plugins_dict:
                     await self.plugins_dict[plugin_name].message_from_client(payload)
                 else:
-                    print("Received message for unknown plugin:", plugin_name)
+                    self.logger.info("Received message for unknown plugin: {}".format(plugin_name))
 
             elif msg.type == web.WSMsgType.BINARY:
-                # TODO: Use Python's logging module
-                print("Not going to handle binary data.")
+                self.logger.info("Not going to handle binary data.")
                 continue
 
             elif msg.type == web.WSMsgType.CLOSE:
                 break
 
         self.ws_clients.remove(ws)
-        print("removed client")
+        self.logger.info("removed ws client")
         return ws
 
 

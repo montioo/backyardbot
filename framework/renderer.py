@@ -9,11 +9,15 @@
 
 from jinja2 import Template
 from jinja2 import Environment, meta
+from .utility import create_logger
 
 
 class Renderer:
     def __init__(self, plugins, html_template, static_files):
         self.plugins = plugins
+
+        logger_name = __name__ + "." + self.__class__.__name__
+        self.logger = create_logger(logger_name)
 
         # self.css_files = set()
         # for plugin in self.plugins:
@@ -35,7 +39,7 @@ class Renderer:
         # env = Environment()
         # ast = env.parse(self.main_template_str)
         # used_vars = meta.find_undeclared_variables(ast)
-        # print(used_vars)
+        # self.logger.info(used_vars)
         # plugin_names = {p.name for p in self.plugins}
         # plugin_dict = {p.name: p for p in self.plugins}
 
@@ -54,7 +58,7 @@ class Renderer:
         # for ls_name in listed_plugins:
         #     template_dict[ls_name] = plugin_dict[ls_name].render
 
-        # print(template_dict)
+        # self.logger.info(template_dict)
 
         # html_template = Template(self.main_template_str)
         # return html_template.render(template_dict)

@@ -4,11 +4,15 @@
         "port": 8888
     },
 
-    "general": {
+    "logging": {
         "log_file": "byb.log",
         "log_format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         "log_to_stream": true,
         "log_to_file": true
+    },
+
+    "general": {
+        "language": ["en", "de"]
     },
 
     "application": {

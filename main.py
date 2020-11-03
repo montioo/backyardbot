@@ -11,20 +11,23 @@ import sys
 from framework.main import Server
 from framework.plugin_manager import PluginManager
 from framework.memory import Database
+from framework.utility import create_logger
 
 
 def main():
+    logger_name = __name__
+    top_logger = create_logger(logger_name)
+
     settings_file = "byb/settings.json"
     if len(sys.argv) < 2:
-        print("no settings file given, using default:")
-        print("   byb-repo/byb/settings.json")
+        top_logger.info("no settings file given, using default: byb-repo/byb/settings.json")
     else:
         settings_file = sys.argv[1]
 
     try:
         _ = open(settings_file)
     except FileNotFoundError:
-        print("Didn't find the specified config file:", settings_file)
+        top_logger.error("Didn't find the specified config file: {}".format(settings_file))
         return
 
     # TODO: Create some form of default settings file.

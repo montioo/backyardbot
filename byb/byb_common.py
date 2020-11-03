@@ -8,16 +8,33 @@
 #
 
 from collections import namedtuple
+from dataclasses import dataclass
+from typing import List
 
 
-# TODO: Not happy with either one
+# == Database Names ==
+
+TIMETABLE_DB = "time_schedule_table"
+
+
+# == Topic Definitions ==
 
 TOPIC_START_WATERING = "TOPIC_START_WATERING"
-TopicStartWateringMessage = namedtuple(
-    "TopicStartWateringMessage",
-    "zones durations"  # [int] [int]
-)
 
-# class TopicStartWatering:
-#     name = "TOPIC_START_WATERING"
-#     message = namedtuple("message", "zones durations")
+@dataclass
+class StartWateringMessage:
+    zones: List[int]
+    durations: List[int]
+
+    def __repr__(self):
+        return "({}, {})".format(self.zones, self.durations)
+
+# which one of those?
+
+@dataclass
+class WateringTask:
+    zone: int = 0       # .zone = 0: water all channels  NO
+    duration: int = 0   # .duration = 0: use cooldown duration
+
+    def __repr__(self):
+        return "({}, {})".format(self.zone, self.duration)

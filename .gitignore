@@ -5,3 +5,6 @@
 
 # don't add Python cache
 __pycache__
+
+# don't add the system's logfiles
+*.log

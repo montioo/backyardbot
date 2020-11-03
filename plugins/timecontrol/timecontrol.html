@@ -4,4 +4,12 @@
 
 <h2>Plugin: {{ plugin_name }}</h2>
 
-<i>no control yet</i>
+<i>{{ localization["header_italic"] }}</i>
+
+<h3 id="tcp_time_day_scheduled">Next Time, Day</h3>
+
+<p id="tcp_zones_durations_scheduled">Zones and Duration</p>
+
+<button onclick="tc_plugin.skip_watering_callback()">{{ localization["skip_button"] }}</button>
+
+<button onclick="tc_plugin.toggle_auto_mode()">{{ localization["activate_auto_mode"] }}</button>

@@ -5,5 +5,21 @@
     "css_styles": [],
     "js_scripts": [],
 
-    "load_plugin": true
+    "load_plugin": true,
+
+    "localization": {
+        "en": {
+            "header_italic": "Next scheduled_watering",
+            "skip_button": "Skip next watering",
+            "activate_auto_mode": "Activate auto mode",
+            "deactivate_auto_mode": "Deactivate auto mode"
+
+        },
+        "de": {
+            "header_italic": "Nächste geplante Bewässerung",
+            "skip_button": "Diese Bewässerung überspringen",
+            "activate_auto_mode": "Automatikmodus aktivieren",
+            "deactivate_auto_mode": "Automatikmodus deaktivieren"
+        }
+    }
 }
