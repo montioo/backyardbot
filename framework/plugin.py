@@ -20,8 +20,8 @@ class Plugin:
     Base class for all plugins of the system.
 
     Subclass this class to develop plugins. The plugin manager will
-    instantiate plugins based on the configuration files and a plugin instance will
-    live throughout the lifetime of the server.
+    instantiate plugins based on the configuration files and a plugin
+    instance will live throughout the lifetime of the server.
     """
 
     def __init__(self, name, plugin_settings_path):
@@ -51,7 +51,12 @@ class Plugin:
         pass
 
     async def event_loop(self):
-        """ Asynchronous event loop for the plugin to run recurring tasks. """
+        """
+        Asynchronous event loop for the plugin to run recurring tasks. Is
+        called once as the server starts and either can do nothing or can
+        contain an infinite loop with `await self.spin_once()` in it to
+        execute a task regularly.
+        """
         pass
 
     async def spin_once(self):
@@ -62,6 +67,8 @@ class Plugin:
         # TODO: Is this used with eventhandling or whatever? If not, it's not needed anymore.
         while True:
             await asyncio.sleep(5)
+
+    # TODO: while_system_active condition for graceful shutdown: https://docs.python.org/3.8/library/signal.html
 
     def register_server(self, server):
         self._server = server
@@ -74,8 +81,9 @@ class Plugin:
         Parameters
         ----------
         data: dict
-            The messages are sent as strings over websocket but the server takes care
-            of parsing the json strings into dicts before handing them over to plugins.
+            The messages are sent as strings over websocket but the server
+            takes care of parsing the json strings into dicts before handing
+            them over to plugins.
         """
         raise NotImplementedError("message_from_client is not implemented.")
 
@@ -86,15 +94,15 @@ class Plugin:
         Parameters
         ----------
         data: dict (json serializable)
-            The message that is sent over the websocket will be a string and the server
-            takes care of converting any objects to a json string.
+            The message that is sent over the websocket will be a string and
+            the server takes care of converting any objects to a json string.
         """
         await self._server.send_to_clients(data, self.name)
 
     def will_shutdown(self):
         """
-        Called before the plugin's instance is terminated. Might want to do cleanup
-        work or send a message to all remaining frontends.
+        Called before the plugin's instance is terminated. Might want to do
+        cleanup work or send a message to all remaining frontends.
         """
         pass
 
@@ -122,8 +130,9 @@ class Plugin:
         return self.js_file_paths
 
     # TODO: Message handling for topics.
-    # Have every plugin run an event loop. Sending a message over a topic will then only
-    # consist of putting the message into a plugin's message buffer.
-    # The end of the plugin's init method would then need to run code similar to
-    # rosnode spin: Keep node alive and check for updates at a certain interval.
+    # Have every plugin run an event loop. Sending a message over a topic will
+    # then only consist of putting the message into a plugin's message buffer.
+    # The end of the plugin's init method would then need to run code similar
+    # to rosnode spin: Keep node alive and check for updates at a certain
+    # interval.
 

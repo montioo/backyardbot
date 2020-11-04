@@ -30,3 +30,8 @@ class Database:
         # from Python 3.9 on: dict(e) | {"id": e.doc_id}
         return [{**dict(e), **{tag: e.doc_id}} for e in query_result]
 
+    @classmethod
+    def set_table_update_hook(cls, table_name):
+        # TODO: Send a message on a topic as the table is updated.
+        raise NotImplementedError("Table update hooks not implemented yet.")
+
