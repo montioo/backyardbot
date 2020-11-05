@@ -8,12 +8,22 @@
 #
 
 from collections import defaultdict
+from dataclasses import dataclass
+from typing import Any
+
+
+@dataclass
+class Message:
+    topic: str  # name of the topic, e.g. `database_updated`, `websocket/<plugin_name>`
+    payload: Any = None  # content of the message. Can be anything and can be `None`
+    sender: Any = None  # either name (str) or the obj. But I think name is better.
+    receiver: Any = None  # sure? Broadcasting doesn't have only one message.
 
 
 class Topics:
-    _topics = defaultdict(lambda: [])
+    _clients = []
 
-    # TODO: Make the whole thing work with asyncio
+    # TODO: Either deliver every message to every plugin or maintain a list with "interested plugins"
     """
     Implements a messaging system where messages are exchanged over topics. Clients can subscribe to
     any topic and will get notified via a callback once a message appears on that topic.
@@ -43,26 +53,27 @@ class Topics:
     #     pass
 
     @classmethod
-    def register(cls, topic, callback):
+    def register(cls, client):
         """
         Registers a client (caller) for a topic.
         The callback will be called every time the a new message is sent on that topic.
         callbacks are ought to return quickly.
         """
-        cls._topics[topic].append(callback)
+        cls._clients.append(client)
 
     @classmethod
-    def unregister(cls, topic, callback):
+    def unregister(cls, client):
         """ Removes the given callback from the topic. """
         try:
-            cls._topics[topic].remove(callback)
+            cls._clients.remove(client)
         except ValueError:
             pass
 
     @classmethod
-    def send_message(cls, topic, message):
+    def send_message(cls, message):
         """ Will distribute the message to all subscribers by calling their callback. """
-        # TODO: Is the sender in the message necessary?
-        for callback in cls._topics[topic]:
-            callback(message)
+        if not isinstance(message, Message):
+            print("!!! Message has wrong type:", type(message))
+        for client in cls._clients:
+            client.receive_message(message)
 

@@ -42,10 +42,9 @@ The following watering tasks are scheduled:
       (hh:mm)
     </div>
 
-    {# TODO: Localization with static amount of weekdays or generate them in a loop. #}
     <div class="selector_row" id="ttp_day_selector">
-      {% for weekday_str in weekday_strs %}
-        <div class="selector_box" onclick="clicked_selector(this)">{{ weekday_str }}</div>
+      {% for weekday_name in localization["weekday_names"] %}
+        <div class="selector_box" onclick="clicked_selector(this)">{{ weekday_name }}</div>
       {% endfor %}
     </div>
 

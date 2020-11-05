@@ -12,6 +12,7 @@ import os
 import importlib.util
 import json
 from collections import namedtuple
+from .communication import Topics
 
 
 PluginInfo = namedtuple("PluginInfo", "html_template_path css_filepath_list js_filepath_list")
@@ -68,6 +69,7 @@ class PluginManager:
             name, pluginClass = loader.plugin_name, loader.PluginClass
             loader.pluginInstance = pluginClass(name, os.path.join(loader.plugin_dir, "settings.json"))
             self.plugin_dict[name] = loader.pluginInstance
+            Topics.register(loader.pluginInstance)
 
     def get_plugin_dict(self):
         return self.plugin_dict

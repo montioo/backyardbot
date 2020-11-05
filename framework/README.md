@@ -97,3 +97,17 @@ A logger can have a name which is used in the default logging format. A recommen
 ```python
 logger_name = __name__ + "." + self.__class__.__name__
 ```
+
+
+#### Messages and Topics
+
+A `Message` instance can be sent by the `Topic` class. It will be send to all registered instances but only some may react (i.e. decide to enqueue it in their message buffer).
+
+Reserved topics:
+- `websocket/<plugin_name>/backend : messages to a plugin's handler from the frontend
+- `websocket/<plugin_name>/frontend : ...
+
+maybe `websocket/frontend/<plugin_name>` and `websocket/backend/<plugin_name>` is better as the frontend stuff is handled by the js code which is not executed 'in the same place' as the python code.
+
+
+TODO: The plugins don't need to know about the server as they can send data using the topics and the stuff will be forwarded to the server and from there to the frontend of the website.

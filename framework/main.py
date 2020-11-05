@@ -16,6 +16,7 @@ from aiohttp import web
 from .renderer import Renderer
 from .plugin_manager import PluginManager
 from .utility import create_logger
+from .communication import Topics, Message
 
 
 def load_allowed_files(settings: dict):
@@ -43,8 +44,8 @@ class Server:
         self.logger = create_logger(logger_name)
         self.allowed_files = load_allowed_files(self.settings)
 
+        # TODO: Have another object deal with this. Don't merge plugin maintenance and server stuff.
         self.plugins_list = plugin_manager.get_plugin_list()
-        self.plugins_dict = plugin_manager.get_plugin_dict()
 
         self.plugin_manager = plugin_manager
         for plugin in self.plugins_list:
@@ -65,8 +66,11 @@ class Server:
             ]
         )
 
+        # TODO: Should I launch this somewhere else? This isn't a direct task of the server.
         app.on_startup.append(self.start_background_tasks)
         app.on_cleanup.append(self.cleanup_background_tasks)
+        # TODO: Can I start the site like this?
+        # https://docs.aiohttp.org/en/stable/web_advanced.html#application-runners
         web.run_app(app)
 
 
@@ -137,10 +141,9 @@ class Server:
                         raise Exception("no such destination:", message_destination)
                 ### end debug code
 
-                if plugin_name in self.plugins_dict:
-                    await self.plugins_dict[plugin_name].message_from_client(payload)
-                else:
-                    self.logger.info("Received message for unknown plugin: {}".format(plugin_name))
+                topic = "websocket/{}/backend".format(plugin_name)
+                message = Message(topic, payload=payload)
+                Topics.send_message(message)
 
             elif msg.type == web.WSMsgType.BINARY:
                 self.logger.info("Not going to handle binary data.")
@@ -168,7 +171,14 @@ class Server:
             app[plugin.name].cancel()
             await app[plugin.name]
 
+    async def send_to_clients(self, message):
+        # assumes topic format "websocket/<plugin_name>/frontend"
+        # TODO: Integrate new event messaging structure into server.
+        name = message.topic.split("/")[1]
+        data = message.payload
+
     async def send_to_clients(self, data, name):
+        # Converts message to format that is sent over ws. Could be beautified.
         json_str = json.dumps({
             "plugin_name": name,
             "payload": data

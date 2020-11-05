@@ -2,7 +2,7 @@
     "plugin_main": "plugin_main.py",
     "class_name": "TimetablePlugin",
     "html_template": "timetable.html",
-    "css_styles": ["timetable.css"], 
+    "css_styles": ["timetable.css"],
     "js_scripts": ["timetable.js"],
 
     "plugin_settings": {
@@ -10,5 +10,14 @@
         "setting2": ["a", "b"]
     },
 
-    "load_plugin": true
+    "load_plugin": true,
+
+    "localization": {
+        "en": {
+            "weekday_names": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        },
+        "de": {
+            "weekday_names": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+        }
+    }
 }

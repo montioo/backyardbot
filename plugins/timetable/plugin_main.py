@@ -27,7 +27,11 @@ class TimetablePlugin(Plugin):
 
         self.tt_db = Database.get_db_for(TIMETABLE_DB)
 
-    async def message_from_client(self, data):
+        # Registering standard websocket message handler.
+        ws_backend_topic = "websocket/{}/backend".format(self.name)
+        self.register_topic_callback(ws_backend_topic, self.ws_message_from_frontend)
+
+    async def ws_message_from_frontend(self, data):
         self.logger.info("timetable plugin has received a message.")
 
         for action in data.keys():
