@@ -1,5 +1,5 @@
 #
-# main.py
+# launch_byb.py
 # backyardbot
 #
 # Created: October 2020
@@ -8,6 +8,7 @@
 #
 
 import sys
+# from framework.server import Server
 from framework.main import Server
 from framework.plugin_manager import PluginManager
 from framework.memory import Database

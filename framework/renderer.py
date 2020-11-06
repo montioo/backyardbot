@@ -13,8 +13,9 @@ from .utility import create_logger
 
 
 class Renderer:
-    def __init__(self, plugins, html_template, static_files):
-        self.plugins = plugins
+    def __init__(self, plugin_manager, html_template, static_files):
+        self.plugins = plugin_manager.get_plugin_list()
+        self.ui_module_query = plugin_manager.calc_uimodule_parameter_list
 
         logger_name = __name__ + "." + self.__class__.__name__
         self.logger = create_logger(logger_name)
@@ -63,12 +64,14 @@ class Renderer:
         # html_template = Template(self.main_template_str)
         # return html_template.render(template_dict)
 
+        plugin_configs = self.ui_module_query()
         html_template = Template(self.main_template_str)
         template_dict = {
             "stylesheets": self.css_files,
             "scripts": self.js_files,
             # TODO: Better naming?
-            "plugin_renderers": [p.render for p in self.plugins]
+            "plugin_renderers": [p.render for p in self.plugins],
+            "plugins": plugin_configs
         }
         template_dict.update(kwargs)
         return html_template.render(template_dict)

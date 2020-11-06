@@ -31,8 +31,10 @@ class TimetablePlugin(Plugin):
         ws_backend_topic = "websocket/{}/backend".format(self.name)
         self.register_topic_callback(ws_backend_topic, self.ws_message_from_frontend)
 
-    async def ws_message_from_frontend(self, data):
+    # async def ws_message_from_frontend(self, data):
+    async def ws_message_from_frontend(self, msg):
         self.logger.info("timetable plugin has received a message.")
+        data = msg.payload
 
         for action in data.keys():
             if action in self.msg_handlers:

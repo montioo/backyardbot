@@ -21,7 +21,7 @@ class Message:
 
 
 class Topics:
-    _clients = []
+    _clients = set()
 
     # TODO: Either deliver every message to every plugin or maintain a list with "interested plugins"
     """
@@ -59,7 +59,7 @@ class Topics:
         The callback will be called every time the a new message is sent on that topic.
         callbacks are ought to return quickly.
         """
-        cls._clients.append(client)
+        cls._clients.add(client)
 
     @classmethod
     def unregister(cls, client):
