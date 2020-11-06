@@ -167,14 +167,6 @@ class Server(EventComponent):
         self.logger.info("removed ws client")
         return ws
 
-
-    async def event_loop(self):
-        rate = 1/5
-        while await self.spin_once(rate):
-            print("Important periodic task here.")
-
-        print("!"*25, "done with event loop!")
-
     async def start_background_tasks(self, app):
         # app["ws_broadcast"] = asyncio.create_task(self.periodic_ws_broadcast())
         app["server_msg_loop"] = asyncio.create_task(self.event_loop())
@@ -196,8 +188,6 @@ class Server(EventComponent):
     # === Messaging with Frontend ===
 
     async def send_topic_over_ws(self, message):
-        self.logger.info("WILL SEND TOPIC OVER WS {}".format(type(message)))
-        self.logger.info("WILL SEND TOPIC OVER WS {}".format(message.topic))
         # assumes topic format "websocket/<plugin_name>/frontend"
         # TODO: Integrate new event messaging structure into server.
         plugin_name = message.topic.split("/")[1]
@@ -210,13 +200,7 @@ class Server(EventComponent):
             "plugin_name": plugin_name,
             "payload": data
         })
-        print(json_str)
         await self.ws_broadcast(json_str)
-
-    def receive_message(self, msg):
-        self.logger.info("RECEIVED NEW MSG VIA TOPIC: {}".format(msg.topic))
-        super().receive_message(msg)
-        self.logger.info("EXITING MESSAGE RECEIVE HANDLER FOR TOPIC: {}".format(msg.topic))
 
     async def ws_broadcast(self, msg):
         for ws in self.ws_clients:
