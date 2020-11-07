@@ -14,9 +14,8 @@ import glob
 import asyncio
 from aiohttp import web
 from .renderer import Renderer
-from .plugin_manager import PluginManager
 from .utility import create_logger
-from .communication import Topics, Message
+from .communication import Topics, WebsocketRequest
 from .event import EventComponent
 
 
@@ -39,11 +38,11 @@ class Server(EventComponent):
     def __init__(self, settings_file, plugin_manager):
         settings = json.load(open(settings_file))
         super().__init__(settings)
+        # TODO: Store global settings somewhere else?
         self.settings = settings
 
         self.ws_clients = set()
 
-        # TODO: Store global settings somewhere else?
         logger_name = __name__ + "." + self.__class__.__name__
         self.logger = create_logger(logger_name)
         self.allowed_files = load_allowed_files(self.settings)
@@ -51,15 +50,15 @@ class Server(EventComponent):
         # TODO: Have another object deal with this. Don't merge plugin maintenance and server stuff.
         self.plugins_list = plugin_manager.get_plugin_list()
 
-        self.plugin_manager = plugin_manager
         for plugin in self.plugins_list:
             plugin.register_server(self)
-            self.allowed_files += plugin.css_files()
-            self.allowed_files += plugin.js_files()
+            self.allowed_files += plugin.css_files() + plugin.js_files()
+
+            topic = "websocket/{}/frontend".format(plugin.name)
+            self.register_topic_callback(topic, self.send_topic_over_ws)
 
         html_template_file = get_html_template_file(self.settings)
-        # self.renderer = Renderer(self.plugins_list, html_template_file, self.allowed_files)
-        self.renderer = Renderer(self.plugin_manager, html_template_file, self.allowed_files)
+        self.renderer = Renderer(plugin_manager, html_template_file, self.allowed_files)
 
         app = web.Application()
         app.add_routes(
@@ -71,22 +70,12 @@ class Server(EventComponent):
             ]
         )
 
-        Topics.register(self)
-
-        for plugin in self.plugins_list:
-            topic = "websocket/{}/frontend".format(plugin.name)
-            self.register_topic_callback(topic, self.send_topic_over_ws)
-
-        # TODO: Should I launch this somewhere else? This isn't a direct task of the server.
         app.on_startup.append(self.start_background_tasks)
         app.on_cleanup.append(self.cleanup_background_tasks)
-        # TODO: Can I start the site like this?
-        # https://docs.aiohttp.org/en/stable/web_advanced.html#application-runners
         web.run_app(app)
 
 
     async def handle(self, request):
-        # plugin_configs = self.plugin_manager.calc_uimodule_parameter_list()
         text = self.renderer.render(
             # plugins=plugin_configs,
             css_filelist=self.allowed_files,
@@ -121,8 +110,9 @@ class Server(EventComponent):
         self.ws_clients.add(ws)
         await ws.prepare(request)
 
-        # TODO: Send updated state to new frontend
-        # await notify_new_frontend...
+        topic = "websocket/new_client"
+        message = WebsocketRequest(topic, ws_id=id(ws))
+        Topics.send_message(message)
 
         async for msg in ws:
             if msg.type == web.WSMsgType.TEXT:
@@ -153,7 +143,7 @@ class Server(EventComponent):
                 ### end debug code
 
                 topic = "websocket/{}/backend".format(plugin_name)
-                message = Message(topic, payload=payload)
+                message = WebsocketRequest(topic, payload=payload, ws_id=id(ws))
                 Topics.send_message(message)
 
             elif msg.type == web.WSMsgType.BINARY:
@@ -168,16 +158,12 @@ class Server(EventComponent):
         return ws
 
     async def start_background_tasks(self, app):
-        # app["ws_broadcast"] = asyncio.create_task(self.periodic_ws_broadcast())
         app["server_msg_loop"] = asyncio.create_task(self.event_loop())
 
         for plugin in self.plugins_list:
             app[plugin.name] = asyncio.create_task(plugin.event_loop())
 
     async def cleanup_background_tasks(self, app):
-        # app["ws_broadcast"].cancel()
-        # await app["ws_broadcast"]
-
         app["server_msg_loop"].cancel()
         await app["server_msg_loop"]
 
@@ -189,19 +175,21 @@ class Server(EventComponent):
 
     async def send_topic_over_ws(self, message):
         # assumes topic format "websocket/<plugin_name>/frontend"
-        # TODO: Integrate new event messaging structure into server.
         plugin_name = message.topic.split("/")[1]
         data = message.payload
-        await self.send_to_ws_clients(data, plugin_name)
 
-    async def send_to_ws_clients(self, data, plugin_name):
         # Converts message to format that is sent over ws. Could be beautified.
         json_str = json.dumps({
             "plugin_name": plugin_name,
             "payload": data
         })
-        await self.ws_broadcast(json_str)
 
-    async def ws_broadcast(self, msg):
-        for ws in self.ws_clients:
-            await ws.send_str(msg)
+        if message.ws_id == -1:
+            for ws in self.ws_clients:
+                # TODO: ws has a send_json method. Try that.
+                await ws.send_str(json_str)
+        else:
+            ws_id_dict = {id(ws): ws for ws in self.ws_clients}
+            if message.ws_id in ws_id_dict.keys():
+                await ws_id_dict[message.ws_id].send_str(json_str)
+

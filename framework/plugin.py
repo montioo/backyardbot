@@ -17,7 +17,7 @@ from jinja2 import Template
 from collections import deque
 from .event import EventComponent
 from .utility import pick_localization, create_logger
-from .communication import Topics, Message
+from .communication import Topics, WebsocketRequest
 
 
 class Plugin(EventComponent):
@@ -87,7 +87,7 @@ class Plugin(EventComponent):
     #     """
     #     raise NotImplementedError("message_from_client is not implemented.")
 
-    async def send_to_clients(self, data):
+    async def send_to_clients(self, data, ws_id=-1):
         """
         Deprecated. (soon)
 
@@ -102,7 +102,7 @@ class Plugin(EventComponent):
         # TODO: Replace this. The server should listen to `websocket/<plugin_name>/frontend topics`
         # await self._server.send_to_clients(data, self.name)
         topic = "websocket/{}/frontend".format(self.name)
-        message = Message(topic, payload=data)
+        message = WebsocketRequest(topic, payload=data, ws_id=ws_id)
         Topics.send_message(message)
 
     # === Frontend ===
@@ -124,15 +124,8 @@ class Plugin(EventComponent):
     def calc_render_data(self):
         return None
 
-
     # === Deprecated ===
     # === ---------- ===
-
-    def new_client(self):
-        # TODO: This should be called very time a new client connects.
-        # Benefit: All relevant data for the new client could also be included in
-        #  the html render. But maybe the old clients need the be updated as well.
-        pass
 
     def will_shutdown(self):
         """

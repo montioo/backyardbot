@@ -22,7 +22,7 @@ TIMETABLE_DB = "time_schedule_table"
 TOPIC_START_WATERING = "TOPIC_START_WATERING"
 
 @dataclass
-class StartWateringMessage:
+class StartWateringPayload:
     zones: List[int]
     durations: List[int]
 

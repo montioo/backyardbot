@@ -13,11 +13,24 @@ from typing import Any
 
 
 @dataclass
-class Message:
+class BaseMessage:
     topic: str  # name of the topic, e.g. `database_updated`, `websocket/<plugin_name>`
     payload: Any = None  # content of the message. Can be anything and can be `None`
-    sender: Any = None  # either name (str) or the obj. But I think name is better.
-    receiver: Any = None  # sure? Broadcasting doesn't have only one message.
+
+@dataclass
+class WebsocketRequest(BaseMessage):
+    """
+    A message that is exchanged between the server and internal components of
+    the system. It either originated from the js frontend and was forwarded
+    by the server to a plugin or sent by a plugin to the server to be
+    forwarded to the frontend.
+
+    `ws_id` is the id of the websocket object that was used to either receive
+    this message or that should be used to send a message to the frontend. If
+    the server receives a message from a component (e.g. a plugin) without a
+    `ws_id` (i.e. -1), it will broadcast the message to all active frontends.
+    """
+    ws_id: int = -1
 
 
 class Topics:
@@ -72,7 +85,8 @@ class Topics:
     @classmethod
     def send_message(cls, message):
         """ Will distribute the message to all subscribers by calling their callback. """
-        if not isinstance(message, Message):
+        if not isinstance(message, BaseMessage):
+            # TODO: Use logger instead of print
             print("!!! Message has wrong type:", type(message))
         for client in cls._clients:
             client.receive_message(message)

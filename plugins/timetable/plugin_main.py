@@ -31,6 +31,9 @@ class TimetablePlugin(Plugin):
         ws_backend_topic = "websocket/{}/backend".format(self.name)
         self.register_topic_callback(ws_backend_topic, self.ws_message_from_frontend)
 
+        ws_new_client_topic = "websocket/new_client"
+        self.register_topic_callback(ws_new_client_topic, self.new_ws_client)
+
     # async def ws_message_from_frontend(self, data):
     async def ws_message_from_frontend(self, msg):
         self.logger.info("timetable plugin has received a message.")
@@ -62,11 +65,17 @@ class TimetablePlugin(Plugin):
         all_entries = self.get_all_entries()
         # sort entries by day and insert spacers
         all_entries.sort(key = lambda e: (e["weekday"], 60*e["time_hh"] + e["time_mm"], e["duration"], e["zones"][0]))
-        await self.send_to_clients(all_entries)
+        await self.send_to_clients({
+            "command": "timetable_contents",
+            "payload": all_entries
+        })
 
     def get_all_entries(self):
         return Database.as_dict_with_id(self.tt_db.all())
 
+    async def new_ws_client(self, msg):
+        ws_id = msg.ws_id
+        await self.send_to_clients("new client with id {}".format(ws_id), ws_id=ws_id)
 
     ### demo / debug
 
@@ -86,6 +95,3 @@ class TimetablePlugin(Plugin):
         # Not sure if I will use this. Seems like double the work.
         # I mean at least don't use it for not for DB related data.
         return self.query_db_for_timetable()
-
-    def new_client(self):
-        self.send_to_clients(self.query_db_for_timetable())

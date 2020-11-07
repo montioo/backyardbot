@@ -104,10 +104,39 @@ logger_name = __name__ + "." + self.__class__.__name__
 A `Message` instance can be sent by the `Topic` class. It will be send to all registered instances but only some may react (i.e. decide to enqueue it in their message buffer).
 
 Reserved topics:
-- `websocket/<plugin_name>/backend : messages to a plugin's handler from the frontend
-- `websocket/<plugin_name>/frontend : ...
+- `websocket/<plugin_name>/backend` : messages to a plugin's handler from the frontend
+- `websocket/<plugin_name>/frontend` : ...
+- `websocket/new_client` : Will be sent out by the server as a new js client connects. Contains the id of the new ws object so that plugins have the ability to send a message to only the new client.
 
 maybe `websocket/frontend/<plugin_name>` and `websocket/backend/<plugin_name>` is better as the frontend stuff is handled by the js code which is not executed 'in the same place' as the python code.
 
 
 TODO: The plugins don't need to know about the server as they can send data using the topics and the stuff will be forwarded to the server and from there to the frontend of the website.
+
+
+## Server
+
+
+### Topic <--> Websocket
+
+As a new websocket client connects to the server, all plugins will have the opportunity to send a message to only this individual new client. The server will inform all plugins about the new websocket client and include the client's id in this notification.
+
+A plugin can send a message over a topic to the server which will then be forwarded to all ws clients (broadcast) or include a specific id to only forward the message to on ws client.
+
+Topics to address the server:
+
+`websocket/<plugin_name>/frontend`: The server will forward messages received on that topic to the websocket client(s)
+
+If no receiver is given in the Message description (receiver is `None`), the message will be forwarded to all websocket frontends. If a receiver is given, the message will only be forwarded to this specific websocket client.
+
+```
+ browser  --+             +--------+          +-- plugin
+            |  websocket  |        |  topics  |
+ browser  --+-------------+ Server +----------+-- plugin
+            |             |        |
+ browser  --+             +--------+
+```
+
+The communication system is shown in the schematic above. The right part of the system is written in Python and plugins and the server can communicate with each other using topics. On top of that, the server opens up the possibility to convert topic messages to messages sent over websockets. The plugins don't need to know about this conversion and for a plugin the communication with it's frontend counterparts is equivalent to the communication with another part of the system.
+
+TODO: Message structure for the different communication types?

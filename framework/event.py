@@ -13,6 +13,7 @@ import time
 import inspect
 from collections import deque
 from .utility import create_logger
+from .communication import Topics
 
 
 class EventComponent:
@@ -32,6 +33,8 @@ class EventComponent:
         self._message_queue = deque()
         self._message_handlers = {}
 
+        Topics.register(self)
+
     # === Public Methods ===
     # === -------------- ===
 
@@ -46,7 +49,7 @@ class EventComponent:
         ```
         rate = 1/10  # 0.1 Hz = executed every 10 seconds
         while await self.spin_once(rate):
-            print("Important periodic task here.")
+            self.logger.info("Important periodic task here.")
         ```
         """
         await self.spin()

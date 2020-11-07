@@ -14,6 +14,7 @@ function int_list_to_string(int_list) {
 
 function toStringZeroPadding(n, digit_count) {
     var s = n.toString();
+    // jeez is that ugly
     while (s.length < digit_count) s = "0" + s;
     return s;
 }
@@ -31,6 +32,26 @@ class TimetablePlugin extends BybPluginInterface {
     }
 
     receive_data(data) {
+        if (data.constructor != Object || !("command" in data) || !("payload" in data)) {
+            // data is not a dict
+            console.log("received data that is not a dict:", data);
+            return;
+        }
+
+        const action_dict = {
+            "timetable_contents": this.display_updated_timetable
+            // more message handlers ...
+        };
+
+        // action_dict[data["command"]](data["payload"]);
+
+        if (data["command"] == "timetable_contents") {
+            this.display_updated_timetable(data["payload"]);
+        }
+    }
+
+    display_updated_timetable(data) {
+        // receives an updated timetable list from the backend and displays it.
         const table = document.getElementById("ttp_table");
         const tbody = table.getElementsByTagName("tbody")[0];
         // TODO: Do not delete the header
@@ -42,6 +63,7 @@ class TimetablePlugin extends BybPluginInterface {
         var last_weekday = -1;
         for (var element of data) {
             if (element.weekday != last_weekday) {
+                // tbody.appendChild(this.create_table_divider(element.weekday.toString()))
                 tbody.appendChild(this.create_table_divider(element.weekday.toString()))
                 last_weekday = element.weekday;
             }
