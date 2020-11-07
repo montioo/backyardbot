@@ -77,13 +77,12 @@ class EventComponent:
             # Execute callback for longest waiting message
             msg = self._message_queue.popleft()
             callback = self._message_handlers[msg.topic]
-            if callback is None:
-                self.logger.info("No callback available for message in topic {}".format(msg.topic))
-            elif inspect.iscoroutinefunction(callback):
+            if inspect.iscoroutinefunction(callback):
                 # launch asynchronously and return immediately
                 asyncio.ensure_future(callback(msg))
             else:
-                self.logger.warning("Using synchronous callback function.")
+                # for quick tasks, a synchronous callback is fine
+                # self.logger.warning("Using synchronous callback function.")
                 callback(msg)
 
     async def spin(self):

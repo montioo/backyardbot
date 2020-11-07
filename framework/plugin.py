@@ -123,13 +123,3 @@ class Plugin(EventComponent):
 
     def calc_render_data(self):
         return None
-
-    # === Deprecated ===
-    # === ---------- ===
-
-    def will_shutdown(self):
-        """
-        Called before the plugin's instance is terminated. Might want to do
-        cleanup work or send a message to all remaining frontends.
-        """
-        pass
