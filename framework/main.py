@@ -134,7 +134,8 @@ class Server(EventComponent):
                     message_destination = data_dict["message_destination"]
                     receiving_plugin = data_dict["receiving_plugin"]
                     if message_destination == "to_client":
-                        await self.send_to_clients(payload, receiving_plugin)
+                        m = WebsocketRequest(f"websocket/{receiving_plugin}/frontend", payload)
+                        await self.send_topic_over_ws(m)
                         continue
                     elif message_destination == "to_server":
                         plugin_name = receiving_plugin
