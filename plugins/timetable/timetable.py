@@ -10,7 +10,8 @@
 import os
 from framework.plugin import Plugin
 from framework.memory import Database
-from byb.byb_common import TIMETABLE_DB
+from framework.communication import Topics, BaseMessage
+from byb.byb_common import TIMETABLE_DB_NAME
 
 
 class TimetablePlugin(Plugin):
@@ -25,7 +26,7 @@ class TimetablePlugin(Plugin):
             "remove_entry": self.handle_remove_entry
         }
 
-        self.tt_db = Database.get_db_for(TIMETABLE_DB)
+        self.tt_db = Database.get_db_for(TIMETABLE_DB_NAME)
 
         # Registering standard websocket message handler.
         ws_backend_topic = "websocket/{}/backend".format(self.name)
@@ -53,12 +54,26 @@ class TimetablePlugin(Plugin):
         # TODO: Make sure that the data is valid
         for entry in new_entries:
             self.tt_db.insert(entry)
+
+        ## tmp solution
+        topic = "database_update/" + TIMETABLE_DB_NAME
+        msg = BaseMessage(topic)
+        Topics.send_message(msg)
+        ##
+
         await self.send_updated_table()
 
     async def handle_remove_entry(self, data):
         doc_id_to_remove = data
         self.logger.info("-------> going to remove entry with id {}".format(doc_id_to_remove))
         self.tt_db.remove(doc_ids=[doc_id_to_remove])
+
+        ## tmp solution
+        topic = "database_update/" + TIMETABLE_DB_NAME
+        msg = BaseMessage(topic)
+        Topics.send_message(msg)
+        ##
+
         await self.send_updated_table()
 
     async def send_updated_table(self):

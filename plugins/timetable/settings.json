@@ -1,5 +1,5 @@
 {
-    "plugin_main": "plugin_main.py",
+    "plugin_main": "timetable.py",
     "class_name": "TimetablePlugin",
     "html_template": "timetable.html",
     "css_styles": ["timetable.css"],

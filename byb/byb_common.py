@@ -14,7 +14,7 @@ from typing import List
 
 # == Database Names ==
 
-TIMETABLE_DB = "time_schedule_table"
+TIMETABLE_DB_NAME = "time_schedule_table"
 
 
 # == Topic Definitions ==
@@ -23,18 +23,8 @@ TOPIC_START_WATERING = "TOPIC_START_WATERING"
 
 @dataclass
 class StartWateringPayload:
-    zones: List[int]
-    durations: List[int]
+    zones: List[int]        # .zone = 0: water all channels  NO
+    durations: List[int]    # .duration = 0: use cooldown duration
 
     def __repr__(self):
-        return "({}, {})".format(self.zones, self.durations)
-
-# which one of those?
-
-@dataclass
-class WateringTask:
-    zone: int = 0       # .zone = 0: water all channels  NO
-    duration: int = 0   # .duration = 0: use cooldown duration
-
-    def __repr__(self):
-        return "({}, {})".format(self.zone, self.duration)
+        return "StartWateringPayload: [(zone, duration), ..]: {}".format(list(zip(self.zones, self.durations)))

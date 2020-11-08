@@ -8,11 +8,14 @@
 #
 
 import sys
-# from framework.server import Server
 from framework.main import Server
 from framework.plugin_manager import PluginManager
 from framework.memory import Database
 from framework.utility import create_logger
+
+# Activating logging for asyncio
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 def main():
