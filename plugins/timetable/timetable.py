@@ -76,21 +76,20 @@ class TimetablePlugin(Plugin):
 
         await self.send_updated_table()
 
-    async def send_updated_table(self):
+    async def send_updated_table(self, ws_id=-1):
         all_entries = self.get_all_entries()
         # sort entries by day and insert spacers
         all_entries.sort(key = lambda e: (e["weekday"], 60*e["time_hh"] + e["time_mm"], e["duration"], e["zones"][0]))
         await self.send_to_clients({
             "command": "timetable_contents",
             "payload": all_entries
-        })
+        }, ws_id=ws_id)
 
     def get_all_entries(self):
         return Database.as_dict_with_id(self.tt_db.all())
 
     async def new_ws_client(self, msg):
-        ws_id = msg.ws_id
-        await self.send_to_clients("new client with id {}".format(ws_id), ws_id=ws_id)
+        await self.send_updated_table(ws_id=msg.ws_id)
 
     ### demo / debug
 
