@@ -37,7 +37,7 @@ class TimecontrolPlugin extends BybPluginInterface {
 
         const auto_state = data["auto_state"];
 
-        var auto_desc_idx = auto_state ? 0 : 1;
+        var auto_desc_idx = + !auto_state;  // bool to int, the js way
         document.getElementById(this.toggle_auto_btn_id).innerHTML = tcp_auto_titles[auto_desc_idx];
 
         const next_time_day = data["next_time_day"];
