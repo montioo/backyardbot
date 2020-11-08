@@ -4,12 +4,27 @@
 
 <h2>Plugin: {{ plugin_name }}</h2>
 
-<i>{{ localization["header_italic"] }}</i>
+<div class="box_title">
+  {{ localization["header_italic"] }}
+</div>
 
-<h3 id="tcp_time_day_scheduled">Next Time, Day</h3>
+<div id="tcp_time_day_scheduled" class="box_bold">
+    {# Next Time, Day #}
+</div>
 
-<p id="tcp_zones_durations_scheduled">Zones and Duration</p>
+<div id="tcp_zones_durations_scheduled" class="box_content">
+    {# Zones and Durations #}
+</div>
 
-<button onclick="tc_plugin.skip_watering_callback()">{{ localization["skip_button"] }}</button>
+<div id="tcp_skip_next_div" class="box_content" style="margin-top:15px;">
+  <span class="box_button" onclick="tc_plugin.skip_watering_btn()">{{ localization["skip_button"] }}</span>
+</div>
 
-<button onclick="tc_plugin.toggle_auto_mode()">{{ localization["activate_auto_mode"] }}</button>
+<div class="box_content" style="margin-top:20px;">
+  <span class="box_button" id="tcp_toggle_auto_btn" onclick="tc_plugin.toggle_auto_mode_btn(this)">{{ localization["activate_auto_mode"] }}</span>
+</div>
+
+
+<script>
+    const tcp_auto_titles = [ "{{ localization['deactivate_auto_mode'] }}", "{{ localization['activate_auto_mode'] }}" ];
+</script>

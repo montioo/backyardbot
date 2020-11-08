@@ -8,7 +8,7 @@
 #
 
 from framework.plugin import Plugin
-from framework.communication import Topics, BaseMessage
+from framework.communication import Topics, BaseMessage, WebsocketRequest
 from framework.memory import Database
 from byb.byb_common import TOPIC_START_WATERING, StartWateringPayload, TIMETABLE_DB_NAME
 from plugins.timecontrol.tc_task import Task
@@ -31,18 +31,62 @@ class TimeControlPlugin(Plugin):
         self._tasks = []
         self._auto_mode_enabled = True
 
+        self.command_map = {
+            "skip_next_watering": lambda _: self.skip_next_watering(),
+            "toggle_auto_mode": self.toggle_auto_mode
+        }
+
         self.timetable_db = Database.get_db_for(TIMETABLE_DB_NAME)
         self.register_topic_callback("database_update/" + TIMETABLE_DB_NAME, self._timetable_updated_callback)
 
+        ws_backend_topic = "websocket/{}/backend".format(self.name)
+        self.register_topic_callback(ws_backend_topic, self.ws_message_from_frontend)
+
+        ws_new_client_topic = "websocket/new_client"
+        self.register_topic_callback(ws_new_client_topic, self.new_ws_client)
+
         self._load_tasks()
 
+    async def ws_message_from_frontend(self, msg):
+        """
+        Processes a message from frontend. Changes the state of the plugin
+        and responds with an updated state description.
+        """
+        try:
+            data = msg.payload
+            command = data["command"]
+            payload = data["payload"]
+        except KeyError:
+            self.logger.info(f"received invalid message from frontend: {msg}")
+            return
 
-    # === Private methods ===
-    # === --------------- ===
+        if command in self.command_map.keys():
+            self.command_map[command](payload)
+
+        await self.send_updated_state()
+
+    async def new_ws_client(self, msg):
+        """ Sends the current system state only to the new websocket client. """
+        await self.send_updated_state(msg.ws_id)
+
+    async def send_updated_state(self, ws_id=-1):
+        """ Prepares a message that tells the frontend to update the UI with new data. """
+        m = {
+            "command": "plugin_state",
+            "payload": self.get_system_state()
+        }
+        await self.send_to_clients(m, ws_id=ws_id)
+
+
+    # === Task Scheduling ===
 
     async def _timetable_updated_callback(self, msg):
-        # Ignore msg and load updated timetable
+        """
+        Loads the updated timetable from the database and sends the updated
+        system state to all clients.
+        """
         self._load_tasks()
+        await self.send_updated_state()
 
     def _load_tasks(self):
         """
@@ -64,6 +108,7 @@ class TimeControlPlugin(Plugin):
         time.
         """
         for task in to_update:
+            # TODO: Even if auto mode was disabled, the previous execution timestamps were still saved in the task object.
             task.update_next_execution_timestamp()
         self._tasks.sort()
 
@@ -115,8 +160,10 @@ class TimeControlPlugin(Plugin):
     # === Status Control ===
 
     def skip_next_watering(self):
+        self.logger.info("Will skip next watering")
         if not self._auto_mode_enabled or not self._tasks:
             return
+        self.logger.info("Will skip next watering - for real")
         group = self._get_next_group()
         self._reschedule_tasks(to_update=group)
 
@@ -126,8 +173,13 @@ class TimeControlPlugin(Plugin):
             self._auto_mode_enabled = True
 
     def stop_auto_mode(self):
-        self._earliest_watering_timestamp = 0
         self._auto_mode_enabled = False
+
+    def toggle_auto_mode(self, new_state):
+        if new_state:
+            self.start_auto_mode()
+        else:
+            self.stop_auto_mode()
 
     # === Status Info ===
 
@@ -136,6 +188,7 @@ class TimeControlPlugin(Plugin):
         # format 19:05 Uhr, Montags
         if not self._tasks:
             return " "
+        # TODO: Return properties of the whole group?
         return str(self._tasks[0])
 
     def get_next_task_zone(self) -> str:
@@ -152,4 +205,13 @@ class TimeControlPlugin(Plugin):
     def is_auto_mode_enabled(self):
         return self._auto_mode_enabled
 
+    def get_system_state(self):
+        auto_state = self.is_auto_mode_enabled()
+        state_dict = {
+            "auto_state": auto_state,
+            # TODO: Use localization dict. Make localization dict available as self.localization
+            "next_time_day": self.get_next_task_time_day() if auto_state else "Auto mode disabled",
+            "next_zone_duration": f"Zones: {self.get_next_task_zone()}, Duration: {self.get_next_task_duration()}"
+        }
+        return state_dict
 

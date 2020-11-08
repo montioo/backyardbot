@@ -3,13 +3,13 @@
     "class_name": "TimeControlPlugin",
     "html_template": "timecontrol.html",
     "css_styles": [],
-    "js_scripts": [],
+    "js_scripts": ["timecontrol.js"],
 
     "load_plugin": true,
 
     "localization": {
         "en": {
-            "header_italic": "Next scheduled_watering",
+            "header_italic": "Next scheduled watering",
             "skip_button": "Skip next watering",
             "activate_auto_mode": "Activate auto mode",
             "deactivate_auto_mode": "Deactivate auto mode"
