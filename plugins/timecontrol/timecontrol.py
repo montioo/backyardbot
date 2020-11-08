@@ -11,16 +11,8 @@ from framework.plugin import Plugin
 from framework.communication import Topics, BaseMessage
 from framework.memory import Database
 from byb.byb_common import TOPIC_START_WATERING, StartWateringPayload, TIMETABLE_DB_NAME
-from tc_task import Task
-
-import asyncio
+from plugins.timecontrol.tc_task import Task
 import time
-import datetime
-# from sprinklerinterface import WateringTask, SprinklerInterface
-# import threading
-from typing import List, Tuple
-# import utility
-import uuid
 
 
 class TimeControlPlugin(Plugin):

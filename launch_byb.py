@@ -15,7 +15,7 @@ from framework.utility import create_logger
 
 # Activating logging for asyncio
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.getLogger("asyncio").setLevel(logging.DEBUG)
 
 
 def main():
