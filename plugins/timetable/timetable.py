@@ -21,7 +21,7 @@ class TimetablePlugin(Plugin):
     """
 
     def initialize(self, settings):
-        self.msg_handlers = {
+        self.command_handlers = {
             "add_entries": self.handle_add_entries,
             "remove_entry": self.handle_remove_entry
         }
@@ -35,14 +35,15 @@ class TimetablePlugin(Plugin):
         ws_new_client_topic = "websocket/new_client"
         self.register_topic_callback(ws_new_client_topic, self.new_ws_client)
 
-    # async def ws_message_from_frontend(self, data):
     async def ws_message_from_frontend(self, msg):
         self.logger.info("timetable plugin has received a message.")
         data = msg.payload
 
+        # TODO: Remove the loop, every msg will only contain one command.
+        # TODO: Port to payload structure that is also used in timecontrol plugin.
         for action in data.keys():
-            if action in self.msg_handlers:
-                await self.msg_handlers[action](data[action])
+            if action in self.command_handlers:
+                await self.command_handlers[action](data[action])
             else:
                 self.logger.info("received unknown action: {}".format(action))
 
