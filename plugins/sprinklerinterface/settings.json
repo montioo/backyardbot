@@ -1,0 +1,16 @@
+{
+    "plugin_main": "sprinklerinterface.py",
+    "class_name": "WateringPlugin",
+    "html_template": "sprinklerinterface.html",
+    "css_styles": [],
+    "js_scripts": [],
+
+    "load_plugin": true,
+
+    "localization": {
+        "en": {
+        },
+        "de": {
+        }
+    }
+}
