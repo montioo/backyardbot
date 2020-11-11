@@ -26,16 +26,29 @@ def pick_localization(plugin_settings, global_settings):
     return localization_dict
 
 
-def create_logger(name, *config_files):
+def create_logger(name, *config_dict):
     """
     Creates a logging object. Either uses the default configuration or a list
-    of configuration files with decreasing priority.
-    Recommendation for logger names of classes:
+    of configuration dicts with decreasing priority. Config dict has to
+    contain the key "logging" which holds another dict that holds the actual
+    configuration. All parameters are optional. Recommendation for logger
+    names of classes:
     `__name__ + "." + self.__class__.__name__`
+    ```
+    # Default config:
+    config["logging"] = {
+        "log_file": "byb.log",
+        "log_format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "log_to_stream": True,
+        "log_level_stream": "DEBUG",
+        "log_to_file": True,
+        "log_level_file": "DEBUG"
+    }
+    ```
     """
 
-    # default settings:
     log_config = {
+        # default settings:
         "log_file": "byb.log",
         "log_format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         "log_to_stream": True,
@@ -44,7 +57,7 @@ def create_logger(name, *config_files):
         "log_level_file": "DEBUG"
     }
 
-    for config in reversed(config_files):
+    for config in reversed(config_dict):
         log_config.update(config.get("logging", {}))
 
     logging_levels = {

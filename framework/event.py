@@ -79,6 +79,7 @@ class EventComponent:
             callback = self._message_handlers[msg.topic]
             if inspect.iscoroutinefunction(callback):
                 # launch asynchronously and return immediately
+                # TODO: Use .create_task instead (systemwide)
                 asyncio.ensure_future(callback(msg))
             else:
                 # for quick tasks, a synchronous callback is fine
