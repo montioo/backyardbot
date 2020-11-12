@@ -14,10 +14,18 @@
 
     "localization": {
         "en": {
-            "weekday_names": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+            "weekdays_short": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            "weekdays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            "table_header_time": "Time",
+            "table_header_zones": "Zones",
+            "table_header_duration": "Durations"
         },
         "de": {
-            "weekday_names": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+            "weekdays_short": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+            "weekdays": ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"],
+            "table_header_time": "Zeit",
+            "table_header_zones": "Zonen",
+            "table_header_duration": "Dauer"
         }
     }
 }

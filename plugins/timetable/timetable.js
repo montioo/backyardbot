@@ -78,7 +78,13 @@ class TimetablePlugin extends BybPluginInterface {
         var td = document.createElement("td");
         td.setAttribute("colspan", "4");
         td.style.paddingLeft = "20px";
-        td.innerHTML = weekday_str;
+        // TODO: Add safety for when parseInt fails.
+        const weekday_index = parseInt(weekday_str);
+        if (weekday_index == 7) {
+            td.innerHTML = tt_plugin_daily;
+        } else {
+            td.innerHTML = tt_plugin_weekdays[weekday_index];
+        }
         tr.appendChild(td);
         tr.className = "tv_day";
         return tr;

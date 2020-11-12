@@ -102,7 +102,7 @@ class TimetablePlugin(Plugin):
 
         # TODO: Would prefer async execution for all DB related things
         return {
-            "channels": [1, 2, 3, 4, 5],  # TODO: Get those from another DB as well
+            "zones": [1, 2, 3, 4, 5],  # TODO: Get those from another DB as well
             "timetable": self.get_all_entries()
         }
 

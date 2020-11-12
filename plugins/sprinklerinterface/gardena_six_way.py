@@ -114,6 +114,7 @@ class SixWaySprinkler(ActuatorInterface):
         self.logger.info("Active watering channel: {}".format(self._active_channel))
 
     def _load_active_channel(self):
+        # TODO: Do this with framework.memory.Database
         try:
             with open(self._channel_state_file) as f:
                 self._active_channel = int(f.readline())

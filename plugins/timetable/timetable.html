@@ -10,9 +10,9 @@ The following watering tasks are scheduled:
 
 <table id="ttp_table"><tbody>
   <tr>
-    <th class="tv_header">Time</th>
-    <th class="tv_header">Zone</th>
-    <th class="tv_header">Duration</th>
+    <th class="tv_header">{{ localization["table_header_time"] }}</th>
+    <th class="tv_header">{{ localization["table_header_zones"] }}</th>
+    <th class="tv_header">{{ localization["table_header_duration"] }}</th>
   </tr>
   {% for row in values["timetable"] %}
   <tr data-doc_id="{{ row['doc_id'] }}">
@@ -43,13 +43,13 @@ The following watering tasks are scheduled:
     </div>
 
     <div class="selector_row" id="ttp_day_selector">
-      {% for weekday_name in localization["weekday_names"] %}
+      {% for weekday_name in localization["weekdays_short"] %}
         <div class="selector_box" onclick="clicked_selector(this)">{{ weekday_name }}</div>
       {% endfor %}
     </div>
 
     <div class="selector_row" id="ttp_channel_selector">
-      {% for channel in values["channels"] %}
+      {% for channel in values["zones"] %}
         <div class="selector_box" onclick="clicked_selector(this)">{{ channel }}</div>
       {% endfor %}
     </div>
@@ -72,9 +72,9 @@ The following watering tasks are scheduled:
   </div>
 </div>
 
+{# Making the localization contents available to js #}
 <script>
-  {# TODO: Not sure that this is the best way #}
-  // const tt_plugin_localization = {
-  //   weekdays: {{ weekdays }}
-  // };
+  const tt_plugin_weekdays_short = {{ localization['weekdays_short'] }};
+  const tt_plugin_weekdays = {{ localization['weekdays'] }};
+  const tt_plugin_daily = "{{ localization['daily'] }}";
 </script>
