@@ -47,6 +47,8 @@ In general: #*Zones* >= #*Actuators*
 
 ## Database Tables:
 
+Database update messages are sent over channels `database_update/<database_name>`. They don't hold any payload and only inform about a change in a table's contents.
+
 ### Time Schedule - `time_schedule_table`:
 
 ```js
@@ -63,11 +65,11 @@ In general: #*Zones* >= #*Actuators*
 ```
 
 
-### Watering Zones - `sprinkler_info_table`:
+### Watering Zones - `zone_info_table`:
 
 For the most part, the numbers of actuators and zones match. If no zones are defined, the system will assume that this is the case and associate each actuator with an equally named zone.
 Public for all of the system are the zones
-The zones are public for all components of the system and available in the `sprinkler_info_table`. The underlying mapping from *Zone X should be watered* -> *This means Actuator Y has to be triggered* -> *Actuator Y is connected to gpio Z and controlled in this and that way* is done by the Actuator plugin and of no interest to the rest of the system.
+The zones are public for all components of the system and available in the `zone_info_table`. The underlying mapping from *Zone X should be watered* -> *This means Actuator Y has to be triggered* -> *Actuator Y is connected to gpio Z and controlled in this and that way* is done by the Actuator plugin and of no interest to the rest of the system.
 
 The Actuation plugin will take care of zones and actuators. There is one configuration that is global and highlights the structure of all available actuators and on top of that, the actuation module holds a private configuration which includes information like the GPIO pin to which an actuator is attached.
 
@@ -75,11 +77,15 @@ The Actuation plugin will take care of zones and actuators. There is one configu
 // Zones:
 [
     {
-        "zone_id": Int,
-        "zone_name": str
+        // id is assigned by the database implementation
+        "name": str,
+        "description": str
     }
 ]
 ```
+
+Zones are stored in the database accessible for all plugins.
+
 
 
 This is an example of the data that the actuator plugin might hold.
@@ -128,3 +134,6 @@ Future features:
 
 Needs:
 - some sort of system similar to rpc, e.g. read data from sensor X and return data.
+
+
+###

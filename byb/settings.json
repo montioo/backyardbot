@@ -31,6 +31,6 @@
 
     "database_tables": {
         "time_schedule": "time_schedule_table",
-        "sprinkler_info": "sprinkler_info_table"
+        "sprinkler_info": "zone_info_table"
     }
 }

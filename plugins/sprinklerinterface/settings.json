@@ -7,6 +7,27 @@
 
     "load_plugin": true,
 
+    "plugin_settings": {
+        "actuator_implementations": ["SixWaySprinkler"]
+        // TODO: This has to go in the database(s). A UI should assist with setting the system up.
+        // "actuators": [
+        //     {
+        //         "class": "SixWaySprinkler",
+        //         "zones": ["Z1", "Z2"]
+        //     }
+        // ],
+        // "zones": [
+        //     {
+        //         "name": "Z1",
+        //         "description": "desc 1"
+        //     },
+        //     {
+        //         "name": "Z2",
+        //         "description": "desc 2"
+        //     }
+        // ]
+    },
+
     "localization": {
         "en": {
         },
