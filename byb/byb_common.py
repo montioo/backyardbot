@@ -15,6 +15,7 @@ from typing import List
 # == Database Names ==
 
 TIMETABLE_DB_NAME = "time_schedule_table"
+ZONE_DB_NAME = "zone_info_table"
 
 
 # == Topic Definitions ==
@@ -27,4 +28,4 @@ class StartWateringPayload:
     durations: List[int]    # .duration = 0: use cooldown duration
 
     def __repr__(self):
-        return "StartWateringPayload: [(zone, duration), ..]: {}".format(list(zip(self.zones, self.durations)))
+        return f"StartWateringPayload: [(zone, duration), ..]: {list(zip(self.zones, self.durations))}"

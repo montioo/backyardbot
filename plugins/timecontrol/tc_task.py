@@ -91,7 +91,7 @@ class Action:
     duration: int = 0   # .duration = 0: use cooldown duration
 
     def __repr__(self):
-        return "({}, {})".format(self.zone, self.duration)
+        return f"({self.zone}, {self.duration})"
 
 
 class Task:
@@ -151,7 +151,8 @@ class Task:
 
     def __str__(self):
         # implement representation based on next execution weekday and time
-        return "task id: {}, {}, zones: {}".format(self.id, self.planned_time, self.zones)
+        # TODO: This causes wrong (to much) info in the UI. Remove zones or whatever.
+        return f"task id: {self.id}, {self.planned_time}, zones: {self.zones}"
 
     # === Deprecated ===
 
@@ -166,7 +167,7 @@ class Task:
     #         return t
     #     except KeyError:
     #         type_name = dct.__class__.__name__
-    #         raise TypeError("{} is not decodable into Task object".format(type_name))
+    #         raise TypeError(f"{type_name} is not decodable into Task object")
 
     # @classmethod
     # def encode(cls):

@@ -42,7 +42,7 @@ class PluginManager:
             plugin_module_file = os.path.join(self.plugin_dir, self.settings["plugin_main"])
 
             # Loading class from module. What happened to the python mantra "There is one obvious way"?
-            plugin_module = "{}.{}".format(self.plugin_name, plugin_class_name)
+            plugin_module = f"{self.plugin_name}.{plugin_class_name}"  # import statement
             spec = importlib.util.spec_from_file_location(plugin_module, plugin_module_file)
             imported_plugin_module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(imported_plugin_module)

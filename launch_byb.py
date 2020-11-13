@@ -31,7 +31,7 @@ def main():
     try:
         _ = open(settings_file)
     except FileNotFoundError:
-        top_logger.error("Didn't find the specified config file: {}".format(settings_file))
+        top_logger.error(f"Didn't find the specified config file: {settings_file}")
         return
 
     # TODO: Create some form of default settings file.

@@ -29,7 +29,7 @@ class TimetablePlugin(Plugin):
         self.tt_db = Database.get_db_for(TIMETABLE_DB_NAME)
 
         # Registering standard websocket message handler.
-        ws_backend_topic = "websocket/{}/backend".format(self.name)
+        ws_backend_topic = f"websocket/{self.name}/backend"
         self.register_topic_callback(ws_backend_topic, self.ws_message_from_frontend)
 
         ws_new_client_topic = "websocket/new_client"
@@ -45,7 +45,7 @@ class TimetablePlugin(Plugin):
             if action in self.command_handlers:
                 await self.command_handlers[action](data[action])
             else:
-                self.logger.info("received unknown action: {}".format(action))
+                self.logger.info(f"received unknown action: {action}")
 
     async def handle_add_entries(self, new_entries):
         # receive and entry that should be added to the DB
@@ -66,7 +66,7 @@ class TimetablePlugin(Plugin):
 
     async def handle_remove_entry(self, data):
         doc_id_to_remove = data
-        self.logger.info("-------> going to remove entry with id {}".format(doc_id_to_remove))
+        self.logger.info(f"-------> going to remove entry with id {doc_id_to_remove}")
         self.tt_db.remove(doc_ids=[doc_id_to_remove])
 
         ## tmp solution

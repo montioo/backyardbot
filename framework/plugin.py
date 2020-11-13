@@ -38,7 +38,7 @@ class Plugin(EventComponent):
 
         self.name = plugin_settings_path.split("/")[-2]
 
-        self.logger.info("created plugin {}".format(self.name))
+        self.logger.info(f"created plugin {self.name}")
 
         self.html_template_path = os.path.join(plugin_dir, self.settings["html_template"])
         # TODO: relative paths. Must include leading slash from project's root dir.
@@ -101,7 +101,7 @@ class Plugin(EventComponent):
         """
         # TODO: Replace this. The server should listen to `websocket/<plugin_name>/frontend topics`
         # await self._server.send_to_clients(data, self.name)
-        topic = "websocket/{}/frontend".format(self.name)
+        topic = f"websocket/{self.name}/frontend"
         message = WebsocketRequest(topic, payload=data, ws_id=ws_id)
         Topics.send_message(message)
 

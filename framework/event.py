@@ -71,7 +71,7 @@ class EventComponent:
             self._received_update_event.clear()
 
             if self._should_shutdown:
-                self.logger.info("--> plugin {}.{} exiting".format(__name__, self.__class__.__name__))
+                self.logger.info(f"--> plugin {__name__}.{self.__class__.__name__} exiting")
                 return False
 
             # Execute callback for longest waiting message

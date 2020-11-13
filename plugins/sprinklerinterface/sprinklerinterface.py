@@ -19,7 +19,7 @@ class WateringTask:
     duration: int = 0   # .duration = 0: use cooldown duration
 
     def __repr__(self):
-        return "({}, {})".format(self.zone, self.duration)
+        return f"({self.zone}, {self.duration})"
 
 
 class WateringPlugin(Plugin):

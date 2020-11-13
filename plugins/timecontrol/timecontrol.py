@@ -39,7 +39,7 @@ class TimeControlPlugin(Plugin):
         self.timetable_db = Database.get_db_for(TIMETABLE_DB_NAME)
         self.register_topic_callback("database_update/" + TIMETABLE_DB_NAME, self._timetable_updated_callback)
 
-        ws_backend_topic = "websocket/{}/backend".format(self.name)
+        ws_backend_topic = f"websocket/{self.name}/backend"
         self.register_topic_callback(ws_backend_topic, self.ws_message_from_frontend)
 
         ws_new_client_topic = "websocket/new_client"
@@ -149,7 +149,7 @@ class TimeControlPlugin(Plugin):
                 p = StartWateringPayload(zones, durations)
                 m = BaseMessage(TOPIC_START_WATERING, payload=p)
                 Topics.send_message(m)
-                self.logger.info("Sent new watering action: {}".format(p))
+                self.logger.info(f"Sent new watering action: {p}")
 
 
     # === Plugin State ===
@@ -210,6 +210,7 @@ class TimeControlPlugin(Plugin):
         state_dict = {
             "auto_state": auto_state,
             # TODO: Use localization dict. Make localization dict available as self.localization
+            # TODO: Don't use localization dict? Rather Let the frontend do that by transferring weekdays ids and such
             "next_time_day": self.get_next_task_time_day() if auto_state else "Auto mode disabled",
             "next_zone_duration": f"Zones: {self.get_next_task_zone()}, Duration: {self.get_next_task_duration()}"
         }

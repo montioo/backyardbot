@@ -33,7 +33,7 @@ class EventPluginToTest(EventPluginBase):
 
     async def message_callback(self, msg):
         """ To be overridden by the user. """
-        print("+++ start callback for msg {}".format(msg))
+        print(f"+++ start callback for msg {msg}")
         await asyncio.sleep(5)
         print("--- done with callback")
 

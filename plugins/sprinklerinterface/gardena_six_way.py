@@ -89,7 +89,7 @@ class SixWaySprinkler(ActuatorInterface):
                     current_task = self._watering_tasks.pop(0)
                     self._watering_stop_time += current_task.duration
                     self.watering_started_function(current_task.channel, self.get_remaining_time_current_channel())
-                    self.logger.info("Found new watering task for current channel: {}".format(current_task))
+                    self.logger.info(f"Found new watering task for current channel: {current_task}")
 
                 await asyncio.sleep(1)
 
@@ -111,14 +111,14 @@ class SixWaySprinkler(ActuatorInterface):
         if self._active_channel > self._channel_count:
             self._active_channel = 1
         self._store_active_channel()
-        self.logger.info("Active watering channel: {}".format(self._active_channel))
+        self.logger.info(f"Active watering channel: {self._active_channel}")
 
     def _load_active_channel(self):
         # TODO: Do this with framework.memory.Database
         try:
             with open(self._channel_state_file) as f:
                 self._active_channel = int(f.readline())
-                self.logger.info("Loaded last active channel from file: {}".format(self._active_channel))
+                self.logger.info(f"Loaded last active channel from file: {self._active_channel}")
         except FileNotFoundError:
             self._active_channel = 1
             self.logger.info("Couldn't find file with active channel.")
@@ -141,7 +141,7 @@ class SixWaySprinkler(ActuatorInterface):
             task for each channel.
         :param new_tasks: list of WateringTask objects
         """
-        self.logger.info("Received new watering tasks: {}".format(new_tasks))
+        self.logger.info(f"Received new watering tasks: {new_tasks}")
         self.update_watering_tasks(new_tasks)
 
     def update_watering_tasks(self, new_tasks=[]):
@@ -173,7 +173,7 @@ class SixWaySprinkler(ActuatorInterface):
                 continue
             final_tasks.append(task)
         self._watering_tasks = list(reversed(final_tasks))
-        self.logger.debug("Updated watering tasks: {}".format(self._watering_tasks))
+        self.logger.debug(f"Updated watering tasks: {self._watering_tasks}")
 
     def stop_watering(self, zones=[]):
         if not zones:
@@ -183,7 +183,7 @@ class SixWaySprinkler(ActuatorInterface):
         else:
             # remove zones in question from watering tasks
             self._watering_tasks = [wt for wt in self._watering_tasks if wt.channel not in zones]
-            self.logger.info("Stop watering for zones: {}".format(zones))
+            self.logger.info(f"Stop watering for zones: {zones}")
         if self._active_channel in zones:
             # if zone is active, stop the watering for this zone.
             self._watering_stop_time = time.time()

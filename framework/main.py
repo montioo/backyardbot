@@ -54,7 +54,7 @@ class Server(EventComponent):
             plugin.register_server(self)
             self.allowed_files += plugin.css_files() + plugin.js_files()
 
-            topic = "websocket/{}/frontend".format(plugin.name)
+            topic = f"websocket/{plugin.name}/frontend"
             self.register_topic_callback(topic, self.send_topic_over_ws)
 
         html_template_file = get_html_template_file(self.settings)
@@ -105,7 +105,7 @@ class Server(EventComponent):
 
 
     async def handle_ws(self, request):
-        self.logger.info("ws request: {}".format(request))
+        self.logger.info(f"ws request: {request}")
         ws = web.WebSocketResponse()
         self.ws_clients.add(ws)
         await ws.prepare(request)
@@ -119,14 +119,14 @@ class Server(EventComponent):
                 try:
                     data_dict = json.loads(msg.data)
                 except Exception as e:
-                    self.logger.info("error {} parsing message: {}".format(e, msg))
+                    self.logger.info(f"error {e} parsing message: {msg}")
                     continue
 
                 try:
                     plugin_name = data_dict["plugin_name"]
                     payload = data_dict["payload"]
                 except KeyError:
-                    self.logger.info("Keys plugin_name or payload not present in {}".format(data_dict))
+                    self.logger.info(f"Keys plugin_name or payload not present in {data_dict}")
                     continue
 
                 ### debug code, send message to arbitrary receivers.
@@ -143,7 +143,7 @@ class Server(EventComponent):
                         raise Exception("no such destination:", message_destination)
                 ### end debug code
 
-                topic = "websocket/{}/backend".format(plugin_name)
+                topic = f"websocket/{plugin_name}/backend"
                 message = WebsocketRequest(topic, payload=payload, ws_id=id(ws))
                 Topics.send_message(message)
 

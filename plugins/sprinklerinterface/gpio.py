@@ -47,28 +47,28 @@ class DebugGpioInterface(GpioInterface):
         logger_name = __name__ + "." + self.__class__.__name__
         self.logger = create_logger(logger_name, config)
         self._states = {p: 0 for p in pins}
-        self.logger.debug("Activated GPIO port {}".format(pins))
+        self.logger.debug(f"Activated GPIO port {pins}")
 
     def set_state(self, pin, new_state):
         if pin not in self._states.keys():
             self.logger.error("Can't change state of " + str(pin))
-            raise EnvironmentError("Can't switch unknown GPIO port: {}".format(pin))
+            raise EnvironmentError(f"Can't switch unknown GPIO port: {pin}")
 
         if new_state not in [0, 1]:
-            self.logger.error("Unknown new state {}".format(new_state))
-            raise RuntimeError("Unknown GPIO state: {}".format(new_state))
+            self.logger.error(f"Unknown new state {new_state}")
+            raise RuntimeError(f"Unknown GPIO state: {new_state}")
 
         if self._states[pin] == int(new_state):
-            self.logger.debug("Kept state {} on port {}".format(new_state, pin))
+            self.logger.debug(f"Kept state {new_state} on port {pin}")
             return
 
         self._states[pin] = int(new_state)
-        self.logger.debug("Set port {} to state {}".format(pin, new_state))
+        self.logger.debug(f"Set port {pin} to state {new_state}")
 
     def is_pin_active(self, pin):
         if pin not in self._states.keys():
             self.logger.error("Can't get state of " + str(pin))
-            raise EnvironmentError("Don't know state of GPIO port: {}".format(pin))
+            raise EnvironmentError(f"Don't know state of GPIO port: {pin}")
         return bool(self._states[pin])
 
 
@@ -90,14 +90,14 @@ class RaspiGpioInterface(GpioInterface):
     def set_state(self, pin, new_state):
         if pin != self.pin:
             self.logger.error("Can't change state of " + str(pin))
-            raise EnvironmentError("Can't switch unknown GPIO port: {}".format(pin))
+            raise EnvironmentError(f"Can't switch unknown GPIO port: {pin}")
 
         if new_state not in [0, 1]:
-            self.logger.error("Unknown new state {}".format(new_state))
-            raise RuntimeError("Unknown GPIO state: {}".format(new_state))
+            self.logger.error(f"Unknown new state {new_state}")
+            raise RuntimeError(f"Unknown GPIO state: {new_state}")
 
         if self.pin_state == int(new_state):
-            self.logger.debug("Kept state {} on port {}".format(new_state, pin))
+            self.logger.debug(f"Kept state {new_state} on port {pin}")
             return
 
         if new_state == 1:
@@ -106,10 +106,10 @@ class RaspiGpioInterface(GpioInterface):
             self.sprinkler_gpio.off()
 
         self.pin_state = new_state
-        self.logger.debug("Set port {} to state {}".format(pin, new_state))
+        self.logger.debug(f"Set port {pin} to state {new_state}")
 
     def is_pin_active(self, pin):
         if pin != self.pin:
             self.logger.error("Can't get state of " + str(pin))
-            raise EnvironmentError("Don't know state of GPIO port: {}".format(pin))
+            raise EnvironmentError(f"Don't know state of GPIO port: {pin}")
         return bool(self.pin_state)
