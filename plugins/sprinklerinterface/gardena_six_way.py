@@ -21,17 +21,18 @@ from dataclasses import dataclass
 from plugins.sprinklerinterface.actuator import ActuatorInterface
 from plugins.sprinklerinterface.gpio import GpioInterface, DebugGpioInterface, RaspiGpioInterface
 from plugins.sprinklerinterface.sprinklerinterface import WateringTask
+from framework.memory import Database
 
 
-class SixWaySprinkler(ActuatorInterface):
+class SixWayActuator(ActuatorInterface):
     """
     Watering Handler for Gardena Wasserverteiler 6 Way.
     It supports the cooldowns that are necessary for that thing.
     """
 
     def __init__(self, managed_zones, name, config):
-        logger_config = config["logging"]
-        super(SixWaySprinkler, self).__init__(managed_zones, name, logger_config)
+        logger_config = config.get("logging", {})
+        super(SixWayActuator, self).__init__(managed_zones, name, logger_config)
         """
         Initialize sprinkler interface.
         :param config: Configuration dictionary
@@ -44,11 +45,14 @@ class SixWaySprinkler(ActuatorInterface):
         else:
             self._gpio = RaspiGpioInterface(config, [config["gpio_pin"]])
 
-        self._channel_state_file = config["channel_state_file"]
+        # self._channel_state_file = config["channel_state_db"]
+        self._channel_state_db = Database.get_db_for(config["channel_state_db"])
+
         self._active_channel = -1
         self._load_active_channel()
         self._gpio_pin = config["gpio_pin"]
-        self._channel_count = config["channel_count"]
+        # self._channel_count = config["channel_count"]
+        self._channel_count = len(self.managed_zones)
         self.watering_cooldown_function = lambda cooldown_duration:None
 
         self._watering_tasks = []
@@ -114,19 +118,18 @@ class SixWaySprinkler(ActuatorInterface):
         self.logger.info(f"Active watering channel: {self._active_channel}")
 
     def _load_active_channel(self):
-        # TODO: Do this with framework.memory.Database
-        try:
-            with open(self._channel_state_file) as f:
-                self._active_channel = int(f.readline())
-                self.logger.info(f"Loaded last active channel from file: {self._active_channel}")
-        except FileNotFoundError:
+        db_contents = self._channel_state_db.all()
+        if len(db_contents) != 1:
+            self._channel_state_db.truncate()
             self._active_channel = 1
-            self.logger.info("Couldn't find file with active channel.")
+            self.logger.info("Couldn't find db entry with active channel.")
             self._store_active_channel()
+        else:
+            self._active_channel = db_contents[0]["active_channel"]
+            self.logger.info(f"Loaded last active channel from db: {self._active_channel}")
 
     def _store_active_channel(self):
-        with open(self._channel_state_file , "w") as f:
-            f.write(str(self._active_channel))
+        self._channel_state_db.update({"active_channel": self._active_channel})
 
     # === Public methods ===
     # === -------------- ===
