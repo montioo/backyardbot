@@ -101,7 +101,7 @@ This is an example of the data that the actuator plugin might hold.
                 "cooldown_duration": Int,
                 "use_dummy_gpio": Bool,
                 "gpio_pin": Int,
-                "run_watering_thread": Bool,
+                "run_watering_coroutine": Bool,
                 "channel_state_file": str
             }
 
