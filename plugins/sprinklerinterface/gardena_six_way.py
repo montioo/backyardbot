@@ -44,13 +44,11 @@ class SixWayActuator(ActuatorInterface):
         else:
             self._gpio = RaspiGpioInterface(config, [config["gpio_pin"]])
 
-        # self._channel_state_file = config["channel_state_db"]
         self._channel_state_db = Database.get_db_for(config["channel_state_db"])
 
         self._active_channel = -1
         self._load_active_channel()
         self._gpio_pin = config["gpio_pin"]
-        # self._channel_count = config["channel_count"]
         self._channel_count = len(self.managed_zones)
         self.watering_cooldown_function = lambda cooldown_duration:None
 
@@ -60,6 +58,7 @@ class SixWayActuator(ActuatorInterface):
         self._cooldown_duration = config["cooldown_duration"]
 
         if config["run_watering_coroutine"]:
+            # TODO: Problem: This is executed before the event loop is launched
             self._watering_coroutine = asyncio.create_task(self._watering_execution_coroutine())
         else:
             self._watering_coroutine = None

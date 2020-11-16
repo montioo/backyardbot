@@ -24,8 +24,16 @@ TOPIC_START_WATERING = "TOPIC_START_WATERING"
 
 @dataclass
 class StartWateringPayload:
+    # TODO: Move all zone descriptors from int to str
     zones: List[int]        # .zone = 0: water all channels  NO
     durations: List[int]    # .duration = 0: use cooldown duration
 
     def __repr__(self):
         return f"StartWateringPayload: [(zone, duration), ..]: {list(zip(self.zones, self.durations))}"
+
+
+TOPIC_ZONES_UPDATED = "TOPIC_ZONES_UPDATED"
+
+@dataclass
+class ZonesUpdatedPayload:
+    zones: List[str]

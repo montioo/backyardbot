@@ -14,9 +14,9 @@
                 "zones": ["Z1", "Z2", "Z3", "Z4"],
                 "actuator_specific_settings": {
                     "cooldown_duration": 7,
-                    "use_dummy_gpio": false,
+                    "use_dummy_gpio": true,
                     "gpio_pin": 13,
-                    "run_watering_coroutine": true,
+                    "run_watering_coroutine": false,
                     "channel_state_db": "sprinkler_interface_actuator1_db"
                 }
             }

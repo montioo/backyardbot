@@ -38,7 +38,7 @@ class ActuatorInterface(ABC):
 
     def __init__(self, managed_zones, name, logger_config):
         logger_name = __name__ + "." + self.__class__.__name__
-        self.logger = create_logger(logger_config, logger_name)
+        self.logger = create_logger(logger_name, logger_config)
         # Callbacks for certain events?
         # self.watering_stopped_function = lambda:None
         # self.watering_started_function = lambda channel, duration:None

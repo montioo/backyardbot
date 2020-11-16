@@ -8,16 +8,18 @@
 #
 
 from framework.plugin import Plugin
-from byb.byb_common import TOPIC_START_WATERING
+from framework.memory import Database
+from framework.communication import Topics, BaseMessage
+from byb.byb_common import TOPIC_START_WATERING, ZONE_DB_NAME, TOPIC_ZONES_UPDATED, ZonesUpdatedPayload
 
 from dataclasses import dataclass
 from plugins.sprinklerinterface.gardena_six_way import SixWayActuator
 from plugins.sprinklerinterface.actuator import WateringTask
 
+
 actuator_implementations = {
     "SixWayActuator": SixWayActuator
 }
-
 
 class WateringPlugin(Plugin):
     """
@@ -27,14 +29,28 @@ class WateringPlugin(Plugin):
     """
 
     def initialize(self, settings):
+        # TODO: Expand websocket communication so that frontend js can send to any topic?
+        self.zone_db = Database.get_db_for(ZONE_DB_NAME)
+
+        ws_backend_topic = f"websocket/{self.name}/backend"
+        self.register_topic_callback(ws_backend_topic, self.ws_message_from_frontend)
+
         self.register_topic_callback(TOPIC_START_WATERING, self.start_watering_callback)
         self.actuators = []
+        zones = self._initialize_actuators()
+        self._update_zone_db(zones)
+
+
+    async def ws_message_from_frontend(self, msg):
+        data = msg.payload
+        self.logger.info(f"received a message from frontend: {data}")
+
 
     async def start_watering_callback(self, msg):
         """ Immediately hands the watering tasks to the responsible actuators. """
         data = msg.payload
-        zones, channels = data["zones"], data["channels"]
-        tasks = map(lambda t: WateringTask(t[0], t[1]), zip(zones, channels))
+        zones, durations = data.zones, data.durations
+        tasks = map(lambda t: WateringTask(t[0], t[1]), zip(zones, durations))
 
         # dict that maps from multiple zones to the same list for an actuator
         task_mapping = {}
@@ -58,6 +74,8 @@ class WateringPlugin(Plugin):
     # === Actuator and Zone Setup ===
 
     def _initialize_actuators(self):
+        all_zones = []
+
         for actuator_config in self.settings["plugin_settings"]["actuators"]:
             actuator_class = actuator_config.get("python_class", None)
             if actuator_class not in actuator_implementations:
@@ -69,7 +87,35 @@ class WateringPlugin(Plugin):
                 self.logger.warn(f"Managed zones for {actuator_class} instance are empty!")
                 continue
 
+            all_zones += managed_zones
             name = None
             actuator_specific_settings = actuator_config.get("actuator_specific_settings", {})
             actuator = actuator_implementations[actuator_class](managed_zones, name, actuator_specific_settings)
             self.actuators.append(actuator)
+
+        return all_zones
+
+    def _update_zone_db(self, new_zones):
+        """ Sets the list of zones and only updates the database if changes occurred. """
+        old_zones_set = {zone["name"] for zone in self.zone_db.all()}
+        new_zones_set = set(new_zones)
+        if old_zones_set != new_zones_set:
+            self.logger.info(f"Going to update zone DB")
+            self.logger.info(f"  Old: {old_zones_set}")
+            self.logger.info(f"  New: {new_zones_set}")
+            zone_dicts = [{"name": zone_name} for zone_name in new_zones]
+            self.zone_db.truncate()
+            self.zone_db.insert_multiple(zone_dicts)
+
+            p = ZonesUpdatedPayload(sorted(new_zones))
+            m = BaseMessage(TOPIC_ZONES_UPDATED, p)
+            Topics.send_message(m)
+
+        self.zones = sorted(new_zones)
+
+    # === Frontend Data ===
+
+    def calc_render_data(self):
+        return {
+            "zones": self.zones
+        }
