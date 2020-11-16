@@ -18,9 +18,8 @@ from typing import Tuple, List
 from collections import namedtuple
 from dataclasses import dataclass
 
-from plugins.sprinklerinterface.actuator import ActuatorInterface
+from plugins.sprinklerinterface.actuator import ActuatorInterface, WateringTask
 from plugins.sprinklerinterface.gpio import GpioInterface, DebugGpioInterface, RaspiGpioInterface
-from plugins.sprinklerinterface.sprinklerinterface import WateringTask
 from framework.memory import Database
 
 

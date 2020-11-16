@@ -12,19 +12,11 @@ from byb.byb_common import TOPIC_START_WATERING
 
 from dataclasses import dataclass
 from plugins.sprinklerinterface.gardena_six_way import SixWayActuator
+from plugins.sprinklerinterface.actuator import WateringTask
 
 actuator_implementations = {
     "SixWayActuator": SixWayActuator
 }
-
-
-@dataclass
-class WateringTask:
-    zone: int = 0       # .zone = 0: water all zones
-    duration: int = 0   # .duration = 0: use cooldown duration
-
-    def __repr__(self):
-        return f"({self.zone}, {self.duration})"
 
 
 class WateringPlugin(Plugin):

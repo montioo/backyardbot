@@ -8,17 +8,12 @@
     "load_plugin": true,
 
     "plugin_settings": {
-        // TODO: Need to support custom implementations of actuators
-        // "actuator_implementations": ["SixWayActuator"],
-
-        // TODO: This has to go in the database(s). A UI should assist with setting the system up.
         "actuators": [
             {
                 "python_class": "SixWayActuator",
                 "zones": ["Z1", "Z2", "Z3", "Z4"],
                 "actuator_specific_settings": {
-                    // "channel_count": 4,  // always aligns with len(zones) so kinda useless
-                    "cooldown_duration": 7,  // sec
+                    "cooldown_duration": 7,
                     "use_dummy_gpio": false,
                     "gpio_pin": 13,
                     "run_watering_coroutine": true,
@@ -26,17 +21,6 @@
                 }
             }
         ]
-        // I'm not sure that zone descriptions are really needed
-        // "zones": [
-        //     {
-        //         "name": "Z1",
-        //         "description": "desc 1"
-        //     },
-        //     {
-        //         "name": "Z2",
-        //         "description": "desc 2"
-        //     }
-        // ]
     },
 
     "localization": {

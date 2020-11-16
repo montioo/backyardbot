@@ -8,12 +8,20 @@
 #
 
 from abc import ABC, abstractmethod
-
+from dataclasses import dataclass
 import logging
 from typing import List
 
 from framework.utility import create_logger
-from plugins.sprinklerinterface.sprinklerinterface import WateringTask
+
+
+@dataclass
+class WateringTask:
+    zone: int = 0       # .zone = 0: water all zones
+    duration: int = 0   # .duration = 0: use cooldown duration
+
+    def __repr__(self):
+        return f"({self.zone}, {self.duration})"
 
 
 class ActuatorInterface(ABC):
