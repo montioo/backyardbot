@@ -54,3 +54,30 @@ An actuator doesn't need to be referenced directly but only the zones are known 
 Since other plugins are interested in the zones that are available (or at least in the list of zones), there has to be a way to have those information accessible throughout the system.
 
 BUT: This may be something that is not only related to this plugin but is important to the whole backyardbot and thus should be defined in the byb docs?
+
+
+## Communication between Backend and Fronten
+
+All messages need to follow a certain structure, regardless of whether they are sent from the frontend to the backend or vice versa.
+
+```js
+{
+    "command": String,
+    "payload": Object
+}
+```
+
+The receiver uses the command field to determine what kind of action should be performed. The payload is optional (i.e. can be `None`) or can contain any information necessary to perform the task.
+
+This approach is used over multiple plugins.
+
+
+### Command `watering_state` (sent to frontend)
+
+The command `watering_state` informs the frontend about the current watering state. It either says the watering is off or displays the zone that is currently watered and the remaining durations.
+
+The backend will take care of constructing a string to display. The frontend does no further processing and just shows the received string in the UI.
+
+The payload thus only consists of a string.
+
+
