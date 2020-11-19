@@ -69,7 +69,7 @@ class TimetablePlugin(Plugin):
         self.logger.info(f"-------> going to remove entry with id {doc_id_to_remove}")
         self.tt_db.remove(doc_ids=[doc_id_to_remove])
 
-        ## tmp solution
+        ## TODO: tmp solution to raise awareness for DB updates
         topic = "database_update/" + TIMETABLE_DB_NAME
         msg = BaseMessage(topic)
         Topics.send_message(msg)

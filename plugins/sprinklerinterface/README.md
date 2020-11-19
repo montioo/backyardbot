@@ -81,3 +81,18 @@ The backend will take care of constructing a string to display. The frontend doe
 The payload thus only consists of a string.
 
 
+### Command `start_watering` (sent to backend)
+
+Informs the backend that a new watering should be started. It's the backend's task to validate whether the data makes sense.
+
+The payload is structured as follows:
+
+```js
+// payload layout:
+{
+    "zone": String,
+    "duration": String
+}
+```
+
+The `"duration"` string is formatted like `mm:ss` where `mm` resembles the minutes for which the watering should be active and `ss` the seconds. Only one zone can be activated per request.

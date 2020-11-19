@@ -27,11 +27,11 @@
   {{ localization["select_zone_label"] }}
   <select id="sip_select_zone" style="margin-left: 10px">
       {% for zone in values["zones"] %}
-        <option value="to_server">{{ zone }}</option>
+        <option value="{{ zone }}">{{ zone }}</option>
       {% endfor %}
   </select>
 </div>
 
 <div class="box_content" style="margin-top:15px;">
-  <span class="box_button" onclick="">{{ localization["start_button"] }}</span>
+  <span class="box_button" onclick="si_plugin.send_new_watering_cmd()">{{ localization["start_button"] }}</span>
 </div>

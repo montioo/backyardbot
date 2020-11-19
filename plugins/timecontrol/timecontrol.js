@@ -47,10 +47,10 @@ class TimecontrolPlugin extends BybPluginInterface {
             const next_zone_duration = data["next_zone_duration"];
             zones_durations_div.innerHTML = next_zone_duration;
             zones_durations_div.style.display = "";
-            skip_next_div.style.display = ""
+            skip_next_div.style.display = "";
         } else {
             zones_durations_div.style.display = "none";
-            skip_next_div.style.display = "none"
+            skip_next_div.style.display = "none";
         }
     }
 

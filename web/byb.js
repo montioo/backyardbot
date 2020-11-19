@@ -5,7 +5,23 @@ class BybPluginInterface {
     //     return this._name;
     // }
 
+    register() {
+        // Registers the plugin at the websocket connection.
+        // Once the websocket connection knows this plugin exists, it can
+        // forward received messages.
+        if (typeof this.name == "undefined") {
+            console.log("Failed to register plugin because this.name wasn't set!");
+            return;
+        }
+
+        bybConnection.register_plugin(this);
+    }
+
     receive_data(data) {
+    }
+
+    send_to_backend(data) {
+        bybConnection.send_to_backend(data, this);
     }
 }
 

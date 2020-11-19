@@ -16,6 +16,8 @@ from dataclasses import dataclass
 from plugins.sprinklerinterface.gardena_six_way import SixWayActuator
 from plugins.sprinklerinterface.actuator import WateringTask
 
+from typing import List
+
 
 actuator_implementations = {
     "SixWayActuator": SixWayActuator
@@ -29,13 +31,17 @@ class WateringPlugin(Plugin):
     """
 
     def initialize(self, settings):
+        self._command_handlers = {
+            "start_watering": self.start_watering_callback_ws
+        }
+
         # TODO: Expand websocket communication so that frontend js can send to any topic?
         self.zone_db = Database.get_db_for(ZONE_DB_NAME)
 
         ws_backend_topic = f"websocket/{self.name}/backend"
         self.register_topic_callback(ws_backend_topic, self.ws_message_from_frontend)
 
-        self.register_topic_callback(TOPIC_START_WATERING, self.start_watering_callback)
+        self.register_topic_callback(TOPIC_START_WATERING, self.start_watering_callback_topic)
         self.actuators = []
         zones = self._initialize_actuators()
         self._update_zone_db(zones)
@@ -45,13 +51,36 @@ class WateringPlugin(Plugin):
         data = msg.payload
         self.logger.info(f"received a message from frontend: {data}")
 
+        cmd = data.get("command", None)
+        if cmd in self._command_handlers.keys():
+            await self._command_handlers[cmd](data.get("payload", None))
 
-    async def start_watering_callback(self, msg):
-        """ Immediately hands the watering tasks to the responsible actuators. """
+    async def start_watering_callback_ws(self, data):
+        """
+        Read a message that was received via websocket and start the watering
+        if the message contains valid data.
+        """
+        try:
+            mm, ss = map(int, data["duration"].split(":"))
+            duration = 60*mm + ss
+            zone = data["zone"]
+        except:
+            self.logger.info(f"Received invalid payload for start_watering cmd from frontend: {data}")
+            return
+
+        task = WateringTask(zone, duration)
+        self.logger.info(f"Starting watering task from frontend: {task}")
+        await self.start_watering([task])
+
+    async def start_watering_callback_topic(self, msg):
+        """ Receives watering tasks from a topic and starts them. """
         data = msg.payload
         zones, durations = data.zones, data.durations
         tasks = map(lambda t: WateringTask(t[0], t[1]), zip(zones, durations))
+        await self.start_watering(tasks)
 
+    async def start_watering(self, tasks: List[WateringTask]):
+        """ Immediately hands the watering tasks to the responsible actuators. """
         # dict that maps from multiple zones to the same list for an actuator
         task_mapping = {}
         for actuator in self.actuators:
@@ -70,6 +99,12 @@ class WateringPlugin(Plugin):
         for actuator in self.actuators:
             new_task_list = task_mapping[actuator.managed_zones[0]]
             actuator.start_watering(new_task_list)
+
+        # TODO: Inform all frontends about the current watering state.
+        # Problem: Does this work here? Timing handlers of actuators implementations
+        # probably didn't have time yet to activate the watering?
+        # -> actuator implementations have to be improved. Not another event
+        # loop within the actuators.
 
     # === Actuator and Zone Setup ===
 
