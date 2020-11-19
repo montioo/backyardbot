@@ -44,12 +44,12 @@ class SixWayActuator(ActuatorInterface):
         else:
             self._gpio = RaspiGpioInterface(config, [config["gpio_pin"]])
 
-        self._channel_state_db = Database.get_db_for(config["channel_state_db"])
+        self._zone_state_db = Database.get_db_for(config["zone_state_db"])
 
-        self._active_channel = -1
-        self._load_active_channel()
+        self._active_zone = -1
+        self._load_active_zone()
         self._gpio_pin = config["gpio_pin"]
-        self._channel_count = len(self.managed_zones)
+        self._zone_count = len(self.managed_zones)
         self.watering_cooldown_function = lambda cooldown_duration:None
 
         self._watering_tasks = []
@@ -86,12 +86,12 @@ class SixWayActuator(ActuatorInterface):
             while True:
 
                 if self._watering_tasks and \
-                    self._watering_tasks[0].channel == self._active_channel:
+                    self._watering_tasks[0].zone == self._active_zone:
 
                     current_task = self._watering_tasks.pop(0)
                     self._watering_stop_time += current_task.duration
-                    self.watering_started_function(current_task.channel, self.get_remaining_time_current_channel())
-                    self.logger.info(f"Found new watering task for current channel: {current_task}")
+                    self.watering_started_function(current_task.zone, self.get_remaining_time_current_zone())
+                    self.logger.info(f"Found new watering task for current zone: {current_task}")
 
                 await asyncio.sleep(1)
 
@@ -100,7 +100,7 @@ class SixWayActuator(ActuatorInterface):
                     break
 
             self._gpio.set_state(self._gpio_pin, 0)
-            self._increase_watering_channel()
+            self._increase_watering_zone()
             if self._watering_tasks:
                 self.watering_cooldown_function(self._cooldown_duration)
             else:
@@ -108,38 +108,38 @@ class SixWayActuator(ActuatorInterface):
 
     # === utility ===
 
-    def _increase_watering_channel(self):
-        self._active_channel += 1
-        if self._active_channel > self._channel_count:
-            self._active_channel = 1
-        self._store_active_channel()
-        self.logger.info(f"Active watering channel: {self._active_channel}")
+    def _increase_watering_zone(self):
+        self._active_zone += 1
+        if self._active_zone > self._zone_count:
+            self._active_zone = 1
+        self._store_active_zone()
+        self.logger.info(f"Active watering zone: {self._active_zone}")
 
-    def _load_active_channel(self):
-        db_contents = self._channel_state_db.all()
+    def _load_active_zone(self):
+        db_contents = self._zone_state_db.all()
         if len(db_contents) != 1:
-            self._channel_state_db.truncate()
-            self._active_channel = 1
-            self.logger.info("Couldn't find db entry with active channel.")
-            self._store_active_channel()
+            self._zone_state_db.truncate()
+            self._active_zone = 1
+            self.logger.info("Couldn't find db entry with active zone.")
+            self._store_active_zone()
         else:
-            self._active_channel = db_contents[0]["active_channel"]
-            self.logger.info(f"Loaded last active channel from db: {self._active_channel}")
+            self._active_zone = db_contents[0]["active_zone"]
+            self.logger.info(f"Loaded last active zone from db: {self._active_zone}")
 
-    def _store_active_channel(self):
-        self._channel_state_db.update({"active_channel": self._active_channel})
+    def _store_active_zone(self):
+        self._zone_state_db.update({"active_zone": self._active_zone})
 
     # === Public methods ===
     # === -------------- ===
 
     def start_watering(self, new_tasks):
         """
-        Will immediatly start executing the given tasks.
+        Will immediately start executing the given tasks.
         Can be called multiple times even if the watering is still in progress.
         Will add to the list of tasks.
-        If current channel doesn't align, new tasks for switching will be introduced.
-        Tasks with channel 0 (i.e. all channels) will be replaced by an individual
-            task for each channel.
+        If current zone doesn't align, new tasks for switching will be introduced.
+        Tasks with zone 0 (i.e. all zones) will be replaced by an individual
+            task for each zone.
         :param new_tasks: list of WateringTask objects
         """
         self.logger.info(f"Received new watering tasks: {new_tasks}")
@@ -148,29 +148,29 @@ class SixWayActuator(ActuatorInterface):
     def update_watering_tasks(self, new_tasks=[]):
         # create dict with durations from new and planned tasks. (no need to look at
         #   current task, because this was 'transfered' to self.watering_stop_time)
-        tasks_dict = {i: 0 for i in range(1, self._channel_count+1)}
+        tasks_dict = {i: 0 for i in range(1, self._zone_count+1)}
         for task in new_tasks + self._watering_tasks:
-            if task.channel < 0 or task.channel > self._channel_count or task.duration <= 0:
+            if task.zone < 0 or task.zone > self._zone_count or task.duration <= 0:
                 continue
-            if task.channel != 0:
-                # if task.channel == self._active_channel or task.duration > self._cooldown_duration:
+            if task.zone != 0:
+                # if task.zone == self._active_zone or task.duration > self._cooldown_duration:
                 if task.duration > self._cooldown_duration:
-                    tasks_dict[task.channel] += task.duration
+                    tasks_dict[task.zone] += task.duration
             else:
-                for i in range(1, self._channel_count+1):
+                for i in range(1, self._zone_count+1):
                     tasks_dict[i] += task.duration
 
-        tasks = [WateringTask(c, tasks_dict[c]) for c in range(1, self._channel_count+1)]
-        ordered_tasks = tasks[self._active_channel-1:] + tasks[:self._active_channel-1]
+        tasks = [WateringTask(c, tasks_dict[c]) for c in range(1, self._zone_count+1)]
+        ordered_tasks = tasks[self._active_zone-1:] + tasks[:self._active_zone-1]
 
         # create list and sort it to
         final_tasks = []
         for task in reversed(ordered_tasks):
             if not final_tasks and task.duration == 0:
                 continue
-            allow_current_padding = task.channel != self._active_channel or not self.is_watering_active()
+            allow_current_padding = task.zone != self._active_zone or not self.is_watering_active()
             if task.duration < self._cooldown_duration and allow_current_padding:
-                final_tasks.append(WateringTask(task.channel, self._cooldown_duration))
+                final_tasks.append(WateringTask(task.zone, self._cooldown_duration))
                 continue
             final_tasks.append(task)
         self._watering_tasks = list(reversed(final_tasks))
@@ -183,9 +183,9 @@ class SixWayActuator(ActuatorInterface):
             self.logger.info("Stop watering for all zones")
         else:
             # remove zones in question from watering tasks
-            self._watering_tasks = [wt for wt in self._watering_tasks if wt.channel not in zones]
+            self._watering_tasks = [wt for wt in self._watering_tasks if wt.zone not in zones]
             self.logger.info(f"Stop watering for zones: {zones}")
-        if self._active_channel in zones:
+        if self._active_zone in zones:
             # if zone is active, stop the watering for this zone.
             self._watering_stop_time = time.time()
         if self._watering_tasks:
@@ -210,14 +210,14 @@ class SixWayActuator(ActuatorInterface):
     def get_remaining_time_all_zones(self):
         if not self._watering_tasks:
             return 0
-        duration = self.get_remaining_time_current_channel()
+        duration = self.get_remaining_time_current_zone()
         for task in self._watering_tasks:
             duration += task.duration
         duration += self._cooldown_duration * len(self._watering_tasks)
         return duration
 
     def get_current_zone(self):
-        return self._active_channel
+        return self._active_zone
 
     def get_remaining_cooldown_time(self):
         t = time.time()
