@@ -24,6 +24,7 @@ from framework.memory import Database
 
 
 class SixWayActuator(ActuatorInterface):
+    # TODO: Needs to work with Zone Strings! Zones are strings now and there needs to be a mapping from zone to channel (str -> int). This should be applied as new tasks are received and the six way sprinkler should internally continue to work with channels because they map to its physical outputs.
     """
     Watering Handler for Gardena Wasserverteiler 6 Way.
     It supports the cooldowns that are necessary for that thing.
