@@ -56,7 +56,7 @@ Since other plugins are interested in the zones that are available (or at least 
 BUT: This may be something that is not only related to this plugin but is important to the whole backyardbot and thus should be defined in the byb docs?
 
 
-## Communication between Backend and Fronten
+## Communication between Backend and Frontend
 
 All messages need to follow a certain structure, regardless of whether they are sent from the frontend to the backend or vice versa.
 
@@ -96,3 +96,17 @@ The payload is structured as follows:
 ```
 
 The `"duration"` string is formatted like `mm:ss` where `mm` resembles the minutes for which the watering should be active and `ss` the seconds. Only one zone can be activated per request.
+
+
+
+## Available Actuators
+
+### Six Way Sprinkler
+
+This one is a rather complex actuator interface which controls one magnetic valve and up to six sprinklers. This is done by using one of those [Gardena Water Distributor](https://www.gardena.com/ca-en/products/watering/water-controls/water-distributor-automatic/966749301/) components. It has six output channels and only one of them is watered at a time. As the water pressure drops (by closing the magnetic valve), the water distributor will switch to the next channel.
+
+The Six Way Sprinkler interface will keep track of the currently watered channel and water a channel only for a few seconds to skip it.
+
+The zones from the `settings.json` file are used to assign the channels of the Water Distributor. The first given zone is assigned to channel `1`, the second zone to channel `2` and so on. The amount of given zones relates to the amount of channels that are activated in the Water Distributor.
+
+*(Personal comment: I've been using Gardena's Water Distributor for multiple summers and it's really amazing. Works reliably and is way cheaper than buying and controlling six magnetic valves. When bought at another retailer, you can get the Water Distributor for a better price than on Gardena's website. I'm not sponsored by them or whatever, I just really like the product.)*

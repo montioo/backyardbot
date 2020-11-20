@@ -17,7 +17,7 @@
                     "use_dummy_gpio": true,
                     "gpio_pin": 13,
                     "run_watering_coroutine": false,
-                    "zone_state_db": "sprinkler_interface_actuator1_db"
+                    "channel_state_db": "sprinkler_interface_actuator1_db"
                 }
             }
         ]

@@ -17,8 +17,8 @@ from framework.utility import create_logger
 
 @dataclass
 class WateringTask:
-    zone: int = 0       # .zone = 0: water all zones
-    duration: int = 0   # .duration = 0: use cooldown duration
+    zone: str      # .zone = 0: water all zones
+    duration: int  # .duration = 0: use cooldown duration
 
     def __repr__(self):
         return f"({self.zone}, {self.duration})"
