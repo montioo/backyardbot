@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
 @dataclass
 class Action:
-    zone: int = 0    # .channel = 0: water all channels
+    zone: str  # .zone = __ALL: water all channels
     duration: int = 0   # .duration = 0: use cooldown duration
 
     def __repr__(self):
@@ -108,7 +108,7 @@ class Task:
         #     "time_hh": int,
         #     "time_mm": int,
         #     "weekday": int,
-        #     "zones": [int],
+        #     "zones": [str],
         #     "duration": int
         # }
 
