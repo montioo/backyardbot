@@ -19,16 +19,32 @@ This procedure only makes sure that messages arrive at the correct entities and 
 
 The frontend refers to the part of the plugin implementation that runs in a user's browser, i.e. the js scripts. The backend is the python implementation of the plugin. One backend can be connected to multiple frontends, i.e. one for every user.
 
-However, the plugin will also want to establish a system where different message types are available for different tasks. All messages that arrive at the js frontend implementation have to consist of a dict with keys `command` and `payload`. `command` refers to the handler that should be used by the frontend to process the data that is accessed with the `payload` key.
+However, the plugin will also want to establish a system where different message types are available for different tasks. `command` refers to the handler that should be used by the receiver (frontend or backend) to process the data that is accessed with the `payload` key.
+
+All messages need to follow a certain structure, regardless of whether they are sent from the frontend to the backend or vice versa.
+
+```js
+{
+    "command": String,
+    "payload": Object
+}
+```
 
 The TimeTable plugin knows the following messages:
 
-Messages from backend to frontend:
+### Messages from backend to frontend:
 
 `command` | `payload` | note
 ---|---|---
 `timetable_contents` | list of timetable entries | Each entry in the timetable is represented as a dict of defining properties, like the scheduled time, the channels to use and so on. The table will be displayed in the order in which it was transferred.
 
+
+### Messages from frontend to backend:
+
+`command` | `payload` | note
+---|---|---
+`add_entries` | list of dicts with entries | Entries are "broken up" so that each entry only holds one day. But an entry can still hold multiple zones.
+`remove_entry` | database entry id | The database automatically assigns an ID to each element that it holds. The element can be identified by this ID and then be deleted from the DB.
 
 
 ## Timetable Database Structure:
