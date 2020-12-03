@@ -11,7 +11,7 @@ import os
 from framework.plugin import Plugin
 from framework.memory import Database
 from framework.communication import Topics, BaseMessage
-from byb.byb_common import TIMETABLE_DB_NAME
+from byb.byb_common import TIMETABLE_DB_NAME, ZONE_DB_NAME
 
 
 class TimetablePlugin(Plugin):
@@ -21,12 +21,13 @@ class TimetablePlugin(Plugin):
     """
 
     def initialize(self, settings):
-        self.command_handlers = {
+        self._command_handlers = {
             "add_entries": self.handle_add_entries,
             "remove_entry": self.handle_remove_entry
         }
 
         self.tt_db = Database.get_db_for(TIMETABLE_DB_NAME)
+        self.zone_db = Database.get_db_for(ZONE_DB_NAME)
 
         # Registering standard websocket message handler.
         ws_backend_topic = f"websocket/{self.name}/backend"
@@ -39,13 +40,9 @@ class TimetablePlugin(Plugin):
         self.logger.info("timetable plugin has received a message.")
         data = msg.payload
 
-        # TODO: Remove the loop, every msg will only contain one command.
-        # TODO: Port to payload structure that is also used in timecontrol plugin.
-        for action in data.keys():
-            if action in self.command_handlers:
-                await self.command_handlers[action](data[action])
-            else:
-                self.logger.info(f"received unknown action: {action}")
+        cmd = data.get("command", None)
+        if cmd in self._command_handlers.keys():
+            await self._command_handlers[cmd](data.get("payload", None))
 
     async def handle_add_entries(self, new_entries):
         # receive and entry that should be added to the DB
@@ -102,7 +99,7 @@ class TimetablePlugin(Plugin):
 
         # TODO: Would prefer async execution for all DB related things
         return {
-            "zones": [1, 2, 3, 4, 5],  # TODO: Get those from another DB as well
+            "zones": [zone["name"] for zone in self.zone_db.all() if "name" in zone],
             "timetable": self.get_all_entries()
         }
 

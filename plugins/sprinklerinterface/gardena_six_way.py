@@ -149,7 +149,7 @@ class SixWayActuator(ActuatorInterface):
 
     def start_watering(self, new_tasks):
         """
-        Will immediatly start executing the given tasks.
+        Will immediately start executing the given tasks.
         Can be called multiple times even if the watering is still in progress.
         Will add to the list of tasks.
         If current channel doesn't align, new tasks for switching will be introduced.

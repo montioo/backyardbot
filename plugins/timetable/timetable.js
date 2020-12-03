@@ -100,11 +100,20 @@ class TimetablePlugin extends BybPluginInterface {
         //     "doc_id": Int       // unique id from DB
         // The frontend receives table data with only a scalar for the weekday for better visualization.
 
+        var dur_string = "";
+        const units = [[Math.floor(row_data["duration"]/60), "min"], [row_data["duration"]%60, "sec"]];
+        for (var unit of units) {
+            if (unit[0] > 0) {
+                if (dur_string.length > 0) { dur_string += ", "; }
+                dur_string += unit[0].toString() + unit[1];
+            }
+        }
+
         // TODO: Only show if it's not 0 and the same for sec.
         const row_vals = [
             toStringZeroPadding(row_data["time_hh"], 2) + ":" + toStringZeroPadding(row_data["time_mm"], 2),
             int_list_to_string(row_data["zones"]),
-            Math.floor(row_data["duration"]/60).toString() + "min, " + (row_data["duration"]%60).toString() + "sec",
+            dur_string,
             "\u00D7"  // unicode multiplication sign
         ];
 
@@ -135,7 +144,10 @@ class TimetablePlugin extends BybPluginInterface {
         // const row_tr_obj = event.target.parentElement;
         const row_tr_obj = row_td_obj.parentElement;
         const doc_id_to_del = row_tr_obj.dataset.doc_id;
-        const cmd = { remove_entry: parseInt(doc_id_to_del) };
+        const cmd = {
+            "command": "remove_entry",
+            "payload": parseInt(doc_id_to_del)
+        };
         bybConnection.send_to_backend(cmd, this);
     }
 
@@ -160,7 +172,10 @@ class TimetablePlugin extends BybPluginInterface {
 
         // This is the new element that will be added to the DB.
         // After adding this, the server will broadcast the updated DB to all clients.
-        const cmd = { add_entries: entries };
+        const cmd = {
+            "command": "add_entries",
+            "payload": entries
+        };
 
         bybConnection.send_to_backend(cmd, this);
     }
@@ -182,27 +197,33 @@ class TimetablePlugin extends BybPluginInterface {
         entry_data["time_mm"] = parseInt(time_field.value.slice(3, 5));
 
         // "weekdays": [Int],  // Mon = 0, ...
-        // "zone": [Int]       // watering zones
-        const button_list = [["ttp_channel_selector", "zones"], ["ttp_day_selector", "weekdays"]];
-        // for (const [parent_id, data_id] of button_list) {
-        for (var idx = 0; idx < button_list.length; idx++) {
-            const parent_id = button_list[idx][0];
-            const data_id = button_list[idx][1];
-            entry_data[data_id] = [];
-            for (var child_idx = 0; child_idx < document.getElementById(parent_id).children.length; child_idx++) {
-                const selection_div = document.getElementById(parent_id).children[child_idx];
-                if (selection_div.classList.contains("selector_box_selected")) {
-                    entry_data[data_id].push(child_idx);
-                }
+        const wd_parent_id = "ttp_day_selector";
+        const data_id = "weekdays";
+        entry_data[data_id] = [];
+        for (var child_idx = 0; child_idx < document.getElementById(wd_parent_id).children.length; child_idx++) {
+            const selection_div = document.getElementById(wd_parent_id).children[child_idx];
+            if (selection_div.classList.contains("selector_box_selected")) {
+                entry_data[data_id].push(child_idx);
             }
-            if (entry_data[data_id].length == 0) {
-                console.log("not enough", data_id);
+        }
+
+        // "zone": [str]       // watering zones
+        const parent_id = "ttp_channel_selector";
+        entry_data["zones"] = [];
+        for (var child_idx = 0; child_idx < document.getElementById(parent_id).children.length; child_idx++) {
+            const selection_div = document.getElementById(parent_id).children[child_idx];
+            if (selection_div.classList.contains("selector_box_selected")) {
+                entry_data["zones"].push(selection_div.innerHTML);
+            }
+        }
+
+        for (var el of ["zones", "weekdays"]) {
+            if (entry_data[el].length == 0) {
+                console.log("not enough", el);
                 this.overlay_error_visible(true);
                 return;
             }
         }
-        // add 1 to each zone since they are not counted from 0
-        entry_data["zones"] = entry_data["zones"].map(x => x+1);
 
         // "duration": Int,    // seconds
         const duration_mins = parseInt(duration_field.value.slice(0, 2));

@@ -35,7 +35,7 @@ class WateringPlugin(Plugin):
             "start_watering": self.start_watering_callback_ws
         }
 
-        # TODO: Expand websocket communication so that frontend js can send to any topic?
+        # IDEA: Expand websocket communication so that frontend js can send to any topic?
         self.zone_db = Database.get_db_for(ZONE_DB_NAME)
 
         ws_backend_topic = f"websocket/{self.name}/backend"
