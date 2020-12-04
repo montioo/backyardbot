@@ -101,7 +101,7 @@ class TimetablePlugin extends BybPluginInterface {
         // The frontend receives table data with only a scalar for the weekday for better visualization.
 
         var dur_string = "";
-        const units = [[Math.floor(row_data["duration"]/60), "min"], [row_data["duration"]%60, "sec"]];
+        const units = [[Math.floor(row_data["duration"]/60), "\u202Fmin"], [row_data["duration"]%60, "\u202Fsec"]];
         for (var unit of units) {
             if (unit[0] > 0) {
                 if (dur_string.length > 0) { dur_string += ", "; }
