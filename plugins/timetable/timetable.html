@@ -24,10 +24,12 @@
   {% endfor %}
 </tbody></table>
 
-<div class="selector_row">
-  <button onclick="tt_plugin.show_overlay()">{{ localization["table_add_entry_btn"] }}</button>
+<div class="box_content" style="margin-top:25px;">
+  <span class="box_button" onclick="tt_plugin.show_overlay()">{{ localization["table_add_entry_btn"] }}</span>
 </div>
 
+
+<!-- Overlay -->
 
 <div id="ttp_new_element_overlay" class="overlay_black_background">
   <div class="overlay">
@@ -62,9 +64,9 @@
       Error message here
     </div>
 
-    <div class="selector_row">
-      <button onclick="tt_plugin.overlay_add_pressed()">{{ localization["overlay_add_btn"] }}</button>
-      <button onclick="hide_overlay('ttp_new_element_overlay')">{{ localization["overlay_cancel_btn"] }}</button>
+    <div class="box_content" style="margin-top:25px;">
+      <span class="box_button" onclick="tt_plugin.overlay_add_pressed()">{{ localization["overlay_add_btn"] }}</span>
+      <span class="box_button" onclick="hide_overlay('ttp_new_element_overlay')">{{ localization["overlay_cancel_btn"] }}</span>
     </div>
 
   </div>

@@ -169,6 +169,11 @@ class TimetablePlugin extends BybPluginInterface {
         //     "doc_id": Int       // unique id from DB
 
         const entries = this.parse_from_overlay();
+        if (entries == null) { return }
+
+        // reset error from previous attempts
+        this.overlay_error_visible(false);
+        // TODO: Reset overlay contents
 
         // This is the new element that will be added to the DB.
         // After adding this, the server will broadcast the updated DB to all clients.
@@ -189,7 +194,7 @@ class TimetablePlugin extends BybPluginInterface {
         const duration_field = document.getElementById("ttp_duration_input_field");
         if ((time_field.value.length == 0) && (duration_field.value.length == 0)) {
             this.overlay_error_visible(true);
-            return;
+            return null;
         }
 
         // "time_hh": Int, "time_mm": Int,
@@ -221,7 +226,7 @@ class TimetablePlugin extends BybPluginInterface {
             if (entry_data[el].length == 0) {
                 console.log("not enough", el);
                 this.overlay_error_visible(true);
-                return;
+                return null;
             }
         }
 
