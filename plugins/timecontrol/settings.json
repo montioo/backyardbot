@@ -12,14 +12,23 @@
             "header_italic": "Next scheduled watering",
             "skip_button": "Skip next watering",
             "activate_auto_mode": "Activate auto mode",
-            "deactivate_auto_mode": "Deactivate auto mode"
-
+            "deactivate_auto_mode": "Deactivate auto mode",
+            "day_singular": "day",
+            "day_plural": "days",
+            "zone_singular" : "Zone",
+            "zone_plural" : "Zones",
+            "duration": "Duration"
         },
         "de": {
             "header_italic": "Nächste geplante Bewässerung",
             "skip_button": "Diese Bewässerung überspringen",
             "activate_auto_mode": "Automatikmodus aktivieren",
-            "deactivate_auto_mode": "Automatikmodus deaktivieren"
+            "deactivate_auto_mode": "Automatikmodus deaktivieren",
+            "day_singular": "Tag",
+            "day_plural": "Tage",
+            "zone_singular" : "Zone",
+            "zone_plural" : "Zonen",
+            "duration": "Dauer"
         }
     }
 }

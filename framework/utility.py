@@ -21,6 +21,9 @@ def pick_localization(plugin_settings, global_settings):
     localization_dict = {}
 
     for language in reversed(language_priorities):
+        # using the global application settings
+        localization_dict.update(global_settings.get("localization", {}).get(language, {}))
+        # using the plugin's settings
         localization_dict.update(plugin_settings.get("localization", {}).get(language, {}))
 
     return localization_dict

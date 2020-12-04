@@ -96,7 +96,7 @@ class TimetablePlugin extends BybPluginInterface {
         //     "time_mm": Int,
         //     "duration": Int,    // seconds
         //     "weekday": Int,     // Mon = 0, ...  <=!! only a scalar
-        //     "zones": [Int],     // watering zones
+        //     "zones": [Str],     // watering zones
         //     "doc_id": Int       // unique id from DB
         // The frontend receives table data with only a scalar for the weekday for better visualization.
 

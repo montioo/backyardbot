@@ -57,35 +57,13 @@ class Plugin(EventComponent):
     # === Public Methods ===
     # === -------------- ===
 
+    def set_localization_data(self, server_settings):
+        """ Plugin's localization data consists of global setting and the
+        ones given to the plugin. """
+        self.localization = pick_localization(self.settings, server_settings)
+
+
     # === Websocket Interface ===
-
-    def set_localization_data(self, global_settings):
-        self.localization_data = pick_localization(self.settings, global_settings)
-
-    def register_server(self, server):
-        """
-        Deprecated?
-
-        Is called by the server so that the plugin knows the server instance to:
-        - Send messages over websockets to the js frontends.
-        - Get merged localization data from server and plugin config.
-        """
-        # TODO: Is this still needed? Communication happens via topics but how to query website renderings from plugins?
-        self._server = server
-        self.localization_data = pick_localization(self.settings, self._server.settings)
-
-    # async def message_from_client(self, data):
-    #     """
-    #     Received a message from a client.
-
-    #     Parameters
-    #     ----------
-    #     data: dict
-    #         The messages are sent as strings over websocket but the server
-    #         takes care of parsing the json strings into dicts before handing
-    #         them over to plugins.
-    #     """
-    #     raise NotImplementedError("message_from_client is not implemented.")
 
     async def send_to_clients(self, data, ws_id=-1):
         """
@@ -99,8 +77,6 @@ class Plugin(EventComponent):
             The message that is sent over the websocket will be a string and
             the server takes care of converting any objects to a json string.
         """
-        # TODO: Replace this. The server should listen to `websocket/<plugin_name>/frontend topics`
-        # await self._server.send_to_clients(data, self.name)
         topic = f"websocket/{self.name}/frontend"
         message = WebsocketRequest(topic, payload=data, ws_id=ws_id)
         Topics.send_message(message)
@@ -113,7 +89,7 @@ class Plugin(EventComponent):
         t = Template(plugin_template_str)
         # TODO: Standard parameters with leading underscore
         # TODO: Integrate data from self.calc_render_data() and kwargs
-        return t.render(plugin_name=self.name, values=self.calc_render_data(), localization=self.localization_data)
+        return t.render(plugin_name=self.name, values=self.calc_render_data(), localization=self.localization)
 
     def css_files(self):
         return self.css_file_paths

@@ -32,5 +32,18 @@
     "database_tables": {
         "time_schedule": "time_schedule_table",
         "sprinkler_info": "zone_info_table"
+    },
+
+    "localization": {
+        "en": {
+            "weekdays_short": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            "weekdays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            "daily": "daily"
+        },
+        "de": {
+            "weekdays_short": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+            "weekdays": ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"],
+            "daily": "täglich"
+        }
     }
 }

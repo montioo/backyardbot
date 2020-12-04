@@ -53,6 +53,12 @@ class ScheduledTime(object):
         print("!"*15, "querying time as dict not correct atm.")
         return {"hour": self.hour, "minute": self.minute, "weekdays": sorted(self.weekdays)}
 
+    def get_pretty_time(self):
+        return "{:02}:{:02}".format(self.hour, self.minute)
+
+    def get_days_list(self):
+        return self.weekdays
+
     # === Magic methods ===
     # === ------------- ===
 
@@ -154,22 +160,13 @@ class Task:
         # TODO: This causes wrong (to much) info in the UI. Remove zones or whatever.
         return f"task id: {self.id}, {self.planned_time}, zones: {self.zones}"
 
-    # === Deprecated ===
+    def get_pretty_duration(self):
+        dur = self.dynamic_duration()
+        units = [(dur//60, "\u202Fmin"), (dur%60, "\u202Fsec")]
+        return ", ".join(map(lambda el: str(el[0])+el[1], filter(lambda u: u[0] != 0, units)))
 
-    # @classmethod
-    # def decode(cls, dct):
-    #     # TODO: Update:
-    #     try:
-    #         t = Task()
-    #         t._zones = dct["zones"]
-    #         t._duration = dct["duration"]
-    #         t._modifier = dct["modifier"]
-    #         return t
-    #     except KeyError:
-    #         type_name = dct.__class__.__name__
-    #         raise TypeError(f"{type_name} is not decodable into Task object")
+    def get_pretty_zones(self):
+        return ", ".join(self.zones)
 
-    # @classmethod
-    # def encode(cls):
-    #     # put all of the class' content into a dict with lists and stuff
-    #     pass
+    def get_time_day(self):
+        return self.planned_time.get_pretty_time(), self.planned_time.get_days_list()

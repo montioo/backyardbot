@@ -131,7 +131,7 @@ class TimeControlPlugin(Plugin):
         Coroutine that runs forever and hands new watering tasks to the
         sprinkler interface when it's time.
         """
-        # TODO: Don't run every second but wait for the next task. But: How to change the waiting time as the table gets updated?
+        # TODO: Don't run every second but wait for the next task. But: How to change the waiting time as the table gets updated? -> with an event?
         rate = 1
         while await self.spin_once(rate):
 
@@ -183,36 +183,25 @@ class TimeControlPlugin(Plugin):
 
     # === Status Info ===
 
-    def get_next_task_time_day(self) -> str:
-        """ Returns a string with time and day at which the next watering will occur. """
-        # format 19:05 Uhr, Montags
-        if not self._tasks:
-            return " "
-        # TODO: Return properties of the whole group?
-        return str(self._tasks[0])
-
-    def get_next_task_zone(self) -> str:
-        """ Returns a string with next zones to be watered. """
-        if not self._tasks:
-            return " "
-        return str(self._tasks[0].zones)[1:-1]
-
-    def get_next_task_duration(self):
-        if not self._tasks:
-            return " "
-        return str(self._tasks[0].dynamic_duration())
-
     def is_auto_mode_enabled(self):
         return self._auto_mode_enabled
 
     def get_system_state(self):
         auto_state = self.is_auto_mode_enabled()
-        state_dict = {
-            "auto_state": auto_state,
-            # TODO: Use localization dict. Make localization dict available as self.localization
-            # TODO: Don't use localization dict? Rather Let the frontend do that by transferring weekdays ids and such
-            "next_time_day": self.get_next_task_time_day() if auto_state else "Auto mode disabled",
-            "next_zone_duration": f"Zones: {self.get_next_task_zone()}, Duration: {self.get_next_task_duration()}"
+        if self._tasks:
+            ld = self.localization
+            task = self._tasks[0]
+            hh_mm, weekdays = task.get_time_day()
+            day_s_localized = ld["day_singular"] if len(weekdays) == 1 else ld["day_plural"]
+            wdl = ld["weekdays_short"] + [ld["daily"]]
+            weekdays_localized = ", ".join(map(lambda day: wdl[day], weekdays))
+            return {
+                "auto_state": auto_state,
+                "next_time_day": f"{hh_mm}, {day_s_localized}: {weekdays_localized}",
+                "next_zone_duration": f"{ld['zone_plural']}: {task.get_pretty_zones()}, {ld['duration']}: {task.get_pretty_duration()}"
+            }
+
+        return {
+            "auto_state": auto_state, "next_time_day": "Auto mode disabled", "next_zone_duration": ""
         }
-        return state_dict
 

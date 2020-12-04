@@ -51,7 +51,7 @@ class Server(EventComponent):
         self.plugins_list = plugin_manager.get_plugin_list()
 
         for plugin in self.plugins_list:
-            plugin.register_server(self)
+            plugin.set_localization_data(self.settings)
             self.allowed_files += plugin.css_files() + plugin.js_files()
 
             topic = f"websocket/{plugin.name}/frontend"

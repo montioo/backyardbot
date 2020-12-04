@@ -6,7 +6,7 @@
 
 <h2>Plugin: {{ plugin_name }}</h2>
 
-The following watering tasks are scheduled:
+{{ localization["table_description"] }}
 
 <table id="ttp_table"><tbody>
   <tr>
@@ -25,19 +25,17 @@ The following watering tasks are scheduled:
 </tbody></table>
 
 <div class="selector_row">
-  <button onclick="tt_plugin.show_overlay()">Add Element</button>
+  <button onclick="tt_plugin.show_overlay()">{{ localization["table_add_entry_btn"] }}</button>
 </div>
 
 
 <div id="ttp_new_element_overlay" class="overlay_black_background">
   <div class="overlay">
 
-    {# TODO: Use localization to make this customizable #}
-
-    <h3>Create new Task</h3>
+    <h3>{{ localization["overlay_title"] }}</h3>
 
     <div class="selector_row" id="ttp_time_selector">
-      Starting time:
+      {{ localization["overlay_starting_time_label"] }}
       <input type="time" class="time_picker" id="ttp_time_input_field" onchange="time_changed(this)">
       (hh:mm)
     </div>
@@ -55,7 +53,7 @@ The following watering tasks are scheduled:
     </div>
 
     <div class="selector_row">
-      Duration:
+      {{ localization["overlay_duration_label"] }}
       <input type="time" class="time_picker" id="ttp_duration_input_field" onchange="duration_changed(this)">
       (mm:ss)
     </div>
@@ -65,8 +63,8 @@ The following watering tasks are scheduled:
     </div>
 
     <div class="selector_row">
-      <button onclick="tt_plugin.overlay_add_pressed()">Add</button>
-      <button onclick="hide_overlay('ttp_new_element_overlay')">Cancel</button>
+      <button onclick="tt_plugin.overlay_add_pressed()">{{ localization["overlay_add_btn"] }}</button>
+      <button onclick="hide_overlay('ttp_new_element_overlay')">{{ localization["overlay_cancel_btn"] }}</button>
     </div>
 
   </div>

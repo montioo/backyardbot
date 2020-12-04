@@ -27,6 +27,8 @@ All of this should be written with asyncio.
 
 TODO: Extend localization system to deal with units as well (meters, miles, ...)
 
+##### Defining Localization Data
+
 The plugin system supports multiple languages. The plugin's `settings.json` may contain an object titled *localization* which contains texts for different UI elements in the frontend.
 
 ```js
@@ -54,6 +56,7 @@ Inside the `.html` template of a plugin, they are accessed by
 ```
 
 The global `settings.json` of the server system will determine the language to use. In the *general* object, a single string or a list of strings can be set as the value of the *language* key.
+On top of that, the global settings can also contain localization data. Those will be merged with the data given in a plugin's `settings.json`, in the sense that the plugin's localization data can overwrite the data that is provided in the global settings.
 
 ```js
 // global settings.json for all of the system:
@@ -63,11 +66,22 @@ The global `settings.json` of the server system will determine the language to u
         // ...
     }
     // ...
+    "localization": {
+        "en": {
+            // ...
+        }
+        // ...
+    }
 }
 ```
 
 The order of the languages determines their priority, first one is highest priority. Should a term not be available in a language, its translation from the next priority will be used.
 
+##### Accessing Localization Data
+
+- In the plugin's python code: Using the dict `self.localization`, e.g. `self.localization["weekdays"]`
+- In the plugin's html template: Using the dict `localization`, e.g. `{{ localization["weekdays"] }}`
+- So far, building custom js objects in the html template is the preferred way of passing localization data to the frontend.
 
 #### Logging
 

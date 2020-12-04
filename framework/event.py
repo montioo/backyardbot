@@ -24,7 +24,6 @@ class EventComponent:
 
     def __init__(self, settings):
         logger_name = __name__ + "." + self.__class__.__name__
-        # TODO: Make the global config already available here.?
         self.logger = create_logger(logger_name, settings)
 
         self._should_shutdown = False
@@ -79,8 +78,7 @@ class EventComponent:
             callback = self._message_handlers[msg.topic]
             if inspect.iscoroutinefunction(callback):
                 # launch asynchronously and return immediately
-                # TODO: Use .create_task instead (systemwide)
-                asyncio.ensure_future(callback(msg))
+                asyncio.create_task(callback(msg))
             else:
                 # for quick tasks, a synchronous callback is fine
                 # self.logger.warning("Using synchronous callback function.")

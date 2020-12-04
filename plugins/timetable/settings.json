@@ -14,18 +14,28 @@
 
     "localization": {
         "en": {
-            "weekdays_short": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            "weekdays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "table_header_time": "Time",
             "table_header_zones": "Zones",
-            "table_header_duration": "Durations"
+            "table_header_duration": "Durations",
+            "table_description": "The following watering tasks are scheduled:",
+            "table_add_entry_btn": "Add Entry",
+            "overlay_title": "Create new Task",
+            "overlay_starting_time_label": "Starting time:",
+            "overlay_duration_label": "Duration",
+            "overlay_add_btn": "Add",
+            "overlay_cancel_btn": "Cancel"
         },
         "de": {
-            "weekdays_short": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
-            "weekdays": ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"],
             "table_header_time": "Zeit",
             "table_header_zones": "Zonen",
-            "table_header_duration": "Dauer"
+            "table_header_duration": "Dauer",
+            "table_description": "Einträge im Zeitplan:",
+            "table_add_entry_btn": "Neuer Eintrag",
+            "overlay_title": "Neuen Eintrag erstellen",
+            "overlay_starting_time_label": "Startzeit:",
+            "overlay_duration_label": "Dauer",
+            "overlay_add_btn": "Hinzufügen",
+            "overlay_cancel_btn": "Abbrechen"
         }
     }
 }
