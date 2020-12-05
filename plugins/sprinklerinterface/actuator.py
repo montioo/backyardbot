@@ -9,7 +9,6 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import logging
 from typing import List
 
 from framework.utility import create_logger
@@ -45,6 +44,10 @@ class ActuatorInterface(ABC):
         # self.reached_watering_time_limit = lambda channel, time_left:None
         self.name = name
         self.managed_zones = managed_zones
+
+    def start_background_task(self):
+        """ Should the actuator need to run an async background task, create and launch it here. """
+        pass
 
     @abstractmethod
     def start_watering(self, tasks: List[WateringTask]):

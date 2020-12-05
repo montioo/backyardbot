@@ -12,7 +12,6 @@ from framework.memory import Database
 from framework.communication import Topics, BaseMessage
 from byb.byb_common import TOPIC_START_WATERING, ZONE_DB_NAME, TOPIC_ZONES_UPDATED, ZonesUpdatedPayload
 
-from dataclasses import dataclass
 from plugins.sprinklerinterface.gardena_six_way import SixWayActuator
 from plugins.sprinklerinterface.actuator import WateringTask
 
@@ -22,6 +21,7 @@ from typing import List
 actuator_implementations = {
     "SixWayActuator": SixWayActuator
 }
+
 
 class WateringPlugin(Plugin):
     """
@@ -46,6 +46,11 @@ class WateringPlugin(Plugin):
         zones = self._initialize_actuators()
         self._update_zone_db(zones)
 
+    async def event_loop(self):
+        for actuator in self.actuators:
+            actuator.start_background_task()
+
+        await self.spin()
 
     async def ws_message_from_frontend(self, msg):
         data = msg.payload
@@ -135,7 +140,7 @@ class WateringPlugin(Plugin):
         old_zones_set = {zone["name"] for zone in self.zone_db.all()}
         new_zones_set = set(new_zones)
         if old_zones_set != new_zones_set:
-            self.logger.info(f"Going to update zone DB")
+            self.logger.info("Going to update zone DB")
             self.logger.info(f"  Old: {old_zones_set}")
             self.logger.info(f"  New: {new_zones_set}")
             zone_dicts = [{"name": zone_name} for zone_name in new_zones]

@@ -7,20 +7,14 @@
 # montebaur.tech, github.com/montioo
 #
 
-from abc import ABC, abstractmethod
-
 import time
 import asyncio
-import logging
-import datetime
-from enum import Enum
-from typing import Tuple, List
-from collections import namedtuple
 from dataclasses import dataclass
 
 from plugins.sprinklerinterface.actuator import ActuatorInterface
-from plugins.sprinklerinterface.gpio import GpioInterface, DebugGpioInterface, RaspiGpioInterface
+from plugins.sprinklerinterface.gpio import DebugGpioInterface, RaspiGpioInterface
 from framework.memory import Database
+
 
 @dataclass
 class ChannelTask:
@@ -39,7 +33,7 @@ class ChannelTask:
 
 class SixWayActuator(ActuatorInterface):
     """
-    Watering Handler for Gardena Wasserverteiler 6 Way.
+    Watering Handler for Gardena 6 Way Water Distributor.
     It supports the cooldowns that are necessary for that thing.
     """
 
@@ -64,17 +58,21 @@ class SixWayActuator(ActuatorInterface):
         self._load_active_channel()
         self._gpio_pin = config["gpio_pin"]
         self._channel_count = len(managed_zones)
-        self._zone_channel_mapping = {i: z for i, z in enumerate(managed_zones)}
-        self.watering_cooldown_function = lambda cooldown_duration:None
+        self._zone_channel_mapping = {z: i+1 for i, z in enumerate(managed_zones)}
+        self.watering_cooldown_function = lambda cooldown_duration: None
 
         self._watering_tasks = []
 
         self._watering_stop_time = 0
         self._cooldown_duration = config["cooldown_duration"]
 
-        if config["run_watering_coroutine"]:
+        self._should_launch_watering_coroutine = config["run_watering_coroutine"]
+
+    def start_background_task(self):
+        if self._should_launch_watering_coroutine:
             # TODO: Problem: This is executed before the event loop is launched
-            self._watering_coroutine = asyncio.create_task(self._watering_execution_coroutine())
+            self._watering_coroutine = asyncio.create_task(
+                self._watering_execution_coroutine())
         else:
             self._watering_coroutine = None
 
@@ -91,7 +89,7 @@ class SixWayActuator(ActuatorInterface):
         while True:
 
             if not self._watering_tasks or \
-                self._watering_stop_time + self._cooldown_duration > time.time():
+               self._watering_stop_time + self._cooldown_duration > time.time():
                 await asyncio.sleep(1)
                 continue
 
@@ -101,7 +99,7 @@ class SixWayActuator(ActuatorInterface):
             while True:
 
                 if self._watering_tasks and \
-                    self._watering_tasks[0].channel == self._active_channel:
+                   self._watering_tasks[0].channel == self._active_channel:
 
                     current_task = self._watering_tasks.pop(0)
                     self._watering_stop_time += current_task.duration
@@ -136,12 +134,14 @@ class SixWayActuator(ActuatorInterface):
             self._channel_state_db.truncate()
             self._active_channel = 1
             self.logger.info("Couldn't find db entry with active channel.")
-            self._store_active_channel()
+            # table is empty => insert active channel
+            self._channel_state_db.insert({"active_channel": self._active_channel})
         else:
             self._active_channel = db_contents[0]["active_channel"]
             self.logger.info(f"Loaded last active channel from db: {self._active_channel}")
 
     def _store_active_channel(self):
+        # table has active channel in it => overwrite
         self._channel_state_db.update({"active_channel": self._active_channel})
 
     # === Public methods ===
@@ -165,7 +165,7 @@ class SixWayActuator(ActuatorInterface):
                 channel = self._zone_channel_mapping[nt.zone]
                 channel_tasks.append(ChannelTask(channel, nt.duration))
         if channel_tasks:
-            self.update_watering_tasks(new_tasks)
+            self.update_watering_tasks(channel_tasks)
 
     def update_watering_tasks(self, new_tasks=[]):
         # create dict with durations from new and planned tasks. (no need to look at
