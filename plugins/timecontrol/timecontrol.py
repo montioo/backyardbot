@@ -188,9 +188,10 @@ class TimeControlPlugin(Plugin):
 
     def get_system_state(self):
         auto_state = self.is_auto_mode_enabled()
-        if self._tasks:
-            ld = self.localization
+        if auto_state:
+            # auto_state == True  =>  len(self._tasks) > 0
             task = self._tasks[0]
+            ld = self.localization
             hh_mm, weekdays = task.get_time_day()
             day_s_localized = ld["day_singular"] if len(weekdays) == 1 else ld["day_plural"]
             wdl = ld["weekdays_short"] + [ld["daily"]]
