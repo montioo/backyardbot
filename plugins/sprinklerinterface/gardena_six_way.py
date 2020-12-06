@@ -38,19 +38,19 @@ class SixWayActuator(ActuatorInterface):
     """
 
     def __init__(self, managed_zones, name, config):
-        logger_config = config.get("logging", {})
-        super(SixWayActuator, self).__init__(managed_zones, name, logger_config)
         """
         Initialize sprinkler interface.
         :param config: Configuration dictionary
         :param runWateringThread: Determines whether a watering
             thread should be launched (debug and testing)
         """
+        logger_config = config.get("logging", {})
+        super(SixWayActuator, self).__init__(managed_zones, name, logger_config)
 
-        if config["use_dummy_gpio"]:
-            self._gpio = DebugGpioInterface(config, [config["gpio_pin"]])
+        if config.get("use_debug_gpio", False):
+            self._gpio = DebugGpioInterface([config["gpio_pin"]], config)
         else:
-            self._gpio = RaspiGpioInterface(config, [config["gpio_pin"]])
+            self._gpio = RaspiGpioInterface([config["gpio_pin"]], config)
 
         self._channel_state_db = Database.get_db_for(config["channel_state_db"])
 
@@ -70,7 +70,6 @@ class SixWayActuator(ActuatorInterface):
 
     def start_background_task(self):
         if self._should_launch_watering_coroutine:
-            # TODO: Problem: This is executed before the event loop is launched
             self._watering_coroutine = asyncio.create_task(
                 self._watering_execution_coroutine())
         else:
@@ -85,6 +84,7 @@ class SixWayActuator(ActuatorInterface):
         of the actual watering. It will read tasks from the list that this
         class holds.
         """
+        # TODO: watering coroutine should probably only stop watering. Starting is done by start_watering(..)?
 
         while True:
 

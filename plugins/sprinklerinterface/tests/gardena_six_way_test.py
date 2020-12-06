@@ -33,7 +33,7 @@ class TestSixWayActuator(unittest.TestCase):
         managed_zones = ["Z1", "Z2", "Z3", "Z4"]
         actuator_config = {
             "cooldown_duration": 7,
-            "use_dummy_gpio": True,
+            "use_debug_gpio": True,
             "gpio_pin": 13,
             "run_watering_coroutine": False,
             "channel_state_db": "sprinkler_interface_actuator1_db",

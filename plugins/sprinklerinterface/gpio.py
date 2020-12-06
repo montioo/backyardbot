@@ -24,7 +24,7 @@ except:
 class GpioInterface:
     """ Interface that defines interactions with GPIO ports. """
 
-    def __init__(self, config, pins):
+    def __init__(self, pins, logger_config={}):
         """ Set pin to output pin and so on. """
         # config is only necessary to define the logger
         pass
@@ -43,9 +43,13 @@ class DebugGpioInterface(GpioInterface):
     Implements a GPIO interface dummy that can be used for testing
     on machines that don't have GPIO ports.
     """
-    def __init__(self, config, pins):
+    def __init__(self, pins, logger_config={}):
+        """
+        :param logger_config: A dict with the key "logging" which holds the
+        custom configuration for the logger.
+        """
         logger_name = __name__ + "." + self.__class__.__name__
-        self.logger = create_logger(logger_name, config)
+        self.logger = create_logger(logger_name, logger_config)
         self._states = {p: 0 for p in pins}
         self.logger.debug(f"Activated GPIO port {pins}")
 
@@ -79,7 +83,7 @@ class RaspiGpioInterface(GpioInterface):
     Can only control one GPIO pin at a time.
     """
 
-    def __init__(self, config, pins):
+    def __init__(self, pins, logger_config={}):
         logger_name = __name__ + "." + self.__class__.__name__
         self.logger = create_logger(logger_name, config)
         self.pin = pins[0]

@@ -14,10 +14,19 @@
                 "zones": ["Z1", "Z2", "Z3", "Z4"],
                 "actuator_specific_settings": {
                     "cooldown_duration": 7,
-                    "use_dummy_gpio": true,
+                    "use_debug_gpio": true,
                     "gpio_pin": 13,
                     "run_watering_coroutine": true,
                     "channel_state_db": "sprinkler_interface_actuator1_db"
+                }
+            },
+            {
+                "python_class": "SingleActuator",
+                "zones": ["ZS"],
+                "actuator_specific_settings": {
+                    "use_debug_gpio": true,
+                    "gpio_pin": 14,
+                    "run_watering_coroutine": true
                 }
             }
         ]
