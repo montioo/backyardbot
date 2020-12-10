@@ -10,6 +10,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List
+import time
+import asyncio
 
 from framework.utility import create_logger
 
@@ -44,6 +46,8 @@ class ActuatorInterface(ABC):
         # self.reached_watering_time_limit = lambda channel, time_left:None
         self.name = name
         self.managed_zones = managed_zones
+        self._evt = asyncio.Event()
+        self._sleep_until = None
 
     def start_background_task(self):
         """ Should the actuator need to run an async background task, create and launch it here. """
@@ -105,3 +109,35 @@ class ActuatorInterface(ABC):
     #     of remaining water in [0, 1]
     #     """
     #     return 1.0
+
+
+    ### Background Task Sleeping ###
+    ### ------------------------ ###
+
+    async def sleep_until_timeout_or_update(self):
+        # wait for: ( event_triggered  or  time_up )
+        while True:
+            sleep_until = self._sleep_until
+            sleep_duration = max(0, sleep_until - time.time())
+            try:
+                await asyncio.wait_for(self._evt.wait(), timeout)
+            except asyncio.TimeoutError:
+                pass
+
+            if self._evt.is_set() and sleep_until != self._sleep_until:
+                # Event triggered because new timeout is set
+                self._evt.clear()
+                continue
+            return self._evt.is_set()
+
+    def set_timout(self, sleep_until):
+        # TODO: Function to only wait for event. Then set a timeout.
+        self._sleep_until = sleep_until
+        self._evt.set()
+        # sleep timeout will trigger, notice that the timeout duration has been updated and continue to sleep.
+
+    def reset_timout(self):
+        """ Triggers the event and sets the timeout to zero, which will make
+        the sleep or wait for event coroutine return. """
+        self._sleep_until = 0
+        self._evt.set()
