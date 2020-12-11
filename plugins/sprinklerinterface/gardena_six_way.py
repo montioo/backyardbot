@@ -55,6 +55,7 @@ class SixWayActuator(ActuatorInterface):
 
         self._active_channel = -1
         self._load_active_channel()
+        self.logger.debug(f"Loaded active channel: {self._active_channel}")
         self._gpio_pin = config["gpio_pin"]
         self._channel_count = len(managed_zones)
         self._zone_channel_mapping = {z: i+1 for i, z in enumerate(managed_zones)}
@@ -74,8 +75,8 @@ class SixWayActuator(ActuatorInterface):
         of the actual watering. It will read tasks from the list that this
         class holds.
         """
-        # TODO: watering coroutine should probably only stop watering. Starting is done by start_watering(..)?
-
+        # TODO: If this coroutine crashes, it doesn't show any error on the console. Why?
+        # TODO: Adapt to use advantages of new ActuatorInterface
         while True:
 
             if not self._watering_tasks or \
@@ -85,6 +86,7 @@ class SixWayActuator(ActuatorInterface):
 
             self._watering_stop_time = time.time()
             self._gpio.set_state(self._gpio_pin, 1)
+            self.logger.debug(f"Activated watering on channel {self._active_channel}, scheduled tasks: {self._watering_tasks}")
 
             while True:
 
@@ -93,7 +95,7 @@ class SixWayActuator(ActuatorInterface):
 
                     current_task = self._watering_tasks.pop(0)
                     self._watering_stop_time += current_task.duration
-                    self.watering_started_function(current_task.channel, self.get_remaining_time_current_channel())
+                    self.watering_started_function(current_task.channel, self.get_remaining_time_current_zone())
                     self.logger.info(f"Found new watering task for current channel: {current_task}")
 
                 await asyncio.sleep(1)
@@ -189,6 +191,7 @@ class SixWayActuator(ActuatorInterface):
         self.logger.debug(f"Updated watering tasks: {self._watering_tasks}")
 
     def stop_watering(self, zones=[]):
+        # TODO: Map zones to channels
         if not zones:
             # stop all zones if no zones are given
             self._watering_tasks = []
@@ -222,7 +225,7 @@ class SixWayActuator(ActuatorInterface):
     def get_remaining_time_all_zones(self):
         if not self._watering_tasks:
             return 0
-        duration = self.get_remaining_time_current_channel()
+        duration = self.get_remaining_time_current_zone()
         for task in self._watering_tasks:
             duration += task.duration
         duration += self._cooldown_duration * len(self._watering_tasks)

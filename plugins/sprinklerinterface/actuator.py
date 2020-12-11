@@ -43,9 +43,9 @@ class ActuatorInterface(ABC):
         logger_name = __name__ + "." + self.__class__.__name__
         self.logger = create_logger(logger_name, logger_config)
         # Callbacks for certain events?
-        # self.watering_stopped_function = lambda:None
-        # self.watering_started_function = lambda channel, duration:None
-        # self.reached_watering_time_limit = lambda channel, time_left:None
+        self.watering_stopped_function = lambda: None
+        self.watering_started_function = lambda channel, duration: None
+        self.reached_watering_time_limit = lambda channel, time_left: None
 
         self.name = name
         self.managed_zones = managed_zones
