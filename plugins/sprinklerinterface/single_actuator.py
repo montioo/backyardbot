@@ -9,7 +9,7 @@
 
 from plugins.sprinklerinterface.actuator import ActuatorInterface, WateringTask
 from plugins.sprinklerinterface.gpio import DebugGpioInterface, RaspiGpioInterface
-from typing import List
+from typing import List, Optional
 
 
 class SingleActuator(ActuatorInterface):
@@ -24,10 +24,8 @@ class SingleActuator(ActuatorInterface):
     """
 
     def __init__(self, managed_zones, name, config):
-        logger_config = config.get("logging", {})
-        super().__init__(managed_zones, name, logger_config)
+        super().__init__(managed_zones, name, config)
 
-        self.managed_zone = managed_zones[0]
         self.gpio_pin = config["gpio_pin"]
 
         if config.get("use_debug_gpio", False):
@@ -35,61 +33,54 @@ class SingleActuator(ActuatorInterface):
         else:
             self._gpio = RaspiGpioInterface([self.gpio_pin], config)
 
-        # somehow this timing thing is something I'm solving again and again...
-        # look at async events.
-        self._remaining_duration = 0
-        self._watering_stop_time = None  # or do that?
+    async def watering_execution_coroutine(self):
+        """ Is active as long as there are tasks. """
+        while True:
+            self.logger.debug("Waiting for timout to be set")
+            await self.sleep_while_no_timout_set()
+            self.logger.debug("Timout was set")
 
+            # Timeout was set -> activate watering
+            self._gpio.set_state(self.gpio_pin, 1)
+            self.logger.debug("Activated gpio. Waiting for timeout to end")
+            await self.sleep_until_timeout()
+            self.logger.debug("Timout ended")
+            self._gpio.set_state(self.gpio_pin, 0)
 
-        self._watering_coroutine = None
-        self._should_launch_watering_coroutine = config["run_watering_coroutine"]
-
-    async def _watering_execution_coroutine(self):
-        """Is active as long as there are tasks."""
-        self._gpio.set_state(self.gpio_pin, 1)
-        while self._remaining_duration:
-
-
-    def start_background_task(self):
-        """ Should the actuator need to run an async background task, create and launch it here. """
-        pass
-
-    def start_watering(self, tasks: List[WateringTask]):
-
+    def start_watering(self, new_tasks: List[WateringTask]):
+        """
+        Adds the durations of the arrived tasks to the timeout for the
+        watering coroutine. But only if the zone in the task matches the zone
+        that this actuator manages.
+        """
         self.logger.info(f"Received new watering tasks: {new_tasks}")
         for nt in new_tasks:
-            if nt.zone == self.managed_zone:
-                self._remaining_duration += nt.duration
-        if not self._remaining_duration or self._watering_coroutine:
-            return
-
-        if self._should_launch_watering_coroutine:
-            self._watering_coroutine = asyncio.create_task(
-                self._watering_execution_coroutine())
-        else:
-            self._watering_coroutine = None
+            if nt.zone == self.managed_zones[0]:
+                self.add_to_timeout(nt.duration)
 
     def stop_watering(self, zones=[]):
-        # TODO: How to identify zones?
-        raise NotImplementedError()
+        if self.managed_zones[0] in zones:
+            # sets the timeout to zero, thus making
+            self.reset_timout()
 
     # === system state info ===
 
     def is_watering_active(self) -> bool:
-        raise NotImplementedError()
+        return self._gpio.is_pin_active(self.gpio_pin)
 
     def are_tasks_left(self) -> bool:
         """ Returns whether watering is active or there are still scheduled tasks. """
-        raise NotImplementedError()
+        # Since this actuator only controls one physical actuator there is no task list.
+        return self.is_watering_active()
 
     def get_remaining_time_current_zone(self) -> int:
         """ Returns the remaining watering duration for the current zone in seconds. """
-        raise NotImplementedError()
+        return self.get_duration_until_wakeup_time()
 
     def get_remaining_time_all_zones(self) -> int:
         """ Returns the remaining watering duration for all zones in seconds. """
-        raise NotImplementedError()
+        # This acutator only maintinas one zone.
+        return self.get_remaining_time_current_zone()
 
-    def get_current_zone(self) -> str:
-        # TODO: How to identify zones?
-        raise NotImplementedError()
+    def get_current_zone(self) -> Optional[str]:
+        return self.managed_zones[0] if self.is_watering_active() else None

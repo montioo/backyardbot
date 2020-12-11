@@ -110,3 +110,8 @@ The Six Way Sprinkler interface will keep track of the currently watered channel
 The zones from the `settings.json` file are used to assign the channels of the Water Distributor. The first given zone is assigned to channel `1`, the second zone to channel `2` and so on. The amount of given zones relates to the amount of channels that are activated in the Water Distributor.
 
 *(Personal comment: I've been using Gardena's Water Distributor for multiple summers and it's really amazing. Works reliably and is way cheaper than buying and controlling six magnetic valves. When bought at another retailer, you can get the Water Distributor for a better price than on Gardena's website. I'm not sponsored by them or whatever, I just really like the product.)*
+
+
+## Actuator Base Class
+
+If you want to implement your own actuator this is the place to start. The actuator base class provides a bunch of methods that every actuator needs to implement and also some functionality to handle interruptable sleeping between controling the physical actuator. A simple example of this usecase can be found in the `SingleActuator` but all other actuators also use this system.

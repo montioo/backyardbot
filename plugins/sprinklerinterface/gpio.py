@@ -16,6 +16,7 @@ control the watering.
 from framework.utility import create_logger
 
 try:
+    # only available on raspberry pi
     import gpiozero
 except:
     pass
@@ -85,11 +86,12 @@ class RaspiGpioInterface(GpioInterface):
 
     def __init__(self, pins, logger_config={}):
         logger_name = __name__ + "." + self.__class__.__name__
-        self.logger = create_logger(logger_name, config)
+        self.logger = create_logger(logger_name, logger_config)
         self.pin = pins[0]
         self.sprinkler_gpio = gpiozero.LED(self.pin)
         self.pin_state = 0
         self.logger.debug("Activated port " + str(self.pin))
+        # TODO: Make sure that gpiozero is imported
 
     def set_state(self, pin, new_state):
         if pin != self.pin:

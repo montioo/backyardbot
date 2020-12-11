@@ -12,14 +12,16 @@ from framework.memory import Database
 from framework.communication import Topics, BaseMessage
 from byb.byb_common import TOPIC_START_WATERING, ZONE_DB_NAME, TOPIC_ZONES_UPDATED, ZonesUpdatedPayload
 
-from plugins.sprinklerinterface.gardena_six_way import SixWayActuator
 from plugins.sprinklerinterface.actuator import WateringTask
+from plugins.sprinklerinterface.single_actuator import SingleActuator
+from plugins.sprinklerinterface.gardena_six_way import SixWayActuator
 
 from typing import List
 
 
 actuator_implementations = {
-    "SixWayActuator": SixWayActuator
+    "SixWayActuator": SixWayActuator,
+    "SingleActuator": SingleActuator
 }
 
 
