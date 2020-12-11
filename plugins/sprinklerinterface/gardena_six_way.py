@@ -44,8 +44,7 @@ class SixWayActuator(ActuatorInterface):
         :param runWateringThread: Determines whether a watering
             thread should be launched (debug and testing)
         """
-        logger_config = config.get("logging", {})
-        super(SixWayActuator, self).__init__(managed_zones, name, logger_config)
+        super(SixWayActuator, self).__init__(managed_zones, name, config)
 
         if config.get("use_debug_gpio", False):
             self._gpio = DebugGpioInterface([config["gpio_pin"]], config)
@@ -66,19 +65,10 @@ class SixWayActuator(ActuatorInterface):
         self._watering_stop_time = 0
         self._cooldown_duration = config["cooldown_duration"]
 
-        self._should_launch_watering_coroutine = config["run_watering_coroutine"]
-
-    def start_background_task(self):
-        if self._should_launch_watering_coroutine:
-            self._watering_coroutine = asyncio.create_task(
-                self._watering_execution_coroutine())
-        else:
-            self._watering_coroutine = None
-
     # === Private methods ===
     # === --------------- ===
 
-    async def _watering_execution_coroutine(self):
+    async def watering_execution_coroutine(self):
         """
         Method that will run forever in a separate thread and take care
         of the actual watering. It will read tasks from the list that this
