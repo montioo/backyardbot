@@ -17,7 +17,6 @@ from plugins.sprinklerinterface.single_actuator import SingleActuator
 from plugins.sprinklerinterface.gardena_six_way import SixWayActuator
 
 from typing import List
-import asyncio
 
 
 # TODO: Parse files in plugin folder for actuator subclasses
@@ -112,11 +111,8 @@ class WateringPlugin(Plugin):
             new_task_list = task_mapping[actuator.managed_zones[0]]
             actuator.start_watering(new_task_list)
 
-        # TODO: Inform all frontends about the current watering state.
-        # Problem: Does this work here? Timing handlers of actuator implementations
-        # probably didn't have time yet to activate the watering?
-        await asyncio.sleep(1)  # TODO: This is ugly and a temporary solution only.
-        await self.send_state_update_to_clients()
+        # Frontends are informed about updated watering state as soon as
+        # actuators start doing the actual watering.
 
     async def new_ws_client(self, msg):
         """ Sends the current system state only to the new websocket client. """
@@ -128,6 +124,7 @@ class WateringPlugin(Plugin):
             "command": "update_frontend_state",
             "payload": actuator_states
         }
+        # self.logger.info("compiled state:", actuator_states)
         await self.send_to_clients(msg, ws_id)
 
     # === Actuator and Zone Setup ===
@@ -150,6 +147,7 @@ class WateringPlugin(Plugin):
             display_name = actuator_config.get("display_name", actuator_class_name)
             actuator_specific_settings = actuator_config.get("actuator_specific_settings", {})
             actuator = actuator_implementations[actuator_class_name](managed_zones, display_name, actuator_specific_settings)
+            actuator.state_updated_callback = self.actuator_state_updated
             self.actuators.append(actuator)
 
         return all_zones
@@ -203,3 +201,11 @@ class WateringPlugin(Plugin):
         return {
             "zones": self.zones
         }
+
+    # === Actuator State Callback ===
+
+    async def actuator_state_updated(self):
+        # Launch new coroutine here to not block execution? No, because the
+        # actuator will wait for the next time after the watering state
+        # changed.
+        await self.send_state_update_to_clients()

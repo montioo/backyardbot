@@ -30,7 +30,7 @@ class BybConnection {
 
     constructor() {
         const ws_addr = "ws://" + location.host + "/ws";
-        console.log(ws_addr);
+        // console.log(ws_addr);
         this.ws = new WebSocket(ws_addr);
         this.plugins = {};
 
@@ -39,8 +39,8 @@ class BybConnection {
     }
 
     onmessage_callback(event) {
-        console.log("BybConnection received data:");
-        console.log(event.data);
+        // console.log("BybConnection received data:");
+        // console.log(event.data);
 
         const json_data = JSON.parse(event.data);
         const receiving_plugin = json_data["plugin_name"];

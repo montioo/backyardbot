@@ -13,7 +13,7 @@ from typing import List, Optional
 import time
 import asyncio
 
-from framework.utility import create_logger
+from framework.utility import create_logger, log_coroutine_exceptions
 
 
 @dataclass
@@ -42,10 +42,13 @@ class ActuatorInterface(ABC):
         self._should_launch_watering_coroutine = config.get("run_watering_coroutine", True)
         logger_name = __name__ + "." + self.__class__.__name__
         self.logger = create_logger(logger_name, logger_config)
-        # Callbacks for certain events?
-        self.watering_stopped_function = lambda: None
-        self.watering_started_function = lambda zone, duration: None
-        self.watering_cooldown_function = lambda cooldown_duration: None
+
+        # Called when the state of the actuator updated. Will be handled by the
+        # predefined functions for timing and sleeping in this actuator. If
+        # those functions are not used, the callback has to be invoked by the
+        # subclass (i.e. actual actuator impelmentation) to inform the frontend
+        # about updated stated.
+        self.state_updated_callback = lambda: None
 
         self.display_name = display_name
         self.managed_zones = managed_zones
@@ -62,7 +65,7 @@ class ActuatorInterface(ABC):
         be created and launched here. """
         if self._should_launch_watering_coroutine:
             self._watering_coroutine = asyncio.create_task(
-                self.watering_execution_coroutine())
+                log_coroutine_exceptions(self.watering_execution_coroutine(), self.logger))
 
     @abstractmethod
     async def watering_execution_coroutine(self):
@@ -141,6 +144,7 @@ class ActuatorInterface(ABC):
             if self._sleep_until is None:
                 return
             sleep_duration = max(0, self._sleep_until - time.time())
+            await self.state_updated_callback()
             try:
                 # Wait until timeout runs out or event is triggered. Event
                 # trigger can be used to update the sleep duration.
@@ -164,6 +168,7 @@ class ActuatorInterface(ABC):
             if self._sleep_until is not None:
                 self.logger.debug("sleep_while_no_timout_set - timeout duration added")
                 return
+            await self.state_updated_callback()
             try:
                 # Wait until event is triggered. Event will be triggered by
                 # another coroutine if it sets a timeout.

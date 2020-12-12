@@ -14,7 +14,7 @@ import glob
 import asyncio
 from aiohttp import web
 from .renderer import Renderer
-from .utility import create_logger
+from .utility import create_logger, log_coroutine_exceptions
 from .communication import Topics, WebsocketRequest
 from .event import EventComponent
 
@@ -72,8 +72,8 @@ class Server(EventComponent):
 
         app.on_startup.append(self.start_background_tasks)
         app.on_cleanup.append(self.cleanup_background_tasks)
+        # logging.basicConfig(level=logging.DEBUG)
         web.run_app(app)
-
 
     async def handle(self, request):
         text = self.renderer.render(
@@ -82,7 +82,6 @@ class Server(EventComponent):
             js_filelist=self.allowed_files
         )
         return web.Response(text=text, content_type="text/html")
-
 
     async def handle_files(self, request):
         filename = request.match_info.get("filename", "error")
@@ -96,13 +95,12 @@ class Server(EventComponent):
         else:
             raise web.HTTPNotFound()
 
-        if not filepath in self.allowed_files:
+        if filepath not in self.allowed_files:
             raise web.HTTPNotFound()
 
         abs_path = os.path.realpath(filepath)
         # TODO: Does web.FileResponse do caching?
         return web.FileResponse(abs_path)
-
 
     async def handle_ws(self, request):
         self.logger.info(f"ws request: {request}")
@@ -159,10 +157,10 @@ class Server(EventComponent):
         return ws
 
     async def start_background_tasks(self, app):
-        app["server_msg_loop"] = asyncio.create_task(self.event_loop())
+        app["server_msg_loop"] = asyncio.create_task(log_coroutine_exceptions(self.event_loop(), self.logger))
 
         for plugin in self.plugins_list:
-            app[plugin.name] = asyncio.create_task(plugin.event_loop())
+            app[plugin.name] = asyncio.create_task(log_coroutine_exceptions(plugin.event_loop(), plugin.logger))
 
     async def cleanup_background_tasks(self, app):
         app["server_msg_loop"].cancel()
@@ -178,7 +176,6 @@ class Server(EventComponent):
         # assumes topic format "websocket/<plugin_name>/frontend"
         plugin_name = message.topic.split("/")[1]
         data = message.payload
-
         # Converts message to format that is sent over ws. Could be beautified.
         json_str = json.dumps({
             "plugin_name": plugin_name,

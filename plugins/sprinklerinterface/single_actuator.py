@@ -36,15 +36,16 @@ class SingleActuator(ActuatorInterface):
     async def watering_execution_coroutine(self):
         """ Is active as long as there are tasks. """
         while True:
-            self.logger.debug("Waiting for timout to be set")
+            self.logger.debug("Waiting for timeout to be set.")
             await self.sleep_while_no_timout_set()
-            self.logger.debug("Timout was set")
 
             # Timeout was set -> activate watering
             self._gpio.set_state(self.gpio_pin, 1)
-            self.logger.debug("Activated gpio. Waiting for timeout to end")
+            self.logger.debug("Activated GPIO. Waiting for timeout to end.")
+
             await self.sleep_until_timeout()
-            self.logger.debug("Timout ended")
+
+            self.logger.debug("Timout ended. Will stop watering.")
             self._gpio.set_state(self.gpio_pin, 0)
 
     def start_watering(self, new_tasks: List[WateringTask]):
@@ -60,7 +61,8 @@ class SingleActuator(ActuatorInterface):
 
     def stop_watering(self, zones=[]):
         if self.managed_zones[0] in zones:
-            # sets the timeout to zero, thus making
+            # sets the timeout to zero, thus making sleep_until_timeout()
+            # return in the execution coroutine
             self.reset_timout()
 
     # === system state info ===
@@ -79,7 +81,7 @@ class SingleActuator(ActuatorInterface):
 
     def get_remaining_time_all_zones(self) -> int:
         """ Returns the remaining watering duration for all zones in seconds. """
-        # This acutator only maintinas one zone.
+        # This actuator only maintains one zone.
         return self.get_remaining_time_current_zone()
 
     def get_current_zone(self) -> Optional[str]:

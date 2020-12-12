@@ -10,6 +10,18 @@
 import logging
 
 
+async def log_coroutine_exceptions(awaitable, logger):
+    """
+    Exceptions in a coroutine can get unnoticed when the coroutine is
+    started with asyncio.create_task(..). Wrap the coroutine in this function
+    to log all exceptions.
+    """
+    try:
+        await awaitable
+    except Exception as e:
+        logger.exception("Exception in coroutine:", e)
+
+
 def pick_localization(plugin_settings, global_settings):
     """
     Builds the localization dict for the front ends with different languages.

@@ -12,7 +12,7 @@ import asyncio
 import time
 import inspect
 from collections import deque
-from .utility import create_logger
+from .utility import create_logger, log_coroutine_exceptions
 from .communication import Topics
 
 
@@ -73,16 +73,18 @@ class EventComponent:
                 self.logger.info(f"--> plugin {__name__}.{self.__class__.__name__} exiting")
                 return False
 
-            # Execute callback for longest waiting message
-            msg = self._message_queue.popleft()
-            callback = self._message_handlers[msg.topic]
-            if inspect.iscoroutinefunction(callback):
-                # launch asynchronously and return immediately
-                asyncio.create_task(callback(msg))
-            else:
-                # for quick tasks, a synchronous callback is fine
-                # self.logger.warning("Using synchronous callback function.")
-                callback(msg)
+            # Execute callback, starting with longest waiting message
+            while self._message_queue:
+                msg = self._message_queue.popleft()
+                callback = self._message_handlers[msg.topic]
+                if inspect.iscoroutinefunction(callback):
+                    # launch asynchronously and return immediately
+                    asyncio.create_task(
+                        log_coroutine_exceptions(callback(msg), self.logger))
+                else:
+                    # for quick tasks, a synchronous callback is fine
+                    # self.logger.warning("Using synchronous callback function.")
+                    callback(msg)
 
     async def spin(self):
         """

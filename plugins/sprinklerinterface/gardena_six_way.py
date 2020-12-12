@@ -59,7 +59,6 @@ class SixWayActuator(ActuatorInterface):
         self._gpio_pin = config["gpio_pin"]
         self._channel_count = len(managed_zones)
         self._zone_channel_mapping = {z: i+1 for i, z in enumerate(managed_zones)}
-        self.watering_cooldown_function = lambda cooldown_duration: None
 
         self._watering_tasks = []
 
@@ -75,7 +74,6 @@ class SixWayActuator(ActuatorInterface):
         of the actual watering. It will read tasks from the list that this
         class holds.
         """
-        # TODO: If this coroutine crashes, it doesn't show any error on the console. Why?
         # TODO: Adapt to use advantages of new ActuatorInterface
         while True:
 
@@ -95,7 +93,7 @@ class SixWayActuator(ActuatorInterface):
 
                     current_task = self._watering_tasks.pop(0)
                     self._watering_stop_time += current_task.duration
-                    self.watering_started_function(current_task.channel, self.get_remaining_time_current_zone())
+                    await self.state_updated_callback()
                     self.logger.info(f"Found new watering task for current channel: {current_task}")
 
                 await asyncio.sleep(1)
@@ -106,10 +104,7 @@ class SixWayActuator(ActuatorInterface):
 
             self._gpio.set_state(self._gpio_pin, 0)
             self._increase_watering_channel()
-            if self._watering_tasks:
-                self.watering_cooldown_function(self._cooldown_duration)
-            else:
-                self.watering_stopped_function()
+            await self.state_updated_callback()
 
     # === utility ===
 
