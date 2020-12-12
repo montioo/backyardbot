@@ -37,14 +37,14 @@ class SixWayActuator(ActuatorInterface):
     It supports the cooldowns that are necessary for that thing.
     """
 
-    def __init__(self, managed_zones, name, config):
+    def __init__(self, managed_zones, display_name, config):
         """
         Initialize sprinkler interface.
         :param config: Configuration dictionary
         :param runWateringThread: Determines whether a watering
             thread should be launched (debug and testing)
         """
-        super(SixWayActuator, self).__init__(managed_zones, name, config)
+        super(SixWayActuator, self).__init__(managed_zones, display_name, config)
 
         if config.get("use_debug_gpio", False):
             self._gpio = DebugGpioInterface([config["gpio_pin"]], config)

@@ -2,7 +2,7 @@
 # single_actuator.py
 # backyardbot
 #
-# Created: Dezember 2020
+# Created: December 2020
 # Author: Marius Montebaur
 # montebaur.tech, github.com/montioo
 #
@@ -23,8 +23,8 @@ class SingleActuator(ActuatorInterface):
     MultiActuator class.
     """
 
-    def __init__(self, managed_zones, name, config):
-        super().__init__(managed_zones, name, config)
+    def __init__(self, managed_zones, display_name, config):
+        super().__init__(managed_zones, display_name, config)
 
         self.gpio_pin = config["gpio_pin"]
 

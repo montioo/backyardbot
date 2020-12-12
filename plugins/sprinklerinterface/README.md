@@ -74,11 +74,9 @@ This approach is used over multiple plugins.
 
 ### Command `watering_state` (sent to frontend)
 
-The command `watering_state` informs the frontend about the current watering state. It either says the watering is off or displays the zone that is currently watered and the remaining durations.
+The command `update_frontend_state` informs the frontend about the current watering state. For each actuator, it either says the watering is off or displays the zone that is currently watered and the remaining durations.
 
-The backend will take care of constructing a string to display. The frontend does no further processing and just shows the received string in the UI.
-
-The payload thus only consists of a string.
+The backend will take care of constructing a string to display. The frontend will display the string. The message also consists of a duration per actuator which holds a valid value if the actuator is watering. The frontend can interpret this value as seconds and start at timer to count down and update the UI.
 
 
 ### Command `start_watering` (sent to backend)

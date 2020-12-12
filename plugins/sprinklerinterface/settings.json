@@ -12,6 +12,7 @@
             {
                 "python_class": "SixWayActuator",
                 "zones": ["Z1", "Z2", "Z3", "Z4"],
+                "display_name": "Six Way Test",
                 "actuator_specific_settings": {
                     "cooldown_duration": 7,
                     "use_debug_gpio": true,
@@ -23,6 +24,7 @@
             {
                 "python_class": "SingleActuator",
                 "zones": ["ZS"],
+                "display_name": "Single Test 1",
                 "actuator_specific_settings": {
                     "use_debug_gpio": true,
                     "gpio_pin": 14,
@@ -39,7 +41,8 @@
             "header_manually": "Water Manually",
             "duration_label": "Duration",
             "select_zone_label": "Zone",
-            "start_button": "Start"
+            "start_button": "Start",
+            "actuator_state_off_label": "off"
         },
         "de": {
             "header_state": "Aktueller Zustand",
@@ -47,7 +50,8 @@
             "header_manually": "Manuelle Bewässerung",
             "duration_label": "Dauer",
             "select_zone_label": "Zone",
-            "start_button": "Start"
+            "start_button": "Start",
+            "actuator_state_off_label": "aus"
         }
     }
 }

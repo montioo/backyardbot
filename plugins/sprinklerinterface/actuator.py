@@ -37,17 +37,17 @@ class ActuatorInterface(ABC):
     ActuatorInterface subclass will always take immediate action.
     """
 
-    def __init__(self, managed_zones, name, config):
+    def __init__(self, managed_zones, display_name, config):
         logger_config = config.get("logging", {})
         self._should_launch_watering_coroutine = config.get("run_watering_coroutine", True)
         logger_name = __name__ + "." + self.__class__.__name__
         self.logger = create_logger(logger_name, logger_config)
         # Callbacks for certain events?
         self.watering_stopped_function = lambda: None
-        self.watering_started_function = lambda channel, duration: None
-        self.reached_watering_time_limit = lambda channel, time_left: None
+        self.watering_started_function = lambda zone, duration: None
+        self.watering_cooldown_function = lambda cooldown_duration: None
 
-        self.name = name
+        self.display_name = display_name
         self.managed_zones = managed_zones
 
         # watering coroutine related
@@ -79,7 +79,7 @@ class ActuatorInterface(ABC):
         # TODO: How to identify zones?
         raise NotImplementedError()
 
-    # === system state info ===
+    # === System State Info ===
 
     @abstractmethod
     def is_watering_active(self) -> bool:

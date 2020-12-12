@@ -17,8 +17,10 @@ from plugins.sprinklerinterface.single_actuator import SingleActuator
 from plugins.sprinklerinterface.gardena_six_way import SixWayActuator
 
 from typing import List
+import asyncio
 
 
+# TODO: Parse files in plugin folder for actuator subclasses
 actuator_implementations = {
     "SixWayActuator": SixWayActuator,
     "SingleActuator": SingleActuator
@@ -42,6 +44,9 @@ class WateringPlugin(Plugin):
 
         ws_backend_topic = f"websocket/{self.name}/backend"
         self.register_topic_callback(ws_backend_topic, self.ws_message_from_frontend)
+
+        ws_new_client_topic = "websocket/new_client"
+        self.register_topic_callback(ws_new_client_topic, self.new_ws_client)
 
         self.register_topic_callback(TOPIC_START_WATERING, self.start_watering_callback_topic)
         self.actuators = []
@@ -108,10 +113,22 @@ class WateringPlugin(Plugin):
             actuator.start_watering(new_task_list)
 
         # TODO: Inform all frontends about the current watering state.
-        # Problem: Does this work here? Timing handlers of actuators implementations
+        # Problem: Does this work here? Timing handlers of actuator implementations
         # probably didn't have time yet to activate the watering?
-        # -> actuator implementations have to be improved. Not another event
-        # loop within the actuators.
+        await asyncio.sleep(1)  # TODO: This is ugly and a temporary solution only.
+        await self.send_state_update_to_clients()
+
+    async def new_ws_client(self, msg):
+        """ Sends the current system state only to the new websocket client. """
+        await self.send_state_update_to_clients(msg.ws_id)
+
+    async def send_state_update_to_clients(self, ws_id=-1):
+        actuator_states = self.get_actuator_states()
+        msg = {
+            "command": "update_frontend_state",
+            "payload": actuator_states
+        }
+        await self.send_to_clients(msg, ws_id)
 
     # === Actuator and Zone Setup ===
 
@@ -119,20 +136,20 @@ class WateringPlugin(Plugin):
         all_zones = []
 
         for actuator_config in self.settings["plugin_settings"]["actuators"]:
-            actuator_class = actuator_config.get("python_class", None)
-            if actuator_class not in actuator_implementations:
-                self.logger.warning(f"{actuator_class} is not in the list of known implementations")
+            actuator_class_name = actuator_config.get("python_class", None)
+            if actuator_class_name not in actuator_implementations:
+                self.logger.warning(f"{actuator_class_name} is not in the list of known implementations")
                 continue
 
             managed_zones = actuator_config.get("zones", [])
             if not managed_zones:
-                self.logger.warn(f"Managed zones for {actuator_class} instance are empty!")
+                self.logger.warn(f"Managed zones for {actuator_class_name} instance are empty!")
                 continue
 
             all_zones += managed_zones
-            name = None
+            display_name = actuator_config.get("display_name", actuator_class_name)
             actuator_specific_settings = actuator_config.get("actuator_specific_settings", {})
-            actuator = actuator_implementations[actuator_class](managed_zones, name, actuator_specific_settings)
+            actuator = actuator_implementations[actuator_class_name](managed_zones, display_name, actuator_specific_settings)
             self.actuators.append(actuator)
 
         return all_zones
@@ -156,6 +173,31 @@ class WateringPlugin(Plugin):
         self.zones = sorted(new_zones)
 
     # === Frontend Data ===
+
+    def get_actuator_states(self):
+        actuator_states = []
+
+        for actuator in self.actuators:
+
+            # building descriptive string
+            desc = f"{actuator.display_name}: "
+            remaining_time = None
+
+            if actuator.is_watering_active():
+                desc += f"Watering Zone {actuator.get_current_zone()}, remaining time:"
+                remaining_time = actuator.get_remaining_time_current_zone()
+            elif actuator.is_watering_cooldown_active():
+                desc += "Cooldown active:"
+                remaining_time = actuator.get_remaining_cooldown_time()
+            else:
+                # watering is off:
+                desc += self.localization["actuator_state_off_label"]
+
+            # dict for a state per actuator:
+            state_dict = {"description": desc, "remaining_time": remaining_time}
+            actuator_states.append(state_dict)
+
+        return actuator_states
 
     def calc_render_data(self):
         return {

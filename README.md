@@ -116,7 +116,8 @@ Data shared between plugins:
 - zones (some for actuator plugin)
 
 
-Future features:
+## Future features:
+- MultiActuator: Manages multiple actuators in a way that only one is active at a time. This can help keep the pressure up if all sprinklers are supplied with water from the same source.
 - Sensors:
   - read data periodically (or by demand?) and write it to DB
 - Watering duration based on sensor readings:
@@ -125,17 +126,5 @@ Future features:
   - => how to tweak the modifier? I guess this would be part of the timetable plugin?
   - Or if advanced *Modifiers* should be possible (chaining, multi-input, whatever) some
     sort of advanced UI? But still can stay with tt plugin I'd say.
-- Telegram Plugin? Can receive cmds and send system status via telegram.
-  - how to access the system state?
-  - => every plugin can expose some data (which data this is might be listed in the
-    plugins definition) which other plugins can access? The plugin superclass would make
-    them accessible via rpc or another communication technique. How did requesting
-    information specifically work in ROS? Advance a plugin's settings.json or the plugins
-    super class with a way for the plugin to mark some info publicly available.
-  - => also maybe a .summary for a summary of some sort of each plugin?
+- User authentication
 
-Needs:
-- some sort of system similar to rpc, e.g. read data from sensor X and return data.
-
-
-###
