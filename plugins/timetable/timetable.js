@@ -1,7 +1,4 @@
 
-// const el = document.getElementById("plugin_empty_field");
-// el.innerHTML = "js was here";
-
 
 function int_list_to_string(int_list) {
     // s = str(l)  <- python <3
