@@ -9,7 +9,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Set
 import time
 import asyncio
 
@@ -78,7 +78,7 @@ class ActuatorInterface(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def stop_watering(self, zones=[]):
+    def stop_watering(self, zones=Set[str]):
         # TODO: How to identify zones?
         raise NotImplementedError()
 

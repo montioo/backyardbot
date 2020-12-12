@@ -95,6 +95,14 @@ The payload is structured as follows:
 
 The `"duration"` string is formatted like `mm:ss` where `mm` resembles the minutes for which the watering should be active and `ss` the seconds. Only one zone can be activated per request.
 
+### Command `stop_watering` (sent to backend)
+
+Tells the backend to stop all watering if the given list is empty. Otherwise, stop only the specified zones.
+
+```js
+/// payload layout:
+List[zone_name_str]
+```
 
 
 ## Available Actuators

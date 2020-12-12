@@ -35,7 +35,8 @@ class WateringPlugin(Plugin):
 
     def initialize(self, settings):
         self._command_handlers = {
-            "start_watering": self.start_watering_callback_ws
+            "start_watering": self.start_watering_callback_ws,
+            "stop_watering": self.stop_watering_callback_ws
         }
 
         # IDEA: Expand websocket communication so that frontend js can send to any topic?
@@ -57,6 +58,8 @@ class WateringPlugin(Plugin):
             actuator.start_background_task()
 
         await self.spin()
+
+    # === WebSocket Interaction ===
 
     async def ws_message_from_frontend(self, msg):
         data = msg.payload
@@ -83,12 +86,37 @@ class WateringPlugin(Plugin):
         self.logger.info(f"Starting watering task from frontend: {task}")
         await self.start_watering([task])
 
+    async def stop_watering_callback_ws(self, data):
+        if not isinstance(data, list):
+            return
+        zones_to_stop = set(data if data else self.zones)
+        for actuator in self.actuators:
+            # only hand zones to the actuator that it manages
+            actuator.stop_watering(set(actuator.managed_zones) & zones_to_stop)
+
+    async def new_ws_client(self, msg):
+        """ Sends the current system state only to the new websocket client. """
+        await self.send_state_update_to_clients(msg.ws_id)
+
+    async def send_state_update_to_clients(self, ws_id=-1):
+        actuator_states = self.get_actuator_states()
+        msg = {
+            "command": "update_frontend_state",
+            "payload": actuator_states
+        }
+        # self.logger.info("compiled state:", actuator_states)
+        await self.send_to_clients(msg, ws_id)
+
+    # === Topic Callbacks ===
+
     async def start_watering_callback_topic(self, msg):
         """ Receives watering tasks from a topic and starts them. """
         data = msg.payload
         zones, durations = data.zones, data.durations
         tasks = map(lambda t: WateringTask(t[0], t[1]), zip(zones, durations))
         await self.start_watering(tasks)
+
+    # === Actuator Interaction ===
 
     async def start_watering(self, tasks: List[WateringTask]):
         """ Immediately hands the watering tasks to the responsible actuators. """
@@ -113,19 +141,6 @@ class WateringPlugin(Plugin):
 
         # Frontends are informed about updated watering state as soon as
         # actuators start doing the actual watering.
-
-    async def new_ws_client(self, msg):
-        """ Sends the current system state only to the new websocket client. """
-        await self.send_state_update_to_clients(msg.ws_id)
-
-    async def send_state_update_to_clients(self, ws_id=-1):
-        actuator_states = self.get_actuator_states()
-        msg = {
-            "command": "update_frontend_state",
-            "payload": actuator_states
-        }
-        # self.logger.info("compiled state:", actuator_states)
-        await self.send_to_clients(msg, ws_id)
 
     # === Actuator and Zone Setup ===
 

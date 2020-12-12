@@ -123,6 +123,16 @@ class SprinklerInterfacePlugin extends BybPluginInterface {
         bybConnection.send_to_backend(cmd, this);
         // this.send_to_backend(cmd);
     }
+
+    stop_watering() {
+        // Will stop all actuators from watering.
+        const cmd = {
+            command: "stop_watering",
+            // TODO: Give zone to be stopped. For now, stop all.
+            payload: []
+        };
+        bybConnection.send_to_backend(cmd, this);
+    }
 }
 
 

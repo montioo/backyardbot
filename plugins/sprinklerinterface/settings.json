@@ -42,6 +42,7 @@
             "duration_label": "Duration",
             "select_zone_label": "Zone",
             "start_button": "Start",
+            "stop_button": "Stop",
             "actuator_state_off_label": "off"
         },
         "de": {
@@ -51,6 +52,7 @@
             "duration_label": "Dauer",
             "select_zone_label": "Zone",
             "start_button": "Start",
+            "stop_button": "Stopp",
             "actuator_state_off_label": "aus"
         }
     }

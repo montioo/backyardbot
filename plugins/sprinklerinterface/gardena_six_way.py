@@ -10,6 +10,7 @@
 import time
 import asyncio
 from dataclasses import dataclass
+from typing import Set
 
 from plugins.sprinklerinterface.actuator import ActuatorInterface
 from plugins.sprinklerinterface.gpio import DebugGpioInterface, RaspiGpioInterface
@@ -185,7 +186,7 @@ class SixWayActuator(ActuatorInterface):
         self._watering_tasks = list(reversed(final_tasks))
         self.logger.debug(f"Updated watering tasks: {self._watering_tasks}")
 
-    def stop_watering(self, zones=[]):
+    def stop_watering(self, zones=Set[str]):
         # TODO: Map zones to channels
         if not zones:
             # stop all zones if no zones are given

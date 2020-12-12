@@ -9,7 +9,7 @@
 
 from plugins.sprinklerinterface.actuator import ActuatorInterface, WateringTask
 from plugins.sprinklerinterface.gpio import DebugGpioInterface, RaspiGpioInterface
-from typing import List, Optional
+from typing import List, Optional, Set
 
 
 class SingleActuator(ActuatorInterface):
@@ -59,7 +59,7 @@ class SingleActuator(ActuatorInterface):
             if nt.zone == self.managed_zones[0]:
                 self.add_to_timeout(nt.duration)
 
-    def stop_watering(self, zones=[]):
+    def stop_watering(self, zones=Set[str]):
         if self.managed_zones[0] in zones:
             # sets the timeout to zero, thus making sleep_until_timeout()
             # return in the execution coroutine
