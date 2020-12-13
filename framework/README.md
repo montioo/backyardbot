@@ -9,6 +9,7 @@ It is developed together with backyardbot but aims to be a generic framework tha
 
 TODO
 
+A plugin will not be loaded by the system it it's `settings.json` contains the key `load_plugin` with its value set to `false`. Otherwise it will be loaded.
 
 
 ### Plugin loop

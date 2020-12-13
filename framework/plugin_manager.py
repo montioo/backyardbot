@@ -58,10 +58,20 @@ class PluginManager:
             }
             return dynamic_info
 
+        @classmethod
+        def is_plugin_loadable(cls, plugin_settings_path):
+            """
+            Plugin's settings can specify the option `load_plugin`. If it is
+            not set or set to `True`, the plugin will be loaded and used by
+            backyardbot. Otherwise it will not ignored.
+            """
+            settings = json.load(open(plugin_settings_path))
+            return settings.get("load_plugin", True)
+
 
     def __init__(self, plugin_folder):
         plugin_dirs = glob.glob(os.path.join(plugin_folder, "*", "settings.json"))
-        self.plugin_loaders = [self.PluginLoader(p) for p in plugin_dirs]
+        self.plugin_loaders = [self.PluginLoader(p) for p in plugin_dirs if self.PluginLoader.is_plugin_loadable(p)]
 
         self.plugin_dict = {}
         for loader in self.plugin_loaders:
