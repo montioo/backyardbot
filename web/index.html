@@ -14,6 +14,10 @@
 
       <header class="info_elem">
         <h1>Backyardbot</h1>
+        <div id="connection_state_label">
+          <!-- Connection State:<br> -->
+          <label id="connection_state" style="font-weight:bold;"></label>
+        </div>
       </header>
 
     </div>
@@ -45,8 +49,8 @@
 
     {# TODO: Add template code for overlay #}
 
-  {% for script in scripts %}
-    <script src="{{ script }}" type="text/javascript"></script>
-  {% endfor %}
+    {% for script in scripts %}
+      <script src="{{ script }}" type="text/javascript"></script>
+    {% endfor %}
   </body>
 </html>

@@ -34,8 +34,30 @@ class BybConnection {
         this.ws = new WebSocket(ws_addr);
         this.plugins = {};
 
+        this.connection_state_label = document.getElementById("connection_state_label");
+
         // bind the method like this to make `this` refer to the class instance
         this.ws.onmessage = this.onmessage_callback.bind(this);
+        this.ws.onopen = this.onopen_callback.bind(this);
+        this.ws.onclose = this.onclose_callback.bind(this);
+        this.ws.onerror = this.onerror_callback.bind(this);
+    }
+
+    onopen_callback(event) {
+        this.connection_state_label.innerHTML = "";
+        this.connection_state_label.style.color = "black";
+    }
+
+    onclose_callback(event) {
+        this.connection_state_label.innerHTML = "Connection to server closed";
+        this.connection_state_label.style.color = "darkred";
+        console.log("connection to ws server closed:", event);
+    }
+
+    onerror_callback(event) {
+        this.connection_state_label.innerHTML = "Connection error";
+        this.connection_state_label.style.color = "red";
+        console.log("connection error:", event);
     }
 
     onmessage_callback(event) {
