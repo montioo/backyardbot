@@ -84,6 +84,7 @@ class Plugin(EventComponent):
     # === Frontend ===
 
     def render(self, *args, **kwargs):
+        # had this previously invoked with: {{ plugin(plugin, css_filelist, js_filelist) }}
         # TODO: Debug parameter to reload files every time
         plugin_template_str = open(self.html_template_path).read()
         t = Template(plugin_template_str)

@@ -26,11 +26,11 @@
 
 
       {# This will initialize all given plugins. #}
-      {% for plugin in plugin_renderers %}
+      {% for plugin_renderer in plugin_renderers %}
         <div class="left_box info_elem">
           <div class="plugin_tab">
             <div class="plugin_view">
-              {{ plugin(plugin, css_filelist, js_filelist) }}
+              {{ plugin_renderer() }}
             </div>
           </div>
         </div>

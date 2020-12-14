@@ -10,7 +10,8 @@ body {
 
 .plugin_view {
   /* debug: */
-  border: 1px solid blue;
+  /* border: 1px solid blue; */
+
   overflow: hidden;
 }
 
