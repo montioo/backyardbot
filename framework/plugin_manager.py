@@ -16,6 +16,7 @@ from collections import namedtuple
 
 PluginInfo = namedtuple("PluginInfo", "html_template_path css_filepath_list js_filepath_list")
 
+
 class PluginManager:
     """
     Tasks of the PluginManager:

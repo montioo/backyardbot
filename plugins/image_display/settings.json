@@ -1,0 +1,9 @@
+{
+    "plugin_main": "image_display.py",
+    "class_name": "ImageDisplay",
+    "html_template": "image_display.html",
+
+    "load_plugin": false,
+
+    "image_path": ""
+}
