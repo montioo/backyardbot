@@ -1,3 +1,11 @@
+//
+// debug.js
+// backyardbot
+//
+// Created: October 2020
+// Author: Marius Montebaur
+// montebaur.tech, github.com/montioo
+//
 
 
 class DebugPlugin extends BybPluginInterface {

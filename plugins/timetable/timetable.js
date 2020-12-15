@@ -1,3 +1,11 @@
+//
+// timetable.js
+// backyardbot
+//
+// Created: October 2020
+// Author: Marius Montebaur
+// montebaur.tech, github.com/montioo
+//
 
 
 function int_list_to_string(int_list) {

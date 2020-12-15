@@ -7,7 +7,6 @@
 # montebaur.tech, github.com/montioo
 #
 
-import os
 from framework.plugin import Plugin
 from framework.memory import Database
 from framework.communication import Topics, BaseMessage
@@ -53,11 +52,11 @@ class TimetablePlugin(Plugin):
         for entry in new_entries:
             self.tt_db.insert(entry)
 
-        ## tmp solution
+        # tmp solution
         topic = "database_update/" + TIMETABLE_DB_NAME
         msg = BaseMessage(topic)
         Topics.send_message(msg)
-        ##
+        #
 
         await self.send_updated_table()
 
@@ -66,18 +65,18 @@ class TimetablePlugin(Plugin):
         self.logger.info(f"-------> going to remove entry with id {doc_id_to_remove}")
         self.tt_db.remove(doc_ids=[doc_id_to_remove])
 
-        ## TODO: tmp solution to raise awareness for DB updates
+        # TODO: tmp solution to raise awareness for DB updates
         topic = "database_update/" + TIMETABLE_DB_NAME
         msg = BaseMessage(topic)
         Topics.send_message(msg)
-        ##
+        #
 
         await self.send_updated_table()
 
     async def send_updated_table(self, ws_id=-1):
         all_entries = self.get_all_entries()
         # sort entries by day and insert spacers
-        all_entries.sort(key = lambda e: (e["weekday"], 60*e["time_hh"] + e["time_mm"], e["duration"], e["zones"][0]))
+        all_entries.sort(key=lambda e: (e["weekday"], 60*e["time_hh"] + e["time_mm"], e["duration"], e["zones"][0]))
         await self.send_to_clients({
             "command": "timetable_contents",
             "payload": all_entries
@@ -88,8 +87,6 @@ class TimetablePlugin(Plugin):
 
     async def new_ws_client(self, msg):
         await self.send_updated_table(ws_id=msg.ws_id)
-
-    ### demo / debug
 
     def query_db_for_timetable(self):
         """

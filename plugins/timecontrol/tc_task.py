@@ -7,13 +7,12 @@
 # montebaur.tech, github.com/montioo
 #
 
-import asyncio
 import time
 import datetime
 from dataclasses import dataclass
-from abc import ABC, abstractmethod
 
-# TODO: This one needs refactoring to not consist of three classes for one simple job.
+# TODO: This one may need refactoring to not consist of three classes for one simple job.
+
 
 class ScheduledTime(object):
 
@@ -43,8 +42,7 @@ class ScheduledTime(object):
 
         while True:
             self.next_execution_timestamp = time.mktime(next_execution_datetime.timetuple())
-            if self.next_execution_timestamp > earliest_time and \
-                next_execution_datetime.weekday() in self.weekdays:
+            if self.next_execution_timestamp > earliest_time and next_execution_datetime.weekday() in self.weekdays:
                 break
             next_execution_datetime += datetime.timedelta(days=1)
         return self.next_execution_timestamp
@@ -162,7 +160,7 @@ class Task:
 
     def get_pretty_duration(self):
         dur = self.dynamic_duration()
-        units = [(dur//60, "\u202Fmin"), (dur%60, "\u202Fsec")]
+        units = [(dur//60, "\u202Fmin"), (dur % 60, "\u202Fsec")]
         return ", ".join(map(lambda el: str(el[0])+el[1], filter(lambda u: u[0] != 0, units)))
 
     def get_pretty_zones(self):

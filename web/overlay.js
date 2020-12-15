@@ -1,3 +1,12 @@
+//
+// overlay.js
+// backyardbot
+//
+// Created: October 2020
+// Author: Marius Montebaur
+// montebaur.tech, github.com/montioo
+//
+
 
 function show_overlay(overlay_id) {
     document.getElementById(overlay_id).style.display = "block";

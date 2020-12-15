@@ -127,7 +127,6 @@ class EventComponent:
         self._should_shutdown = True
         self._received_update_event.set()
 
-
     # === Private Methods ===
     # === --------------- ===
 

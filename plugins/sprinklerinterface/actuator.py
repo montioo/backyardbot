@@ -130,8 +130,8 @@ class ActuatorInterface(ABC):
     #     """
     #     return 1.0
 
-    ### Background Task Sleeping ###
-    ### ------------------------ ###
+    # === Background Task Sleeping ===
+    # === ------------------------ ===
 
     async def sleep_until_timeout(self):
         """

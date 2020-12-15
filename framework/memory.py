@@ -35,4 +35,3 @@ class Database:
         # TODO: Send a message on a topic as the table is updated.
         # Structure: "database_update/<table_name>"
         raise NotImplementedError("Table update hooks not implemented yet.")
-

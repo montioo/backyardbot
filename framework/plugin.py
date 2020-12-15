@@ -9,14 +9,9 @@
 
 import os
 import json
-import uuid
-import time
-import asyncio
-import inspect
 from jinja2 import Template
-from collections import deque
 from .event import EventComponent
-from .utility import pick_localization, create_logger
+from .utility import pick_localization
 from .communication import Topics, WebsocketRequest
 
 
@@ -53,7 +48,6 @@ class Plugin(EventComponent):
         """ To be overridden by subclasses to do any setup. """
         pass
 
-
     # === Public Methods ===
     # === -------------- ===
 
@@ -61,7 +55,6 @@ class Plugin(EventComponent):
         """ Plugin's localization data consists of global setting and the
         ones given to the plugin. """
         self.localization = pick_localization(self.settings, server_settings)
-
 
     # === Websocket Interface ===
 

@@ -7,7 +7,6 @@
 # montebaur.tech, github.com/montioo
 #
 
-from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 
@@ -16,6 +15,7 @@ from typing import Any
 class BaseMessage:
     topic: str  # name of the topic, e.g. `database_updated`, `websocket/<plugin_name>`
     payload: Any = None  # content of the message. Can be anything and can be `None`
+
 
 @dataclass
 class WebsocketRequest(BaseMessage):
@@ -90,4 +90,3 @@ class Topics:
             print("!!! Message has wrong type:", type(message))
         for client in cls._clients:
             client.receive_message(message)
-

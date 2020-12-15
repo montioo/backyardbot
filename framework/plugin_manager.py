@@ -69,7 +69,6 @@ class PluginManager:
             settings = json.load(open(plugin_settings_path))
             return settings.get("load_plugin", True)
 
-
     def __init__(self, plugin_folder):
         plugin_dirs = glob.glob(os.path.join(plugin_folder, "*", "settings.json"))
         self.plugin_loaders = [self.PluginLoader(p) for p in plugin_dirs if self.PluginLoader.is_plugin_loadable(p)]

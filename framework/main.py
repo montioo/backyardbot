@@ -9,8 +9,6 @@
 
 import os
 import json
-import sys
-import glob
 import asyncio
 from aiohttp import web
 from .renderer import Renderer
@@ -28,6 +26,7 @@ def load_allowed_files(settings: dict):
             allowed_files.append(f)
 
     return allowed_files
+
 
 def get_html_template_file(settings: dict):
     return settings.get("application", {}).get("template_index", "web/index.html")
@@ -127,7 +126,7 @@ class Server(EventComponent):
                     self.logger.info(f"Keys plugin_name or payload not present in {data_dict}")
                     continue
 
-                ### debug code, send message to arbitrary receivers.
+                # debug code, send message to arbitrary receivers.
                 if plugin_name == "debug":
                     message_destination = data_dict["message_destination"]
                     receiving_plugin = data_dict["receiving_plugin"]
@@ -139,7 +138,7 @@ class Server(EventComponent):
                         plugin_name = receiving_plugin
                     else:
                         raise Exception("no such destination:", message_destination)
-                ### end debug code
+                # end debug code
 
                 topic = f"websocket/{plugin_name}/backend"
                 message = WebsocketRequest(topic, payload=payload, ws_id=id(ws))

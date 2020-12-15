@@ -8,7 +8,7 @@
 #
 
 from framework.plugin import Plugin
-from framework.communication import Topics, BaseMessage, WebsocketRequest
+from framework.communication import Topics, BaseMessage
 from framework.memory import Database
 from byb.byb_common import TOPIC_START_WATERING, StartWateringPayload, TIMETABLE_DB_NAME
 from plugins.timecontrol.tc_task import Task
@@ -76,7 +76,6 @@ class TimeControlPlugin(Plugin):
             "payload": self.get_system_state()
         }
         await self.send_to_clients(m, ws_id=ws_id)
-
 
     # === Task Scheduling ===
 
@@ -151,11 +150,10 @@ class TimeControlPlugin(Plugin):
                 Topics.send_message(m)
                 self.logger.info(f"Sent new watering action: {p}")
 
-
     # === Plugin State ===
     # === ------------ ===
 
-    # Mostly for how to get data for the UI.
+    # Mostly for getting data for the UI.
 
     # === Status Control ===
 
@@ -205,4 +203,3 @@ class TimeControlPlugin(Plugin):
         return {
             "auto_state": auto_state, "next_time_day": "Auto mode disabled", "next_zone_duration": ""
         }
-

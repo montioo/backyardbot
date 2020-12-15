@@ -1,5 +1,5 @@
 #
-# plugin_main.py
+# debug_plugin.py
 # backyardbot
 #
 # Created: October 2020
@@ -7,7 +7,6 @@
 # montebaur.tech, github.com/montioo
 #
 
-import os
 from framework.plugin import Plugin
 
 
@@ -16,5 +15,4 @@ class DebugPlugin(Plugin):
     Plugin implementation. Can do useful things like altering the database or
     almost nothing like this example demonstrates.
     """
-
     pass

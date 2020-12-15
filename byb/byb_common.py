@@ -7,7 +7,6 @@
 # montebaur.tech, github.com/montioo
 #
 
-from collections import namedtuple
 from dataclasses import dataclass
 from typing import List
 
@@ -22,6 +21,7 @@ ZONE_DB_NAME = "zone_info_table"
 
 TOPIC_START_WATERING = "TOPIC_START_WATERING"
 
+
 @dataclass
 class StartWateringPayload:
     # TODO: Move all zone descriptors from int to str
@@ -33,6 +33,7 @@ class StartWateringPayload:
 
 
 TOPIC_ZONES_UPDATED = "TOPIC_ZONES_UPDATED"
+
 
 @dataclass
 class ZonesUpdatedPayload:

@@ -1,3 +1,11 @@
+//
+// timecontrol.js
+// backyardbot
+//
+// Created: November 2020
+// Author: Marius Montebaur
+// montebaur.tech, github.com/montioo
+//
 
 
 class TimecontrolPlugin extends BybPluginInterface {
