@@ -29,7 +29,7 @@ def main():
         settings_file = sys.argv[1]
 
     try:
-        _ = open(settings_file)
+        open(settings_file).close()
     except FileNotFoundError:
         top_logger.error(f"Didn't find the specified config file: {settings_file}")
         return
