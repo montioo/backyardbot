@@ -2,14 +2,16 @@
 
 This folder holds the components of the framework that enables building a plugin based application like backyardbot.
 
-It is developed together with backyardbot but aims to be a generic framework that can be utilized for other systems as well.
+It is developed together with backyardbot but could be utilized for other systems as well.
 
 
 ## Plugin System
 
-TODO
+The framework supplies functionality like communication with a front end using websockets, rendering html templates for websites and much more. All of the functionality that builds a system for a specific use case (e.g. flower watering with beckyardbot) is developed in plugins. For backyardbot, there is a plugin that controls the actuators like pumps, another one that allows to maintain a watering schedule and so on.
 
-A plugin will not be loaded by the system it it's `settings.json` contains the key `load_plugin` with its value set to `false`. Otherwise it will be loaded.
+A plugin has its own folder inside the `plugins/` directory. The system will look for plugins in this directory while starting. A plugin is recognized by its `settings.json` file which defines settings for the plugin and the location of the `.py`, `.html`, `.css` and `.js` files that give the plugin its functionality and its frontend design.
+
+A plugin will not be loaded by the system if it's `settings.json` contains the key `load_plugin` with its value set to `false`. Otherwise it will be loaded.
 
 
 ### Plugin loop
@@ -26,7 +28,7 @@ All of this should be written with asyncio.
 
 #### Localization
 
-TODO: Extend localization system to deal with units as well (meters, miles, ...)
+Plugins may be available in multiple languages and the following section deals with how one can supply strings in different languages and use them.
 
 ##### Defining Localization Data
 
