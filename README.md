@@ -1,5 +1,10 @@
 # backyardbot
 
+<p align="center">
+  <img src="web/byb_logo.png" width="500px"/>
+</p>
+
+
 Author: [Marius Montebaur](https://www.montebaur.tech)
 
 Automatic gardening server that keeps plants alive. Comes with a plugin system to improve expandability and adapt to every garden or balcony.
