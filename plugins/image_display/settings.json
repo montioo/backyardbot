@@ -3,7 +3,7 @@
     "class_name": "ImageDisplay",
     "html_template": "image_display.html",
 
-    "load_plugin": false,
+    "load_plugin": true,
 
-    "image_path": ""
+    "image_path": "web/backyard_example_image.png"
 }

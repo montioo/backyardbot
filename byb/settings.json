@@ -8,7 +8,9 @@
         "log_file": "byb.log",
         "log_format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         "log_to_stream": true,
-        "log_to_file": true
+        "log_to_file": true,
+        "log_level_stream": "INFO",
+        "log_level_file": "DEBUG"
     },
 
     "general": {

@@ -1,9 +1,9 @@
 
 # Development Info
 
-Adjusting backyardbot's functionality is possible by writing own actuator implementations to accommodate for different types of sprinklers or pumps or by implementing your own plugins. Those could handle tasks like reading some sensor data and making it available to the rest of the system.
+Adjusting backyardbot's functionality is possible by writing custom actuator implementations to accommodate for different types of sprinklers or pumps or by implementing your own plugins. Those could handle tasks like reading some sensor data and making it available to the rest of the system.
 
-The architecture of the components that are specific to backyardbot are described below. It uses a framework that supplies functionality for a plugin based system. The plugins can communicate with one another, provide functionality in form of a python backend or a web-based frontend. There is also databases available to store persistent information.
+The architecture of the components that are specific to backyardbot is described below. It uses a framework that supplies functionality for a plugin based system. The plugins can communicate with one another, provide functionality in form of a python backend or a web-based frontend. There is also databases available to store persistent information.
 
 
 ## Dataflow:
@@ -94,16 +94,3 @@ This is an example of the data that the actuator plugin might hold.
 Data shared between plugins:
 - timetable (maintained by tt plugin but readable by everybody)
 - zones (some for actuator plugin)
-
-
-## Future features:
-- MultiActuator: Manages multiple actuators in a way that only one is active at a time. This can help keep the pressure up if all sprinklers are supplied with water from the same source.
-- Sensors:
-  - read data periodically (or by demand?) and write it to DB
-- Watering duration based on sensor readings:
-  - Using this can be simple because values can expose a scalar value
-  - *Modifier* takes sensor reading and planned watering duration and outputs new duration
-  - => how to tweak the modifier? I guess this would be part of the timetable plugin?
-  - Or if advanced *Modifiers* should be possible (chaining, multi-input, whatever) some
-    sort of advanced UI? But still can stay with tt plugin I'd say.
-- User authentication

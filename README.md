@@ -7,11 +7,17 @@
 Automatic gardening server that keeps plants alive. Comes with a plugin system to improve expandability and adapt to every garden or balcony.
 
 
-# About
+## About
 
 backyardbot consists of several plugins and an architecture definition that enables those plugins to work together to create an application for a specific use-case.
 
 The architecture of the components that are specific to backyardbot are described below. It uses a framework that supplies functionality for a plugin based system. The plugins can communicate with one another, provide functionality in form of a python backend or a web-based frontend. There is also databases available to store persistent information.
+
+## Example Use-Case
+
+The example below shows backyardbot's configuration for four sprinklers. The `settings.json` files given in each plugin and the one that is global to the system resemble this setup.
+
+![](web/byb_screenshot.png)
 
 
 ## Install and Run

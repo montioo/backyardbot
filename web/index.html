@@ -12,7 +12,7 @@ montebaur.tech, github.com/montioo
 
 <html>
   <head>
-    <title>byb core utils</title>
+    <title>backyardbot</title>
     {% for stylesheet in stylesheets %}
       <link rel="stylesheet" href="{{ stylesheet }}">
     {% endfor %}
@@ -23,7 +23,9 @@ montebaur.tech, github.com/montioo
     <div class="upper_page_container">
 
       <header class="info_elem">
-        <h1>Backyardbot</h1>
+        <h1><a target="_blank" rel="noopener noreferrer"
+          style="text-decoration: none; color: black"
+          href="https://github.com/montioo/backyardbot">backyardbot</a></h1>
         <div id="connection_state_label">
           <!-- Connection State:<br> -->
           <label id="connection_state" style="font-weight:bold;"></label>
@@ -34,27 +36,55 @@ montebaur.tech, github.com/montioo
 
     <div class="upper_page_container">
 
-
-      {# This will initialize all given plugins. #}
-      {% for plugin_renderer in plugin_renderers %}
         <div class="left_box info_elem">
           <div class="plugin_tab">
             <div class="plugin_view">
-              {{ plugin_renderer() }}
+              {{ image_display() }}
             </div>
           </div>
         </div>
-      {% endfor %}
 
+        <div class="right_box">
+          <div class="info_elem">
+          <div class="plugin_tab">
+            <div class="plugin_view">
+              {{ timecontrol() }}
+            </div>
+            </div>
+          </div>
 
-      <div class="right_box">
-
-        <div class="right_box_elem info_elem">
-          Box contents
+          <div class="info_elem">
+          <div class="plugin_tab">
+            <div class="plugin_view">
+              {{ sprinklerinterface() }}
+            </div>
+          </div>
+          </div>
         </div>
 
-      </div>
+    </div>
 
+    <div class="upper_page_container">
+      <div class="left_box info_elem">
+        <div class="plugin_tab">
+          <div class="plugin_view">
+            {{ timetable() }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="upper_page_container">
+      {# This will initialize all given plugins. #}
+      {% for plugin_renderer in plugin_renderers %}
+      <div class="left_box info_elem">
+        <div class="plugin_tab">
+          <div class="plugin_view">
+            {{ plugin_renderer() }}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
     </div>
 
     {# TODO: Add template code for overlay #}
