@@ -26,7 +26,7 @@ The example below shows backyardbot's configuration for four sprinklers. The `se
 pip3 install aiohttp jinja2 tinydb
 
 # To control the Raspberry Pi's GPIO:
-pip3 install wiringpi
+pip3 install gpiozero rpi.gpio
 
 git clone https://github.com/montioo/backyardbot.git
 ```

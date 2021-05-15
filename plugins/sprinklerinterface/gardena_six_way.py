@@ -45,7 +45,7 @@ class SixWayActuator(ActuatorInterface):
         :param runWateringThread: Determines whether a watering
             thread should be launched (debug and testing)
         """
-        super(SixWayActuator, self).__init__(managed_zones, display_name, config)
+        super().__init__(managed_zones, display_name, config)
 
         if config.get("use_debug_gpio", False):
             self._gpio = DebugGpioInterface([config["gpio_pin"]], config)
@@ -186,22 +186,21 @@ class SixWayActuator(ActuatorInterface):
         self._watering_tasks = list(reversed(final_tasks))
         self.logger.debug(f"Updated watering tasks: {self._watering_tasks}")
 
-    def stop_watering(self, zones=Set[str]):
-        # TODO: Map zones to channels
-        if not zones:
+    def stop_watering(self, zones: Set[str]):
+        channels_to_stop = {self._zone_channel_mapping[z] for z in zones if z in self._zone_channel_mapping}
+        if not channels_to_stop:
             # stop all zones if no zones are given
             self._watering_tasks = []
             self.logger.info("Stop watering for all zones")
         else:
             # remove zones in question from watering tasks
-            self._watering_tasks = [wt for wt in self._watering_tasks if wt.channel not in zones]
-            self.logger.info(f"Stop watering for zones: {zones}")
-        if self._active_channel in zones:
-            # if zone is active, stop the watering for this zone.
+            self._watering_tasks = [wt for wt in self._watering_tasks if wt.channel not in channels_to_stop]
+            self.logger.info(f"Stop watering for channels: {channels_to_stop}")
+        if self._active_channel in channels_to_stop:
+            # if channel is active, stop the watering for this zone.
             self._watering_stop_time = time.time()
         if self._watering_tasks:
             self.update_watering_tasks()
-        # Use old implementation if selective stopping doesn't work.
 
     # === system state info ===
 

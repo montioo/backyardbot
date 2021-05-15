@@ -1,7 +1,6 @@
 {
     "server": {
-        "ip": "localhost",
-        "port": 8888
+        "port": 8080
     },
 
     "logging": {

@@ -72,7 +72,7 @@ class Server(EventComponent):
         app.on_startup.append(self.start_background_tasks)
         app.on_cleanup.append(self.cleanup_background_tasks)
         # logging.basicConfig(level=logging.DEBUG)
-        web.run_app(app)
+        web.run_app(app, port=self.settings.get("server", {}).get("port", 8080))
 
     async def handle(self, request):
         text = self.renderer.render(

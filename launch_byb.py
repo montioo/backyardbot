@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 #
 # launch_byb.py
 # backyardbot
